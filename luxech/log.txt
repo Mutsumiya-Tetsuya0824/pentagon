@@ -1,0 +1,4 @@
+[12-Mar-2025 06:03:20 UTC] PHP Deprecated:  関数 print_emoji_styles は、バージョン 6.4.0 から<strong>非推奨</strong>になりました ! 代わりに wp_enqueue_emoji_styles を使用してください。 in /home/c0091252/public_html/pentagon.conohawing.com/wp-includes/functions.php on line 6114
+[12-Mar-2025 06:04:17 UTC] PHP Deprecated:  関数 print_emoji_styles は、バージョン 6.4.0 から<strong>非推奨</strong>になりました ! 代わりに wp_enqueue_emoji_styles を使用してください。 in /home/c0091252/public_html/pentagon.conohawing.com/wp-includes/functions.php on line 6114
+[12-Mar-2025 06:57:02 UTC] PHP Deprecated:  関数 print_emoji_styles は、バージョン 6.4.0 から<strong>非推奨</strong>になりました ! 代わりに wp_enqueue_emoji_styles を使用してください。 in /home/c0091252/public_html/pentagon.conohawing.com/wp-includes/functions.php on line 6114
+[12-Mar-2025 06:57:15 UTC] PHP Deprecated:  関数 print_emoji_styles は、バージョン 6.4.0 から<strong>非推奨</strong>になりました ! 代わりに wp_enqueue_emoji_styles を使用してください。 in /home/c0091252/public_html/pentagon.conohawing.com/wp-includes/functions.php on line 6114

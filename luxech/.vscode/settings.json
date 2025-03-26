@@ -1,0 +1,13 @@
+{
+  "liveSassCompile.settings.formats": [
+    {
+      // "format": "expanded",
+      "format": "compact",
+      "extensionName": ".css",
+      // "savePath": "~/../../assets/css/"
+      "savePath": "~/./"
+      // "savePath": "~/../"
+      // "savePath": "~/"
+    }
+  ],
+}
