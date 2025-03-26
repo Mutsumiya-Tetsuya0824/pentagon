@@ -48,12 +48,12 @@ class thk_regenerate_thumbs {
 ?>
 <script>
 jQuery(document).ready(function($){
-	var ids = [<?php echo $ids; ?>]
-	,   icount = 1
-	,   post_count = <?php echo $post_count; ?>
-	,   regenLog = $('#log-view')
-	,   regenItm = $('#post-items')
-	,   regenPrg = $('#progress');
+	var ids = [<?php echo $ids; ?>];
+	var icount = 1;
+	var post_count = <?php echo $post_count; ?>;
+	var regenLog = $('#log-view');
+	var regenItm = $('#post-items');
+	var regenPrg = $('#progress');
 	regenLog.append( '<?php echo __( 'Processing started.', 'luxeritas' ), "\\n---\\n"; ?>' );
 
 	function RegenProcess() {
@@ -74,16 +74,18 @@ jQuery(document).ready(function($){
 			type: 'POST',
 			cache: false,
 			url: ajaxurl,
-			data: {action:'regeneratethumbnail', id:id, <?php echo $security; ?>:1, luxe_nonce:'<?php echo $ajax_nonce; ?>', del:<?php echo isset( $_POST['thumb_delete'] ) ? 1 : 0; ?> }
-		}).then( function( response ) {
-			regenItm.text( icount + ' / ' + post_count + ' ( ' + Math.floor( icount / post_count * 100 * Math.pow( 10, 2 ) ) / Math.pow( 10, 2 ) + '% )' );
-			regenPrg.css( 'width', Math.floor( icount * 100 / post_count * Math.pow( 10, 1 ) ) / Math.pow( 10, 1 ) + '%' );
-			regenLog.append( response + "\n" );
-			regenLog.scrollTop( regenLog[0].scrollHeight );
-			RegenProcess();
-		}), function( response ) {
-			RegenProcess();
-		}
+			data: {action:'regeneratethumbnail', id:id, <?php echo $security; ?>:1, luxe_nonce:'<?php echo $ajax_nonce; ?>', del:<?php echo isset( $_POST['thumb_delete'] ) ? 1 : 0; ?> },
+			success: function( response ) {
+				regenItm.text( icount + ' / ' + post_count + ' ( ' + Math.floor( icount / post_count * 100 * Math.pow( 10, 2 ) ) / Math.pow( 10, 2 ) + '% )' );
+				regenPrg.css( 'width', Math.floor( icount * 100 / post_count * Math.pow( 10, 1 ) ) / Math.pow( 10, 1 ) + '%' );
+				regenLog.append( response + "\n" );
+				regenLog.scrollTop( regenLog[0].scrollHeight );
+				RegenProcess();
+			},
+			error: function( response ) {
+				RegenProcess();
+			}
+		});
 	}
 
 	RegenThumbs(ids.shift());

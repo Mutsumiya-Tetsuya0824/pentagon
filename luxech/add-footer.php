@@ -140,7 +140,11 @@
 // 1. 「閉じられた」かどうかを管理するフラグ変数を用意
 var isClosed = false;
 
-var scrollEnd = $('.js-endBox').offset().top;
+var scrollEnd = 0;
+  var $endBox = $('.js-endBox');
+  if ($endBox.length > 0) {
+    scrollEnd = $endBox.offset().top;
+  }
 var distance = 0;
 
 $(window).on("scroll", function () {
@@ -203,4 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
+const target = document.querySelector('.my-element');
+if (target) {
+  console.log(target.getBoundingClientRect().top);
+}
+
 </script>

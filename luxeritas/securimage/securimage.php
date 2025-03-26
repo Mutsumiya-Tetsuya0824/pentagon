@@ -1611,12 +1611,10 @@ class Securimage
             }
         } catch (Exception $ex) {
             $log_file = rtrim($this->log_path, '/\\ ') . DIRECTORY_SEPARATOR . $this->log_file;
-            $fo = 'f' . 'open';
-            if (($fp = $fo($log_file, 'a+')) !== false) {
-		$fw = 'f' . 'write';
-		$fc = 'f' . 'close';
-                $fw($fp, date('Y-m-d H:i:s') . ': Securimage audio error "' . $ex->getMessage() . '"' . "\n");
-                $fc($fp);
+
+            if (($fp = fopen($log_file, 'a+')) !== false) {
+                fwrite($fp, date('Y-m-d H:i:s') . ': Securimage audio error "' . $ex->getMessage() . '"' . "\n");
+                fclose($fp);
             }
 
             $audio = $this->audioError();
@@ -2501,9 +2499,7 @@ class Securimage
             $strtolower_func = 'mb_strtolower';
         }
 
-        $fo = 'f' . 'open';
-        $fc = 'f' . 'close';
-        $fp = $fo($this->wordlist_file, 'rb');
+        $fp = fopen($this->wordlist_file, 'rb');
         if (!$fp) return false;
 
         $fsize = filesize($this->wordlist_file);
@@ -2515,8 +2511,7 @@ class Securimage
         $i = 0;
         do {
             fseek($fp, mt_rand(0, $fsize - 128), SEEK_SET); // seek to a random position of file from 0 to filesize-128
-            $fr = 'f' . 'read';
-            $data = $fr($fp, 128); // read a chunk from our random position
+            $data = fread($fp, 128); // read a chunk from our random position
 
             if ($mb_support !== false) {
                 $data = mb_ereg_replace("\r?\n", "\n", $data);
@@ -2544,7 +2539,7 @@ class Securimage
             $words[] = $word;
         } while (++$i < $numWords);
 
-        $fc($fp);
+        fclose($fp);
 
         if ($numWords < 2) {
             return $words[0];
@@ -2799,15 +2794,13 @@ class Securimage
 
         if ($this->database_driver == self::SI_DRIVER_SQLITE3) {
             if (!file_exists($this->database_file)) {
-                $fo = 'f' . 'open';
-                $fc = 'f' . 'close';
-                $fp = $fo($this->database_file, 'w+');
+                $fp = fopen($this->database_file, 'w+');
                 if (!$fp) {
                     $err = error_get_last();
                     trigger_error("Securimage failed to create SQLite3 database file '{$this->database_file}'. Reason: {$err['message']}", E_USER_WARNING);
                     return false;
                 }
-                $fc($fp);
+                fclose($fp);
                 chmod($this->database_file, 0666);
             } else if (!is_writeable($this->database_file)) {
                 trigger_error("Securimage does not have read/write access to database file '{$this->database_file}. Make sure permissions are 0666 and writeable by user '" . get_current_user() . "'", E_USER_WARNING);
@@ -3446,8 +3439,7 @@ class Securimage
             if (!$wavinput) {
                 throw new Exception('Failed to create temporary file for WAV to MP3 conversion');
             }
-            $put_contents = 'file' . '_put_contents';
-            $put_contents($wavinput, $data);
+            file_put_contents($wavinput, $data);
             $size = 0;
         } else {
             $wavinput = '-'; // stdin
@@ -3455,8 +3447,7 @@ class Securimage
 
         // Mono, variable bit rate, 32 kHz sampling rate, read WAV from stdin, write MP3 to stdout
         $cmd  = sprintf("%s -m m -v -b 32 %s -", self::$lame_binary_path, $wavinput);
-	$procopen = 'proc' . '_open';
-        $procopen = $func($cmd, $descriptors, $pipes);
+        $proc = proc_open($cmd, $descriptors, $pipes);
 
         if (!is_resource($proc)) {
             throw new Exception('Failed to open process for MP3 encoding');
@@ -3464,11 +3455,9 @@ class Securimage
 
         stream_set_blocking($pipes[0], 0); // set stdin to be non-blocking
 
-	$fw = 'f' . 'write';
-	$fc = 'f' . 'close';
         for ($written = 0; $written < $size; $written += $len) {
             // write to stdin until all WAV data is written
-            $len = $fw($pipes[0], substr($data, $written, 0x20000));
+            $len = fwrite($pipes[0], substr($data, $written, 0x20000));
 
             if ($len === 0) {
                 // fwrite wrote no data, make sure process is still alive, otherwise wait for it to process
@@ -3484,13 +3473,13 @@ class Securimage
             }
         }
 
-        $fc($pipes[0]);
+        fclose($pipes[0]);
 
         $data = stream_get_contents($pipes[1]);
         $err  = trim(stream_get_contents($pipes[2]));
 
-        $fc($pipes[1]);
-        $fc($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
 
         $return = proc_close($proc);
 
@@ -3512,8 +3501,7 @@ class Securimage
      */
     protected function audioError()
     {
-	$get_contents = 'file' . '_get_contents';
-        return @$get_contents(dirname(__FILE__) . '/audio/en/error.wav');
+        return @file_get_contents(dirname(__FILE__) . '/audio/en/error.wav');
     }
 
     /**

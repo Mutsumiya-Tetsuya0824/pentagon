@@ -154,16 +154,14 @@ var editableList = Sortable.create( t_buttons_d, {
 	},
 	filter: ".remove",
 	onAdd: function (evt) {
-		var $ = jQuery
-		,   el = editableList.closest(evt.item)
+		var el = editableList.closest(evt.item)
 		,   hidden = $(evt.item).data().button;
 		el.innerHTML = el.innerHTML.replace( '<input', '<input disabled');
 		el.innerHTML += '<span class="remove dashicons dashicons-arrow-up"></span>';
 		$('#t_buttons_1' +  ' [data-button^=' + hidden + ']').hide();
 	},
 	onFilter: function (evt) {
-		var $ = jQuery
-		,   el = editableList.closest(evt.item)
+		var el = editableList.closest(evt.item)
 		,   hidden = $(evt.item).data().button;
 		el && el.parentNode.removeChild(el);
 		$('#t_buttons_1' +  ' [data-button^=' + hidden + ']').show();
@@ -184,12 +182,14 @@ jQuery(function($) {
 			dataType: 'text',
 			async: true,
 			cache: false,
-			timeout: 10000
-		}).then( function( response ) {
-			$('#t_editor_save_msg').fadeIn(1000).delay(2000).fadeOut(1500);
-		}, function() {
-			alert("Processing ajax failed.");
-		})
+			timeout: 10000,
+			success: function( response ) {
+				$('#t_editor_save_msg').fadeIn(1000).delay(2000).fadeOut(1500);
+			},
+			error: function() {
+				alert("Processing ajax failed.");
+			}
+		});
 	});
 
 	$('#t_editor_default').on('click', function() {
@@ -200,12 +200,14 @@ jQuery(function($) {
 			dataType: 'text',
 			async: true,
 			cache: false,
-			timeout: 10000
-		}).then( function( response ) {
-			location.reload(false);
-		}, function() {
-			alert("Processing ajax failed.");
-		})
+			timeout: 10000,
+			success: function( response ) {
+				location.reload(false);
+			},
+			error: function() {
+				alert("Processing ajax failed.");
+			}
+		});
 	});
 });
 </script>

@@ -14,41 +14,64 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
+global $luxe;
 ?>
 <ul>
 <li>
-<p class="radio">
-<input type="radio" value="native" name="lazyload_type"<?php thk_value_check( 'lazyload_type', 'radio', 'native' ); ?> />
-<?php echo 'Native Lazyload ( WP 5.5 or later )'; ?>
+<p><?php echo sprintf( __( '* This feature uses %s.', 'luxeritas' ), '<a href="https://developer.mozilla.org/docs/Web/API/Intersection_Observer_API" target="_blank" rel="noopener noreferrer">Intersection Observer API</a>' ); ?></p>
+<p class="checkbox">
+<input type="checkbox" value="" name="lazyload_thumbs"<?php thk_value_check( 'lazyload_thumbs', 'checkbox' ); ?> />
+<?php echo __( 'Enable Lazy Load for various thumbnail images', 'luxeritas' ); ?>
 </p>
-<p class="radio">
-<input type="radio" value="intersection" name="lazyload_type"<?php thk_value_check( 'lazyload_type', 'radio', 'intersection' ); ?> />
-<?php echo 'Intersection Observer'; ?>
+<p class="checkbox">
+<input type="checkbox" value="" name="lazyload_contents"<?php thk_value_check( 'lazyload_contents', 'checkbox' ); ?> />
+<?php echo __( 'Enable Lazy Load for post contents', 'luxeritas' ); ?>
 </p>
-<p class="radio">
-<input type="radio" value="none" name="lazyload_type"<?php thk_value_check( 'lazyload_type', 'radio', 'none' ); ?> />
-<?php echo __( 'None', 'luxeritas' ); ?>
+<p class="checkbox">
+<input type="checkbox" value="" name="lazyload_sidebar"<?php thk_value_check( 'lazyload_sidebar', 'checkbox' ); ?> />
+<?php echo __( 'Enable Lazy Load for sidebar', 'luxeritas' ); ?>
+</p>
+<p class="m25-b f09em"><span class="bg-gray"><?php echo __( '* The scroll follow sidebar may become strange movement.', 'luxeritas' ); ?></span></p>
+<p class="checkbox">
+<input type="checkbox" value="" name="lazyload_footer"<?php thk_value_check( 'lazyload_footer', 'checkbox' ); ?> />
+<?php echo __( 'Enable Lazy Load for footer', 'luxeritas' ); ?>
+</p>
+<p class="checkbox">
+<input type="checkbox" value="" name="lazyload_avatar"<?php thk_value_check( 'lazyload_avatar', 'checkbox' ); ?> />
+<?php echo __( 'Enable Lazy Load for Gravatar', 'luxeritas' ); ?>
+</p>
+
+<?php
+if( isset( $luxe['fucking_jetpack'] ) ) {
+?>
+<p class="checkbox" id="disable_jetpack_lazyload_style">
+<input type="checkbox" value="" name="disable_jetpack_lazyload"<?php thk_value_check( 'disable_jetpack_lazyload', 'checkbox' ); ?> />
+<?php echo __( 'Disable Jetpack&apos;s Lazy Load', 'luxeritas' ); ?>
+</p>
+<?php
+}
+?>
+
+</li>
+
+<li>
+<p class="control-title"><?php echo __( 'Option', 'luxeritas' ); ?></p>
+<p class="checkbox">
+<input type="checkbox" value="" name="lazyload_noscript"<?php thk_value_check( 'lazyload_noscript', 'checkbox' ); ?> />
+<?php echo __( 'Display images even if Javascript is disabled', 'luxeritas' ); ?>
 </p>
 </li>
+
+<li>
+<p class="control-title"><?php echo __( 'Effect', 'luxeritas' ); ?></p>
+<p class="radio">
+<input type="radio" value="fadeIn" name="lazyload_effect"<?php thk_value_check( 'lazyload_effect', 'radio', 'fadeIn' ); ?> />
+<?php echo __( 'Fade-in', 'luxeritas' ); ?>
+</p>
+<p class="radio">
+<input type="radio" value="show" name="lazyload_effect"<?php thk_value_check( 'lazyload_effect', 'radio', 'show' ); ?> />
+<?php echo __( 'Show (No effect)', 'luxeritas' ); ?>
+</p>
+</li>
+
 </ul>
-
-<div style="display:none">
-<script>
-jQuery(document).ready(function($) {
-	var e = function() {
-		var s = $("#intersection-observer")
-		,   v = $('input[name="lazyload_type"]:checked').val()
-		if( "intersection" != v ) {
-			s.css("opacity", ".6"), s.css("pointer-events", "none");
-		} else {
-			s.removeAttr("style");
-		}
-	};
-	e();
-
-	$('input[name="lazyload_type"]').on("click", function() {
-		e();
-	});
-});
-</script>
-</div>

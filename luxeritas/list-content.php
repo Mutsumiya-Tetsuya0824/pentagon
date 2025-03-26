@@ -33,6 +33,6 @@ else {
 	// 記事を読むリンク
 	if( !empty( $luxe['read_more_text'] ) ) {
 		$length = isset( $luxe['short_title_length'] ) ? $luxe['short_title_length'] : 0;
-?><a href="<?php the_permalink(); ?>" class="read-more-link" aria-label="<?php echo $luxe['read_more_text']; ?>" itemprop="url"><?php echo ( isset( $luxe['read_more_short_title'] ) ) ? read_more_title_add( $luxe['read_more_text'], $length ) : $luxe['read_more_text']; // 記事を読むリンク ?></a><?php
+?><a href="<?php the_permalink(); ?>" class="read-more-link" aria-hidden="true" itemprop="url"><?php echo ( isset( $luxe['read_more_short_title'] ) ) ? read_more_title_add( $luxe['read_more_text'], $length ) : $luxe['read_more_text']; // 記事を読むリンク ?></a><?php
 	}
 ?></p>

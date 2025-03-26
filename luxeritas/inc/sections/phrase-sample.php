@@ -16,12 +16,8 @@
 
 settings_fields( 'phrase_sample' );
 
-$fp_mods = get_pattern_list( 'phrase', false );
+$fp_mods = get_phrase_list( 'phrase', false );
 ?>
-<fieldset class="luxe-field">
-<legend>
-<h2 class="luxe-field-title"><?php echo __( 'HTML pattern', 'luxeritas' ), __( ' sample', 'luxeritas' ); ?></h2>
-</legend>
 <ul>
 <li>
 <p class="control-title">Google Adsense</p>
@@ -32,4 +28,3 @@ $fp_mods = get_pattern_list( 'phrase', false );
 </p>
 </li>
 </ul>
-</fieldset>

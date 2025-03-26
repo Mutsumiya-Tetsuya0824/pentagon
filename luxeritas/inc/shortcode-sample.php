@@ -28,9 +28,12 @@ $shortcode_file_names += thk_syntax_highlighter_list();
 $shortcodes_dir = TPATH . DSEP . 'samples' . DSEP . 'shortcodes' . DSEP;
 
 require_once( INC . 'shortcode-regist.php' );
+require_once( INC . 'optimize.php' );
 
-thk_filesystem_init();
-global $wp_filesystem;
+global $wp_filesystem, $filesystem;
+
+$filesystem = new thk_filesystem();
+if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 foreach( $shortcode_file_names as $key => $val ) {
 	if( isset( $_POST['shortcode_' . $key . '_sample'] ) ) {

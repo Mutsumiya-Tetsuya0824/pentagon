@@ -19,17 +19,8 @@ global $awesome, $sidebars_widgets;
 // Amp 用のスタイルとスクリプト挿入
 $ampproject  = 'cdn' . '.ampproject' . '.org';
 
-if( isset( $awesome['material']['uri'] ) && isset( $awesome['material']['css'] ) ) {
 ?>
-<link rel="stylesheet" href="<?php echo $awesome['material']['uri'], $awesome['material']['css']; ?>" crossorigin="anonymous" />
-<?php
-}
-if( isset( $awesome['awesome']['uri'] ) && isset( $awesome['awesome']['css'] ) ) {
-?>
-<link rel="stylesheet" href="<?php echo $awesome['awesome']['uri'], $awesome['awesome']['css']; ?>" crossorigin="anonymous" />
-<?php
-}
-?>
+<link rel="stylesheet" href="<?php echo $awesome['uri'], $awesome['css']; ?>" crossorigin="anonymous" />
 <script async src="https://<?php echo $ampproject; ?>/v0.js"></script>
 <?php
 $amp_extensions = thk_amp_extensions();
@@ -55,11 +46,6 @@ $styles_dir = TPATH . DSEP . 'styles' . DSEP;
 
 $content = apply_filters( 'thk_content', '' );
 
-// サムネイルの自動挿入
-if( $_is['singular'] === true ) {
-	require( INC . 'thumb-auto-insert.php' );
-}
-
 // ブロックエディタ用インラインスタイル
 if( class_exists( 'thk_block_styles' ) === false ) {
 	require( INC . 'load-block-styles.php' );
@@ -83,11 +69,6 @@ if( isset( $luxe['highlighter_css'] ) && $luxe['highlighter_css'] !== 'none' ) {
 		$prism_dir = $css_dir . 'prism' . DSEP;
 		$load .= thk_fgc( $prism_dir . 'prism-amp-' . $luxe['highlighter_css'] . '.css' );
 	}
-}
-
-// 新着記事ウィジェット
-if( isset( $luxe['thk_recent_posts_wide_thumb'] ) ) {
-	$load .= $luxe['thk_recent_posts_wide_thumb'];
 }
 
 if( $_is['customize_preview'] === false && $_is['edit_posts'] === true ) {

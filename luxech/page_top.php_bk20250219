@@ -1,0 +1,371 @@
+<?php
+
+/**
+ * Luxeritas WordPress Theme - free/libre wordpress platform
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * @copyright Copyright (C) 2015 Thought is free.
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPL v2 or later
+ * @author LunaNuko
+ * @link https://thk.kanzae.net/
+ * @translators rakeem( http://rakeem.jp/ )
+ */
+
+/**
+ * Template Name: top
+ */
+
+global $luxe, $_is, $awesome;
+get_header();
+
+$fa_pencil	= 'fa-pencil-alt';
+$fa_file	= 'fa-file-alt';
+
+if ($awesome['ver'][0] === '4') {
+	$fa_pencil	= 'fa-pencil';
+	$fa_file	= 'fa-file-text';
+}
+?>
+
+<article>
+	<!-- ▽ HERO ▽ -->
+	<div class="top_mv">
+		<div class="top_box">
+			<img src="<?php echo get_theme_file_uri('/assets/img/materials/top/ptg_firstview.png'); ?>" alt="株式会社Pentagon" class="first_view_img">
+		</div>
+		<div class="top_box top_box_right">
+			<h1 class="top_mv_copy_message">
+			<span class="sub_txt">想いに共感し事業を共に創り上げる</span><br>
+			<span class="c-marker">アプリ開発パートナー</span><br>
+			株式会社ペンタゴン	
+			</h1>
+			<div class="top_cta">
+				<div class="btn_contact btn_download normal-size"><a href="<?php echo esc_url(home_url('/downloads/downloads-5625/')); ?>" onclick="ga('send','event','download','click','home-page');" id="top-download">資料請求</a></div>
+				<div class="btn_contact normal-size"><a href="<?php echo esc_url(home_url('/contact/')); ?>" onclick="ga('send','event','contact','click','home-page');" id="top-contact">相談する</a></div>
+			</div>
+		</div>
+
+
+
+		<!-- <div class="top_mv_copy">
+			<div class="top-mv_copy_img">
+				<div class="top-mv_copy_img_sp">
+					<div class="top-mv_copy_img_sp_inner">
+						<p class="text">Design<br>
+							<span class="fz-small">for</span><br>
+							Business,
+						</p>
+						<img src="<?php echo esc_url(get_theme_file_uri('/assets/img/materials/logo/logo_mark.svg')); ?>" alt="">
+						<p class="text">
+							Develop<br>
+							<span class="fz-small">for</span><br>
+							Business.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="btn_contact normal-size"><a href="<?php echo esc_url(home_url('/contact/')); ?>">お問い合わせ</a></div>
+		</div> -->
+
+
+	</div>
+	<!-- △ HERO △ -->
+
+	<section class="top-company wide-bg">
+		<div class="container">
+			<h2 class="top-heading"><img src="<?php echo get_theme_file_uri('/assets/img/materials/top/title_company.svg'); ?>" alt="Company"><span class="screen-reader-text">Company</span></h2>
+			<div class="top-conversation_inner">
+				<h3 class="balloon_left">Pentagonってどんな会社？</h3>
+				<div class="balloon_right_wrap">
+					<div class="balloon_right">
+						<p>株式会社Pentagonは、東京都千代田区を
+							<!-- <br class="pc-only"> -->
+							拠点とするアプリ制作会社です！
+						</p>
+					</div>
+				</div>
+				<div class="balloon_right_wrap">
+					<div class="balloon_right balloon_right_large balloon_right_sp_normal">
+						<p>アプリを使ったビジネスを立ち上げたい方に向けて、iOS・Android・Webアプリのデザイン・開発をサポートしているよ！</p>
+					</div>
+				</div>
+				<div class="balloon_right_wrap">
+					<div class="balloon_right">
+						<p>「美しく使いやすいアプリ」を<br>
+							作るために、デザインを重視！</p>
+					</div>
+				</div>
+				<div class="top-company__illust"><img src="<?php echo get_theme_file_uri('/assets/img/materials/icon/icon_ptg.png') ?>" alt="" width="160" height="160"></div>
+			</div>
+			<div class="btn_normal normal-size"><a href="/company">会社概要を見る</a></div>
+		</div>
+	</section>
+
+	<div class="top-service_bg wide-bg">
+		<section class="top-service wide-bg">
+			<div class="container">
+				<h2 class="top-heading"><img src="<?php echo get_theme_file_uri('/assets/img/materials/top/title_service.svg'); ?>" alt="service"><span class="screen-reader-text">service</span></h2>
+				<div class="top-conversation_inner">
+					<div class="balloon_left">どんなことができるの？</div>
+					<div class="balloon_right_wrap">
+						<div class="balloon_right">
+							<p>アプリに必要な制作をまるっと対応しているよ！</p>
+						</div>
+					</div>
+				</div>
+				<div class="flex flex_spacebetween">
+					<div class="flex_item top-service_item">
+						<h3 class="heading_secondary" data-entitle="DEVELOPMENT">モバイルアプリ開発</h3>
+						<div class="top-service_img"><img src="<?php echo esc_url(get_theme_file_uri('/assets/img/materials/top/img_service03.png')); ?>" width="268" load="lazy" alt=""></div>
+						<p class="desp">iOS・Androidのモバイルアプリの開発を行っています。設計・デザイン・開発・運用といったアプリ開発に必要な業務をワンストップで対応可能です。 管理・運用しやすいプログラムを書くことを意識し、仕様の変更に強いアプリ開発を心がけております。 </p>
+						<div class="top-service_item_link"><a href="<?php echo esc_url(home_url('/')); ?>mobile/">モバイルアプリ開発を知る</a></div>
+					</div>
+					<div class="flex_item top-service_item">
+						<h3 class="heading_secondary" data-entitle="UI/UX DESIGN">UI/UXデザイン</h3>
+						<div class="top-service_img"><img src="<?php echo esc_url(get_theme_file_uri('/assets/img/materials/top/img_service01.png')); ?>" width="268" load="lazy" alt=""></div>
+						<p class="desp">設計の段階からデザイナーが参画することで、「美しく・使いやすいアプリ」を制作します。開発コストも考慮し、アプリの個性を生かしたデザインに仕上げます。 </p>
+						<div class="top-service_item_link"><a href="<?php echo esc_url(home_url('/')); ?>uiux/">UI / UXデザインを知る</a></div>
+					</div>
+
+				</div>
+			</div>
+		</section>
+	</div>
+
+
+
+	<section class="top-works wide-bg">
+		<div class="container">
+			<h2 class="top-heading"><img src="<?php echo get_theme_file_uri('/assets/img/materials/top/title_works.svg'); ?>" alt="works"><span class="screen-reader-text">works</span></h2>
+			<div class="top-conversation_inner">
+				<div class="balloon_left">今まで作ってきたものを見たい！</div>
+				<div class="balloon_right_wrap">
+					<div class="balloon_right">
+						<p>アプリの開発からWeb制作まで、新規事業の<br class="pc-only">立ち上げをサポートしているよ！</p>
+					</div>
+				</div>
+			</div>
+			<div class="top-works_slider swiper-container">
+
+				<div class="swiper-wrapper">
+					<!-- Slides -->
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_1.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">目標達成アプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>ロゴデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_2.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">家庭教師マッチングアプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>ロゴデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_3.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">旅行アプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_4.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">英語学習アプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>ロゴデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<!-- Slides -->
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_1.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">目標達成アプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>ロゴデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_2.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">家庭教師マッチングアプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>ロゴデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_3.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">旅行アプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<div class="swiper-slide">
+						<figure class="top-works_item_img"><img src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/materials/top/work_4.jpg') ?>" alt=""></figure>
+						<h3 class="top-works_item_title">英語学習アプリ</h3>
+						<ul class="works-category">
+							<li>UI/UXデザイン</li>
+							<li>ロゴデザイン</li>
+							<li>モバイルアプリ開発</li>
+						</ul>
+					</div>
+					<!-- Slides -->
+
+				</div>
+
+				<div class="top-works_slider_pagenations">
+					<div class="swiper-button-prev top-works_slider_prev"></div>
+					<div class="swiper-pagination top-works_slider_pagenation"></div>
+					<div class="swiper-button-next top-works_slider_next"></div>
+				</div>
+
+			</div>
+			<div class="btn_normal normal-size"><a href="/works">制作実績を見る</a></div>
+
+
+		</div>
+	</section>
+
+
+	<div class="top-blog_bg wide-bg">
+		<section class="top-blog wide-bg">
+			<div class="container">
+				<h2 class="top-heading"><img src="<?php echo get_theme_file_uri('/assets/img/materials/top/title_blog.svg'); ?>" alt="blog"><span class="screen-reader-text">blog</span></h2>
+				<div class="top-conversation_inner">
+					<div class="balloon_left">もっとアプリ開発について知りたい！</div>
+					<div class="balloon_right_wrap">
+						<div class="balloon_right">
+							<p>アプリ開発に役立つ情報を発信しているよ！</p>
+						</div>
+					</div>
+				</div>
+				<div class="top-blog_list">
+					<?php
+					$count = 0;
+
+					$exclude_id = [];
+
+					// $top_post = get_field('top_blog_list', 'option');
+
+					if (!empty($top_post)) :
+						foreach ($top_post as $data) :
+							$post = get_post($data);
+							$count++;
+							array_push($exclude_id, $data);
+
+							$image_url = get_the_post_thumbnail_url($data) ? get_the_post_thumbnail_url($data) :  '';
+							$image_caption = get_the_post_thumbnail_caption($data) ? get_the_post_thumbnail_caption($data) :  get_the_title($data);
+							// category
+							$categories = get_the_category($data);
+					?>
+							<article class="blog-item item<?php echo esc_attr($count); ?>">
+								<figure class="blog-item_thumbnail"><img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_caption); ?>"></figure>
+								<div class="blog-item_header">
+									<ul class="blog-item_category">
+										<?php foreach ($categories as $cate) : ?>
+											<li><a href="<?php echo esc_url(home_url('/category/') . $cate->slug); ?>"><?php echo esc_attr($cate->name); ?></a></li>
+										<?php endforeach; ?>
+									</ul>
+									<h3 class="blog-item_title"><a href="<?php echo get_the_permalink($data); ?>"><?php echo  get_the_title($data); ?></a></h3>
+								</div>
+								<div class="blog-item_excerpt"><?php echo get_the_excerpt($data); ?></div>
+							</article>
+						<?php
+						endforeach;
+					endif;
+
+					$post_num = 6 - $count;
+					$query = new WP_Query([
+						'posts_per_page' => $post_num,
+						'post__not_in' => 	$exclude_id
+					]);
+					if ($query->have_posts()) :
+						while ($query->have_posts()) :
+							$query->the_post();
+							$count++;
+							// post thumbnail
+							$image_url = get_the_post_thumbnail_url() ? get_the_post_thumbnail_url() :  '';
+							$image_caption = get_the_post_thumbnail_caption() ? get_the_post_thumbnail_caption() :  get_the_title();
+							// category
+							$categories = get_the_category();
+						?>
+							<article class="blog-item item<?php echo esc_attr($count); ?>">
+								<figure class="blog-item_thumbnail">
+									<?php if (has_post_thumbnail()) {
+										the_post_thumbnail('full');
+									} else {
+										echo '<img src="' . get_stylesheet_directory_uri() . '/assets/img/materials/archive/noimage.jpg" alt="">';
+									} ?>
+									<!-- <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_caption); ?>"> -->
+								</figure>
+								<div class="blog-item_header">
+									<ul class="blog-item_category">
+										<?php foreach ($categories as $cate) : ?>
+											<li><a href="<?php echo esc_url(home_url('/category/') . $cate->slug); ?>"><?php echo esc_attr($cate->name); ?></a></li>
+										<?php endforeach; ?>
+									</ul>
+									<h3 class="blog-item_title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+								</div>
+								<div class="blog-item_excerpt"><?php the_excerpt(); ?></div>
+							</article>
+					<?php
+						endwhile;
+					endif;
+					wp_reset_postdata();
+					?>
+				</div>
+
+				<div class="btn_normal normal-size"><a href="/blog">もっと見る</a></div>
+
+			</div>
+		</section>
+	</div>
+
+	<div class="top-download-form top-download-form-re wide-bg">
+		<section class="wide-bg">
+			<div class="container">
+				<h2>資料請求</h2>
+				<p class="Txt">アプリ開発会社をお探しですか？<br>株式会社Pentagonでは上場企業からスタートアップまで幅広くご支援しております。</p>
+				<?php echo do_shortcode('[contact-form-7 id="6902" title="資料ダウンロード_top" dl_url="' . esc_url($dl_url) . '" ]'); ?> 
+			</div>
+		</section>
+	</div>
+
+</article>
+</main>
+<?php //サイドバー表示しない。//thk_call_sidebar();
+?>
+</div>
+<!--/#primary-->
+<?php echo apply_filters('thk_footer', ''); ?>
+
+<style>
+	#main {
+		width: 100%;
+		flex: 0 1 1080px;
+		max-width: none;
+	}
+
+	#toc_container {
+		display: none;
+	}
+
+	h1 {
+		color: #F8596F;
+	}
+</style>

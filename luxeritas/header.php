@@ -19,10 +19,8 @@ global $luxe, $_is, $post;
 if( !isset( $content_width ) ) $content_width = 1280;	// これ無いとチェックで怒られる
 
 $cls = '';
-if( isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' ) {
-	if( isset( $luxe['lazyload_thumbs'] ) || isset( $luxe['lazyload_contents'] ) || isset( $luxe['lazyload_sidebar'] ) || isset( $luxe['lazyload_footer'] ) ) {
-		$cls = 'class="no-js" ';
-	}
+if( isset( $luxe['lazyload_thumbs'] ) || isset( $luxe['lazyload_contents'] ) || isset( $luxe['lazyload_sidebar'] ) || isset( $luxe['lazyload_footer'] ) ) {
+	$cls = 'class="no-js" ';
 }
 
 if( $_is['edit_posts'] === true && isset( $_GET['respond_preview'] ) ) {
@@ -48,16 +46,9 @@ else {
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <?php
 if( !isset( $luxe['amp'] ) ) {
-	if( $_is['ssl'] === true ) {
-?>
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
-<?php
-	}
-	if( isset( $luxe['user_scalable'] ) ) {
 ?>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=<?php echo $luxe['user_scalable']; ?>" />
 <?php
-	}
 }
 else {
 ?>
@@ -140,22 +131,19 @@ if( !empty( $noindex ) ) {
 <meta name="robots" content="<?php echo $noindex; ?>" />
 <?php
 }
-
 if( isset( $luxe['buffering_enable'] ) ) thk_flash();
 
 echo apply_filters( 'thk_head', '' );	// load header
 
 if( !isset( $luxe['amp'] ) ) {
 	// Intersection Observer
-	if( isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' ) {
-		if( isset( $luxe['lazyload_thumbs'] ) || isset( $luxe['lazyload_contents'] ) || isset( $luxe['lazyload_sidebar'] ) || isset( $luxe['lazyload_footer'] ) ) {
+	if( isset( $luxe['lazyload_thumbs'] ) || isset( $luxe['lazyload_contents'] ) || isset( $luxe['lazyload_sidebar'] ) || isset( $luxe['lazyload_footer'] ) ) {
 ?>
 <script><?php
 		echo	'(function(html){html.className=html.className.replace(/\bno-js\b/,"js")})(document.documentElement);'
 		,	thk_simple_css_minify( thk_fgc( TPATH . DSEP . 'js' . DSEP . 'lozad.min.js' ) . thk_fgc( TPATH . DSEP . 'js' . DSEP . 'thk-intersection-observer.min.js' ) );
 ?></script>
 <?php
-		}
 	}
 
 	get_template_part('add-header'); // ユーザーヘッダー追加用
@@ -167,16 +155,6 @@ if( !isset( $luxe['amp'] ) ) {
 			$addhead = trim( preg_replace( '/(.*?)<' . 'title>.*?<\/title' . '>(.*)/im', '$1$2', $addhead ) );
 			$addhead = str_replace( array( "\n\n", "\r\n\r\n" ), "\n", $addhead );
 		}
-		if( stripos( $addhead, '<style' ) !== false && stripos( $addhead, '</style>' ) !== false ) {
-			preg_match_all( '#<style[^>]*?>([^<]+?)</style>#', $addhead, $matches );
-			if( isset( $matches[1] ) ) {
-				foreach( (array)$matches[1] as $key => $val ) {
-					if( isset( $matches[1][$key] ) ) {
-						$addhead = str_replace( $matches[1][$key], thk_simple_css_minify( $val ), $addhead );
-					}
-				}
-			}
-		}
 		if( !empty( $addhead ) ) echo $addhead, "\n";
 	}
 
@@ -186,9 +164,6 @@ if( isset( $luxe['buffering_enable'] ) ) thk_flash();
 </head>
 <body <?php body_class(); ?>>
 <?php
-if( function_exists( 'wp_body_open' ) === true ) {
-	wp_body_open();
-}
 require_once( INC . 'analytics.php' );
 $analytics = new thk_analytics();
 
@@ -210,7 +185,7 @@ if( isset( $luxe['analytics_position'] ) && $luxe['analytics_position'] === 'top
 }
 
 // bootstrap container Inner
-if( isset($luxe['bootstrap_header']) && $luxe['bootstrap_header'] !== 'out' ) {
+if( $luxe['bootstrap_header'] !== 'out' ) {
 ?>
 <div class="container">
 <?php
@@ -279,7 +254,7 @@ else {
 <?php
 }
 if( isset( $luxe['title_img'] ) ) {
-	echo '<meta itemprop="name about" content="', THK_SITENAME, '" />';
+	echo '<meta itemprop="name about" content="', THK_SITENAME, '"></meta>';
 }
 
 // Catchphrase
@@ -290,12 +265,12 @@ if( isset( $luxe['header_catchphrase_visible'] ) ) {
 }
 elseif( !empty( $luxe['header_catchphrase_change'] ) ) {
 ?>
-<meta itemprop="alternativeHeadline" content="<?php echo $luxe['header_catchphrase_change']; ?>" />
+<meta itemprop="alternativeHeadline" content="<?php echo $luxe['header_catchphrase_change']; ?>"></meta>
 <?php
 }
 elseif( THK_DESCRIPTION !== '' ) {
 ?>
-<meta itemprop="alternativeHeadline" content="<?php echo THK_DESCRIPTION; ?>" />
+<meta itemprop="alternativeHeadline" content="<?php echo THK_DESCRIPTION; ?>"></meta>
 <?php
 }
 ?>
@@ -347,13 +322,13 @@ echo apply_filters( 'thk_header_under', '' );
 </header>
 <?php
 // bootstrap container Outer
-if( isset($luxe['bootstrap_header']) && $luxe['bootstrap_header'] === 'out' ) {
+if( $luxe['bootstrap_header'] === 'out' ) {
 ?>
 <div class="container">
 <?php
 }
 
-if( isset($luxe['breadcrumb_view']) && $luxe['breadcrumb_view'] === 'outer' ) get_template_part( 'breadcrumb' );
+if( $luxe['breadcrumb_view'] === 'outer' ) get_template_part( 'breadcrumb' );
 
 if( function_exists('dynamic_sidebar') === true ) {
 	if( isset( $luxe['amp'] ) && is_active_sidebar('head-under-amp') === true ) {
@@ -370,6 +345,6 @@ if( isset( $luxe['buffering_enable'] ) ) thk_flash();
 <div id="primary" class="clearfix">
 <?php
 // 3 Column
-if( isset($luxe['column_style']) && $luxe['column_style'] === '3column' && !isset( $luxe['amp'] ) ) echo '<div id="field">', "\n";
+if( $luxe['column_style'] === '3column' && !isset( $luxe['amp'] ) ) echo '<div id="field">', "\n";
 ?>
 <main id="main"<?php if( isset( $luxe['add_role_attribute'] ) ) echo ' role="main"'; ?>>

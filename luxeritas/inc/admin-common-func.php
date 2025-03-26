@@ -22,6 +22,34 @@ if( class_exists( 'carray' ) === false ) {
 }
 
 /*---------------------------------------------------------------------------
+ * after_setup_theme
+ *---------------------------------------------------------------------------*/
+add_action( 'after_setup_theme', function() {
+	// ajax 処理
+	if( isset( $_POST ) ) {
+		// 定型文登録時と挿入時のポップアップ
+		if( isset( $_POST['fp_popup_nonce'] ) ) {
+			// nonce チェック
+			if( wp_verify_nonce( $_POST['fp_popup_nonce'], 'phrase_popup' ) ) {
+				add_action( 'wp_ajax_thk_phrase_regist', function() {
+					$name = trim( esc_attr( stripslashes( $_POST['name'] ) ) );
+					$file_name = substr( $name, strpos( $name, '-' ), strlen( $name ) );
+					$file_name = strlen( $file_name ) . '-' . md5( $file_name );
+					$code_file = SPATH . DSEP . 'phrases' . DSEP . $file_name . '.txt';
+					require_once( INC . 'optimize.php' );
+					global $wp_filesystem;
+					$filesystem = new thk_filesystem();
+					if( $filesystem->init_filesystem( site_url() ) === false ) return false;
+					echo $wp_filesystem->get_contents( $code_file );
+					exit;
+				});
+			}
+			
+		}
+	}
+});
+
+/*---------------------------------------------------------------------------
  * admin init
  *---------------------------------------------------------------------------*/
 add_action( 'admin_init', function() {
@@ -202,7 +230,7 @@ if( function_exists( 'thk_mce_buttons_1' ) === false ):
 function thk_mce_buttons_1() {
 	return array(
 		'formatselect'		=> '<div class="cover" title="' . __( 'Paragraph', 'luxeritas' ) . '"><input type="text" class="drop-down" value="' . __( 'Paragraph', 'luxeritas' ) . '" /></div>',
-		'thk-phrase-button'	=> '<i class="mce-ico mce-i-thk-phrase-button" title="' . __( 'HTML pattern', 'luxeritas' ) . '"></i>',
+		'thk-phrase-button'	=> '<i class="mce-ico mce-i-thk-phrase-button" title="' . __( 'Fixed phrase', 'luxeritas' ) . '"></i>',
 		'thk-shortcode-button'	=> '<i class="mce-ico mce-i-thk-shortcode-button" title="' . __( 'Shortcode', 'luxeritas' ) . '"></i>',
 		'thk-blogcard-button'	=> '<i class="mce-ico mce-i-thk-blogcard-button" title="' . __( 'Blog Card', 'luxeritas' ) . '"></i>',
 		'visualblocks'		=> '<i class="mce-ico mce-i-visualblocks" title="' . __( 'Show blocks', 'luxeritas' ) . '"></i>',
@@ -306,7 +334,7 @@ function thk_txt_buttons_1() {
 		'code'			=> 'code',
 		'thk-next'		=> 'nextpage',
 		'more'			=> 'more',
-		'thk-phrase'		=> __( 'HTML patterns', 'luxeritas' ),
+		'thk-phrase'		=> __( 'Fixed phrases', 'luxeritas' ),
 		'thk-shortcode'		=> __( 'Shortcode', 'luxeritas' ),
 		'thk-blogcard'		=> __( 'Blog Card', 'luxeritas' ),
 		'close'			=> __( 'close tags', 'luxeritas' ),

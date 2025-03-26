@@ -14,16 +14,15 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
-//settings_fields( 'shortcode_sample' );
+settings_fields( 'shortcode_sample' );
 
 wp_enqueue_style( 'wp-color-picker' );
 wp_enqueue_script( 'wp-color-picker' );
 
-$sc_mods = get_pattern_list( 'shortcode', false, true );
+$sc_mods = get_phrase_list( 'shortcode', false, true );
 $highlighter_list = thk_syntax_highlighter_list();
 $i = 0;
 ?>
-<div style="display:none">
 <script>
 jQuery(document).ready(function($) {
 	$('.thk-color-picker').wpColorPicker();
@@ -32,12 +31,6 @@ jQuery(document).ready(function($) {
 	});
 });
 </script>
-</div>
-
-<fieldset class="luxe-field">
-<legend>
-<h2 class="luxe-field-title"><?php echo __( 'Speech balloon shortcode', 'luxeritas' ), __( ' for luxeritas only', 'luxeritas' ); ?></h2>
-</legend>
 <ul>
 <li>
 <p class="control-title"><?php echo __( 'Speech balloon', 'luxeritas' ); ?></p>
@@ -149,7 +142,6 @@ else {
 <?php
 require( 'balloon-css.php' );
 ?>
-<div style="display:none">
 <script>
 jQuery(document).ready(function($) {
 	$('input[name="shortcode_balloon_left_sample"],input[name="shortcode_balloon_right_sample"]').on('change', function() {
@@ -166,8 +158,5 @@ jQuery(document).ready(function($) {
 	});
 });
 </script>
-</div>
 </li>
 </ul>
-</fieldset>
-

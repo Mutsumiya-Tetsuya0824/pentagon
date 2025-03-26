@@ -25,28 +25,11 @@
 	font-size: 1em;
 	padding: 10px;
 }
-.highslide-overlay {
-	display: none;
-}
-.highslide-container:hover .highslide-overlay {
+
+a.highslide-full-expand {
+	background: url(./images/fullexpand.gif) no-repeat;
 	display: block;
-}
-.highslide-container .highslide-overlay button, a.highslide-full-expand {
-	display: inline-block;
-	margin: 12px 3px 0;
+	margin: 0 6px 6px 0;
 	width: 36px;
 	height:36px;
-}
-.highslide-next {
-	background: url(./images/highslide/next.gif) no-repeat;
-}
-.highslide-prev {
-	background: url(./images/highslide/prev.gif) no-repeat;
-}
-.highslide-close {
-	background: url(./images/highslide/close.gif) no-repeat;
-}
-a.highslide-full-expand {
-	margin: 0 6px 6px 0;
-	background: url(./images/highslide/full.gif) no-repeat;
 }

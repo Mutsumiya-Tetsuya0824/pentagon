@@ -14,7 +14,7 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
-require_once( INC . 'thk-filesystem.php' );
+require_once( INC . 'optimize.php' );
 global $luxe, $wp_filesystem;
 
 $filesystem = new thk_filesystem();

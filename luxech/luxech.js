@@ -70,35 +70,3 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-var __ = wp.i18n.__;             // 翻訳関数
-const { registerFormatType } = wp.richText;  // フォーマットAPI
-const { RichTextToolbarButton } = wp.editor || wp.blockEditor; 
-// wp.editor はバージョンによって wp.blockEditor に移行
-
-// カスタムフォーマット登録
-registerFormatType('cif/pink-marker', {
-    title: __('ピンクマーカー', 'text-domain'),
-    tagName: 'span',
-    className: 'pink_line',  // ここで付与するクラスを指定
-    edit: ({ isActive, value, onChange }) => {
-
-        // ボタンを押した時の動作
-        const onToggle = () => {
-            onChange(
-                wp.richText.toggleFormat(value, {
-                    type: 'cif/pink-marker'
-                })
-            );
-        };
-
-        return (
-            <RichTextToolbarButton
-                icon="edit" // 好きなアイコン名: dashicons 参照
-                title={__('ピンクマーカー', 'text-domain')}
-                onClick={ onToggle }
-                isActive={ isActive }
-            />
-        );
-    },
-});
-

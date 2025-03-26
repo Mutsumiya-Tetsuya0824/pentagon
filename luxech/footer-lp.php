@@ -290,18 +290,26 @@ if ($luxe['bootstrap_footer'] === 'in') {
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const container = document.querySelector('.p-work__list__contents .filters');
-    const activeTab = container.querySelector('.p-work__tab__active');
 
-    if (activeTab && container) {
-      const containerRect = container.getBoundingClientRect();
-      const activeRect = activeTab.getBoundingClientRect();
+    // container が存在する時だけ処理を続ける
+    if (container) {
+      const activeTab = container.querySelector('.p-work__tab__active');
 
-      if (activeRect.left < containerRect.left || activeRect.right > containerRect.right) {
-        container.scrollLeft = activeTab.offsetLeft - 16; // 少し余白つけて左に寄せる
+      if (activeTab) {
+        const containerRect = container.getBoundingClientRect();
+        const activeRect = activeTab.getBoundingClientRect();
+
+        if (
+          activeRect.left < containerRect.left ||
+          activeRect.right > containerRect.right
+        ) {
+          container.scrollLeft = activeTab.offsetLeft - 16; // 少し余白つけて左に寄せる
+        }
       }
     }
   });
 </script>
+
 
 
 

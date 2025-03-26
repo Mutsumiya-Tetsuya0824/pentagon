@@ -14,14 +14,13 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
-//settings_fields( 'phrase_sample' );
+settings_fields( 'phrase_sample' );
 
 wp_enqueue_style( 'wp-color-picker' );
 wp_enqueue_script( 'wp-color-picker' );
 
-$fp_mods = get_pattern_list( 'phrase', false );
+$fp_mods = get_phrase_list( 'phrase', false );
 ?>
-<div style="display:none">
 <script>
 jQuery(document).ready(function($) {
 	$('.thk-color-picker').wpColorPicker();
@@ -30,16 +29,10 @@ jQuery(document).ready(function($) {
 	});
 });
 </script>
-</div>
-
-<fieldset class="luxe-field">
-<legend>
-<h2 class="luxe-field-title"><?php echo __( 'HTML pattern', 'luxeritas' ), __( ' for luxeritas only', 'luxeritas' ); ?></h2>
-</legend>
 <ul>
 <li>
 <p class="control-title"><?php echo __( 'Speech balloon', 'luxeritas' ); ?></p>
-<p class="f09em m10-b"><?php echo __( '* After registration, please rewrite URL and Caption of the image from the HTML pattern edit screen as necessary.', 'luxeritas' ); ?></p>
+<p class="f09em m10-b"><?php echo __( '* After registration, please rewrite URL and Caption of the image from the fixed phrase edit screen as necessary.', 'luxeritas' ); ?></p>
 <p class="checkbox">
 <?php $phrase_name = __( 'Speech balloon', 'luxeritas' ) . ' ( ' . __( 'Left', 'luxeritas' ) . ' )'; ?>
 <input type="checkbox" value="" name="phrase_balloon_left_sample"<?php echo isset( $fp_mods[$phrase_name] ) ? ' checked disabled' : ''; ?> />
@@ -58,4 +51,3 @@ require( 'balloon-css.php' );
 ?>
 </li>
 </ul>
-</fieldset>

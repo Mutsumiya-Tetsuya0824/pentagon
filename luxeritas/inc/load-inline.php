@@ -260,11 +260,64 @@ call_user_func( function() {
 		}
 	}
 
-	// サムネイルの自動挿入
-	if( $_is['singular'] === true ) {
-		require( INC . 'thumb-auto-insert.php' );
-	}
+/*
+	// サムネイルの自動挿入（背景画像の場合）
+	if( $_is['singular'] === true && isset( $luxe['thumb_auto_insert_position'] ) ) {
+		$post_thumbnail = has_post_thumbnail();
 
+		if( $luxe['thumb_auto_insert_position'] !== 'background' ) {
+			$margin = '20px 0 40px';
+
+			if( $luxe['thumb_auto_insert_position'] === 'top' ) {
+				$margin = '0 0 40px';
+			}
+
+			// タイトル下か本文上のサムネイル
+			$load .= <<<INSERT
+#post-thumbnail { margin: {$margin}; text-align: center; }
+INSERT;
+
+			if( isset( $luxe['thumb_auto_insert_full_width'] ) ) {
+				$load .= <<<INSERT
+#post-thumbnail img { width:100% }
+INSERT;
+			}
+		}
+		elseif( $luxe['thumb_auto_insert_position'] === 'background' ) {
+			// タイトル背景にサムネイル
+			if( $post_thumbnail === true ) {
+				$thumb_src = thk_get_the_post_thumbnail_url( $post->ID, 'full' );
+				$sizes = thk_get_image_size( $thumb_src );
+				$load .= <<<INSERT
+#article-header {
+	//max-height: 300px;
+	overflow: hidden;
+}
+.entry-title {
+	position: relative;
+	padding: 20px;
+	padding-bottom: calc({$sizes[1]}/{$sizes[0]}*100%);
+	background: #000 url("{$thumb_src}") center center/cover no-repeat;
+	color: #fff;
+	text-shadow: #000 2px 2px 6px;
+}
+.entry-title span {
+	position: relative;
+}
+.entry-title::before {
+	position: absolute;
+	content: "";
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,.4);
+}
+INSERT;
+			}
+		}
+	}
+*/
 	// ブロックエディタ用インラインスタイル
 	if( class_exists( 'thk_block_styles' ) === false ) {
 		require( INC . 'load-block-styles.php' );

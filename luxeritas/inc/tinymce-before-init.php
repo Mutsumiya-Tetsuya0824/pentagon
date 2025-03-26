@@ -86,25 +86,22 @@ if( get_user_option( 'rich_editing' ) === 'true' ) {
 			$plugins_key[$val] = true;
 		}
 
-		if( _is_block_editor() === false ) {
-			// 定型文、ショートコード、ブログカード、TinyMCE 設定
-			$thk_buttons = array(
-				'thk-phrase-button',
-				'thk-shortcode-button',
-				'thk-blogcard-button',
-				'thk-mce-settings-button',
-			);
-			foreach( $thk_buttons as $val ) {
-				if( isset( $buttons_12[$val] ) ) {
-					$plugins[$val] = TDEL . '/js/thk-dummy.js';	// 空っぽじゃダメらしいです
-				}
+		// 定型文、ショートコード、ブログカード、TinyMCE 設定
+		$thk_buttons = array(
+			'thk-phrase-button',
+			'thk-shortcode-button',
+			'thk-blogcard-button',
+			'thk-mce-settings-button',
+		);
+		foreach( $thk_buttons as $val ) {
+			if( isset( $buttons_12[$val] ) ) {
+				$plugins[$val] = TDEL . '/js/thk-dummy.js';	// 空っぽじゃダメらしいです
 			}
+		}
 
-			// Luxeritas オリジナル絵文字
-			if( isset( $buttons_12['thk_emoji'] ) ) {
-				$plugins['thk_emoji'] = TDEL . '/js/tinymce/thk-emoji.min.js';
-			}
-
+		// Luxeritas オリジナル絵文字
+		if( isset( $buttons_12['thk-phrase-button'] ) ) {
+			$plugins['thk_emoji'] = TDEL . '/js/tinymce/thk-emoji.min.js';
 		}
 
 		// RTL (右から左) と LTR (左から右)
@@ -199,7 +196,7 @@ if( get_user_option( 'rich_editing' ) === 'true' ) {
 		if( isset( $luxe['mce_enter_key'] ) && $luxe['mce_enter_key'] === 'linefeed' ) {
 			$settings['forced_root_block'] = false;
 		}
-		$settings['body_class']	= 'post editor-styles-wrapper';
+		$settings['body_class']	= 'post';
 		$settings['cache_suffix'] = 'v=' . $_SERVER['REQUEST_TIME'];
 		$maxwidth = isset( $luxe['mce_max_width'] ) && ctype_digit( (string)$luxe['mce_max_width'] ) && $luxe['mce_max_width'] !== 0 ? $luxe['mce_max_width'] . 'px' : '100%';
 		$bg_color = isset( $luxe['mce_bg_color'] ) ? $luxe['mce_bg_color'] : '#fff';

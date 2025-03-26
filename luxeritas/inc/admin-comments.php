@@ -37,7 +37,7 @@ add_filter( 'comment_save_pre', function( $comment_content ) {
 add_filter( 'comment_post', 'thk_admin_comment_post' );
 
 /* コメント編集画面のフィールド */
-add_filter( 'comment_form_field_comment', function( $comment_field ) {
+add_filter( 'comment_form_field_comment', function() {
 	$comment_field .= '<label for="'.'luxe_admin_comments'.'"><input name="luxe_admin_comments" id="luxe_admin_comments" type="checkbox" value="1" >' . __( 'Only administrators can see this comment.', 'luxeritas' ) . '</label>';
 	return $comment_field;
 });

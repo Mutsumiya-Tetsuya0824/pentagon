@@ -20,7 +20,6 @@ wp_enqueue_style( 'wp-color-picker' );
 wp_enqueue_script( 'wp-color-picker' );
 
 ?>
-<div style="display:none">
 <style>button{margin:0!important}</style>
 <script>
 jQuery(document).ready(function($) {
@@ -30,16 +29,15 @@ jQuery(document).ready(function($) {
 	});
 });
 </script>
-</div>
 <ul>
 <li>
-<table class="balloon-regist-table" style="margin-left:5px">
+<table class="balloon-regist-table">
 <colgroup span="2" style="width:120px" />
 <tbody>
 <tr>
-<th style="padding:0 10px;white-space:nowrap"><?php echo __( 'Color', 'luxeritas' ) ?></th>
-<th style="padding:0 10px;white-space:nowrap"><?php echo __( 'Name', 'luxeritas' ) ?></th>
-<th style="padding:0 10px;white-space:nowrap"><?php echo __( 'Slug', 'luxeritas' ) ?></th>
+<th style="padding:0 10px"><?php echo __( 'Color', 'luxeritas' ) ?></th>
+<th style="padding:0 10px"><?php echo __( 'Name', 'luxeritas' ) ?></th>
+<th style="padding:0 10px"><?php echo __( 'Slug', 'luxeritas' ) ?></th>
 </tr>
 <?php
 $i = 0;
@@ -63,7 +61,6 @@ foreach( $color_palette as $val ) {
 ?>
 <td style="padding:20px 0 0 10px"><?php echo __( 'Color', 'luxeritas' ) ?></td>
 <td style="padding:20px 0 0 10px"><?php echo __( 'Name', 'luxeritas' ) ?></td>
-<td style="padding:20px 0 0 10px"><?php echo __( 'Slug', 'luxeritas' ) ?></td>
 <?php
 for( $j = 0; 6 > $j; ++$j ) {
 	$color_key = 'block_palette_color_' . $i;
@@ -76,7 +73,7 @@ for( $j = 0; 6 > $j; ++$j ) {
 <tr>
 <td style="vertical-align:top" id="<?php echo $color_key ?>_td"><input class="thk-color-picker" type="text" id="<?php echo $color_key ?>" name="<?php echo $color_key ?>" value="<?php echo $color_value ?>" /></td>
 <td style="vertical-align:top"><input style="max-width:120px;min-height:32px" type="text" id="<?php echo $name_key ?>" name="<?php echo $name_key ?>" value="<?php echo $name_value ?>" /></td>
-<td style="vertical-align:top"><input style="max-width:120px;min-height:32px" type="text" id="<?php echo $slug_key ?>" name="<?php echo $slug_key ?>" value="<?php echo $slug_value ?>" /><span style="white-space:nowrap">&nbsp;<?php echo __( '(Addition)', 'luxeritas' ); ?></span></td>
+<td style="vertical-align:top"><input style="max-width:120px;min-height:32px" type="text" id="<?php echo $slug_key ?>" name="<?php echo $slug_key ?>" value="<?php echo $slug_value ?>" />&nbsp;<?php echo __( '(Addition)', 'luxeritas' ); ?></td>
 </tr>
 <?php
 	++$i;
@@ -88,7 +85,6 @@ for( $j = 0; 6 > $j; ++$j ) {
 </table>
 </li>
 </ul>
-<div style="display:none">
 <script>
 jQuery(document).ready(function(o) {
 	o("#block_color_palette-default").on("click", function() {
@@ -111,4 +107,3 @@ foreach( $color_palette as $val ) {
 	});
 });
 </script>
-</div>

@@ -18,9 +18,10 @@ global $luxe, $awesome;
 
 if( isset( $luxe['amp'] ) && isset( $luxe['amp_hidden_comments'] ) ) return;
 
+$fa_id_card = $awesome['ver'][0] === '4' ? 'fa-id-card-o' : 'fa-id-card';
 ?>
 <div id="comments" class="grid">
-<h2 class="discussion"><i class="ico-speech-bubble"></i><?php echo __( 'Discussion', 'luxeritas' ); ?></h2>
+<h2 class="discussion"><i class="<?php echo $awesome['far'], $fa_id_card; ?>"></i><?php echo __( 'Discussion', 'luxeritas' ); ?></h2>
 <?php
 if( have_comments() ) {
 
@@ -103,7 +104,7 @@ endif;
 /*---------------------------------------------------------------------------
  * コメントリストの表示
  *---------------------------------------------------------------------------*/
-if( isset( $luxe['comment_list_view'] ) && $luxe['comment_list_view'] === 'all' ) {
+if( $luxe['comment_list_view'] === 'all' ) {
 ?>
 <ol class="comments-list">
 <?php
@@ -121,8 +122,9 @@ else {
 	$comments_by_type = separate_comments( $comments );
 
 	if( !empty( $comments_by_type['comment'] ) ) {
+		$fa_comments = $awesome['ver'][0] === '4' ? 'fa-comments-o' : 'fa-comments';
 ?>
-<h3 class="messages"><i class="ico-comments"></i><?php echo __( 'New Comments', 'luxeritas' ); ?></h3>
+<h3 class="messages"><i class="<?php echo $awesome['far'], $fa_comments; ?>"></i><?php echo __( 'New Comments', 'luxeritas' ); ?></h3>
 <ol class="comments-list">
 <?php
 		wp_list_comments( array( 'type' => 'comment', 'avatar_size' => 55, 'callback' => 'thk_list_comments' ) );
@@ -131,9 +133,9 @@ else {
 <?php
 	}
 
-	if( isset( $luxe['comment_list_view'] ) && $luxe['comment_list_view'] !== 'no_pings' && !empty( $comments_by_type['pings'] ) ) {
+	if( $luxe['comment_list_view'] !== 'no_pings' && !empty( $comments_by_type['pings'] ) ) {
 ?>
-<h3 class="messages"><?php echo $awesome['trackback'], __( 'New Pnigbacks &amp; Trackbacks', 'luxeritas' ); ?></h3>
+<h3 class="messages"><i class="<?php echo $awesome['fas']; ?> fa-reply-all"></i><?php echo __( 'New Pnigbacks &amp; Trackbacks', 'luxeritas' ); ?></h3>
 <ol class="comments-list">
 <?php
 		if( isset( $luxe['pings_reply_button'] ) ) {
@@ -200,8 +202,9 @@ echo( $comments_links );
 	}
 }
 else {
+	$fa_comments = $awesome['ver'][0] === '4' ? 'fa-comments-o' : 'fa-comments';
 ?>
-<h3 class="messages"><i class="ico-comments"></i><?php echo __( 'New Comments', 'luxeritas' ); ?></h3>
+<h3 class="messages"><i class="<?php echo $awesome['far'], $fa_comments; ?>"></i><?php echo __( 'New Comments', 'luxeritas' ); ?></h3>
 <p class="no-comments"><?php echo __( 'No comments yet.  Be the first one!', 'luxeritas' ); ?></p>
 <?php
 }
@@ -242,12 +245,12 @@ if( isset( $luxe['captcha_enable'] ) && $luxe['captcha_enable'] !== 'none' ) {
 	elseif( $luxe['captcha_enable'] === 'recaptcha' && isset( $luxe['recaptcha_site_key'] ) && !empty( $luxe['recaptcha_site_key'] ) ) {
 		add_filter( 'comment_form_default_fields', function( $fields ) use( $luxe ) {
 			$fields += array(
-				'recaptcha'=> '<div class="comment-form-captcha"><div class="g-recaptcha" ' .
+				'recaptcha'=> '<p class="comment-form-captcha"><div class="g-recaptcha" ' .
 					      'style="width:100%;margin-bottom:15px" ' .
 					      'data-theme="' . $luxe['recaptcha_theme'] . '" ' .
 					      'data-size="'  . $luxe['recaptcha_size'] . '" ' .
 					      'data-type="'  . $luxe['recaptcha_type'] . '" ' .
-					      'data-sitekey="' . $luxe['recaptcha_site_key'] . '"></div></div>'
+					      'data-sitekey="' . $luxe['recaptcha_site_key'] . '"></div></p>'
 			);
 			return $fields;
 		}, 8 );
@@ -286,10 +289,12 @@ if( isset( $luxe['captcha_enable'] ) && $luxe['captcha_enable'] !== 'none' ) {
 			$image_width  = isset( $luxe['secimg_image_width'] )  ? $luxe['secimg_image_width']  : 170;
 			$image_height = isset( $luxe['secimg_image_height'] ) ? $luxe['secimg_image_height'] : 45;
 
+			$fa_refresh = $awesome['ver'][0] === '4' ? 'fa-refresh' : 'fa-sync-alt';
+
 			$fields += array(
 				'captcha' => '<p class="comment-form-captcha">' . __( 'Captcha', 'luxeritas' ) . ' <span class="required">*</span></p>' .
 					     '<p class="comment-form-captcha-img" style="white-space:nowrap"><img id="captcha" src="' . TDEL . '/captcha.php?' . $get_pram . '" width="' . $image_width . '" height="' . $image_height . '" alt="CAPTCHA Image" />' .
-					     '<a href="#" onclick="document.getElementById' . "('captcha')" . '.src = ' . "'" . TDEL . '/captcha.php?' . $get_pram . "&'" . ' + Math.random(); return false">' . str_replace( '<i ', '<i aria-label="Captcha code" style="font-size:32px;margin-left:10px;vertical-align:middle" ', $awesome['renew'] ) . '</a></p>' .
+					     '<a href="#" onclick="document.getElementById' . "('captcha')" . '.src = ' . "'" . TDEL . '/captcha.php?' . $get_pram . "&'" . ' + Math.random(); return false"><i class="' . $awesome['fas'] . $fa_refresh . '" aria-hidden="true" style="font-size:32px;margin-left:10px;vertical-align:middle"></i></a></p>' .
 					     '<p class="comment-form-captcha-code"><input id="captcha_code" type="text" placeholder="' . __( 'Enter Captcha', 'luxeritas' ) . '" name="captcha_code" value="" size="12" aria-required="true" /></p>'
 			);
 			return $fields;
@@ -297,9 +302,12 @@ if( isset( $luxe['captcha_enable'] ) && $luxe['captcha_enable'] !== 'none' ) {
 	}
 }
 add_filter( 'thk_comment_fields', function( $args ) {
+	global $awesome;
+	$fa_comment = $awesome['ver'][0] === '4' ? 'fa-commenting-o' : 'fa-comment';
+
 	$args = array(
 		'fields' => apply_filters( 'comment_form_default_fields', '' ),
-		'title_reply' => '<i class="ico-comment"></i>' . __( 'Leave a Reply', 'luxeritas' ),
+		'title_reply' => '<i class="' . $awesome['far'] . $fa_comment. '"></i>' . __( 'Leave a Reply', 'luxeritas' ),
 		'comment_field' => '<p class="comment-form-comment"><label for="comment">' . __( 'Comment', 'luxeritas' ) . '</label><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>'
 	);
 	return $args;

@@ -134,10 +134,13 @@ jQuery(function($) {
 					dataType: 'text',
 					async: true,
 					cache: false,
-					timeout: 10000
-				}).then( function() {
-					if( $('#mce_reload').prop('checked') === true ) {
-						location.reload();
+					timeout: 10000,
+					success: function() {
+						if( $('#mce_reload').prop('checked') === true ) {
+							location.reload();
+						}
+					},
+					error: function() {
 					}
 				});
 				$(this).dialog('close');

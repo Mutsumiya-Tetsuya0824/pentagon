@@ -17,6 +17,13 @@
 global $luxe, $_is, $awesome;
 get_header();
 
+$fa_pencil	= 'fa-pencil-alt';
+$fa_file	= 'fa-file-alt';
+
+if( $awesome['ver'][0] === '4' ) {
+	$fa_pencil	= 'fa-pencil';
+	$fa_file	= 'fa-file-text';
+}
 ?>
 <article>
 <div id="core" class="grid">
@@ -57,24 +64,27 @@ if( have_posts() === true ) {
 		$cls   = $_is['front_page'] === true ? 'front-page-title' : '';
 		$span = false;
 
-		if( ( ( $_is['front_page'] === true && isset( $luxe['thumb_auto_front_page'] ) ) || ( $_is['front_page'] === false && isset( $luxe['thumb_auto_page'] ) ) ) && isset( $luxe['thumb_auto_insert_position'] ) ) {
-			if(  $luxe['thumb_auto_insert_position'] === 'top' || strpos( $luxe['thumb_auto_insert_position'], 'back' ) === 0 ) {
-				// タイトル上サムネイル
-				echo apply_filters( 'thk_thumb_auto_insert', $post->ID );
-
-				if( strpos( $luxe['thumb_auto_insert_position'], 'back' ) === 0 ) {
-					$span = true;	// <span> タグ付き (タイトルに background 入れる場合)
+		if( isset( $luxe['thumb_auto_page'] ) && isset( $luxe['thumb_auto_insert_position'] ) ) {
+			if(  $luxe['thumb_auto_insert_position'] === 'top' ) {
+				$post_thumbnail = has_post_thumbnail();
+				if( $post_thumbnail === true ) {	// タイトル上サムネイル
+					echo '<figure id="post-thumbnail">', thk_get_the_post_thumbnail( $post->ID, 'full', array( 'itemprop' => 'image', 'class' => 'post_thumbnail' ) ), '</figure>';
 				}
+			}
+			if( $luxe['thumb_auto_insert_position'] === 'background' ) {
+				$span = true;	// <span> タグ付き (タイトルに background 入れる場合)
 			}
 		}
 		echo apply_filters( 'thk_h_tag', $h_tag, '', 'headline name', $cls, 'entry-title', $span );
 
 		?></header><?php
 
-		if( ( $_is['front_page'] === true && isset( $luxe['thumb_auto_front_page'] ) ) || ( $_is['front_page'] === false && isset( $luxe['thumb_auto_page'] ) ) ) {
+		if( isset( $luxe['thumb_auto_page'] ) ) {
 			if( isset( $luxe['thumb_auto_insert_position'] ) && $luxe['thumb_auto_insert_position'] === 'below' ) {
-				// タイトル下サムネイル
-				echo apply_filters( 'thk_thumb_auto_insert', $post->ID );
+				$post_thumbnail = has_post_thumbnail();
+				if( $post_thumbnail === true ) {	// タイトル上サムネイル
+					echo '<figure id="post-thumbnail">', thk_get_the_post_thumbnail( $post->ID, 'full', array( 'itemprop' => 'image', 'class' => 'post_thumbnail' ) ), '</figure>';
+				}
 			}
 		}
 		?><div class="clearfix"><?php
@@ -95,10 +105,12 @@ if( have_posts() === true ) {
 			}
 		}
 
-		if( ( $_is['front_page'] === true && isset( $luxe['thumb_auto_front_page'] ) ) || ( $_is['front_page'] === false && isset( $luxe['thumb_auto_page'] ) ) ) {
+		if( isset( $luxe['thumb_auto_page'] ) ) {
 			if( isset( $luxe['thumb_auto_insert_position'] ) && $luxe['thumb_auto_insert_position'] === 'above' ) {
-				// 記事上サムネイル
-				echo apply_filters( 'thk_thumb_auto_insert', $post->ID );
+				$post_thumbnail = has_post_thumbnail();
+				if( $post_thumbnail === true ) {	// タイトル下サムネイル
+					echo '<figure id="post-thumbnail">', thk_get_the_post_thumbnail( $post->ID, 'full', array( 'itemprop' => 'image', 'class' => 'post_thumbnail' ) ), '</figure>';
+				}
 			}
 		}
 
@@ -148,11 +160,11 @@ if( have_posts() === true ) {
 	if( isset( $luxe['author_visible'] ) && !empty( $author ) ) {
 		if( $luxe['author_page_type'] === 'auth' ) {
 ?>
-<p class="vcard author"><?php echo $awesome['pencil'], __( 'Posted by', 'luxeritas' ); ?> <span class="fn" itemprop="editor author creator copyrightHolder"><a href="<?php echo get_author_posts_url( get_the_author_meta( 'ID' ) ); ?>"><?php echo $author; ?></a></span><?php
+<p class="vcard author"><i class="<?php echo $awesome['fas'], $fa_pencil; ?>"></i><?php echo __( 'Posted by', 'luxeritas' ); ?> <span class="fn" itemprop="editor author creator copyrightHolder"><a href="<?php echo get_author_posts_url( get_the_author_meta( 'ID' ) ); ?>"><?php echo $author; ?></a></span><?php
 		}
 		else {
 ?>
-<p class="vcard author"><?php echo $awesome['pencil'], __( 'Posted by', 'luxeritas' ); ?> <span class="fn" itemprop="editor author creator copyrightHolder"><a href="<?php echo isset( $luxe['thk_author_url'] ) ? $luxe['thk_author_url'] : THK_HOME_URL; ?>"><?php echo $author; ?></a></span><?php
+<p class="vcard author"><i class="<?php echo $awesome['fas'], $fa_pencil; ?>"></i><?php echo __( 'Posted by', 'luxeritas' ); ?> <span class="fn" itemprop="editor author creator copyrightHolder"><a href="<?php echo isset( $luxe['thk_author_url'] ) ? $luxe['thk_author_url'] : THK_HOME_URL; ?>"><?php echo $author; ?></a></span><?php
 		}
 ?></p>
 <?php
@@ -164,12 +176,12 @@ if( have_posts() === true ) {
 			if( isset( $luxe['amp_enable'] ) ) {
 				$amp_permalink = thk_get_amp_permalink( get_queried_object_id() );
 				if( isset( $luxe['amp'] ) ) {
-					echo	' ', $awesome['circle-back'], '<a href="', wp_get_canonical_url(), '">', __( 'Origin', 'luxeritas' ), '</a>'
+					echo	' <i class="', $awesome['fas'], 'fa-chevron-circle-left"></i><a href="', wp_get_canonical_url(), '">', __( 'Origin', 'luxeritas' ), '</a>'
 					,	' &#x26A1; <a href="https://validator.ampproject.org/#url=', $amp_permalink, '" target="_blank" rel="noopener noreferrer">', __( 'Validate', 'luxeritas' ), '</a>'
 					,	' &#x26A1; <a href="https://cdn.ampproject.org/c/', ( stripos( $amp_permalink, 'https:' ) !== false ) ? 's/' : '', str_replace( array( 'http://', 'https://'), '', $amp_permalink ), '" target="_blank" rel="noopener noreferrer">', __( 'Cache', 'luxeritas' ), '</a>';
 				}
 				else {
-					echo	' ', $awesome['text'];
+					echo	' <i class="', $awesome['fas'], $fa_file, '"></i>';
 					edit_post_link( __( 'Edit This', 'luxeritas' ) );
 					echo	' &#x26A1; <a href="', $amp_permalink, '#development=1">AMP</a>';
 				}
@@ -183,7 +195,7 @@ if( have_posts() === true ) {
 ?>
 </div><!--/.meta-box-->
 <?php
-	if( isset( $luxe['sns_bottoms_enable'] ) || ( function_exists('dynamic_sidebar') === true && is_active_sidebar('post-under-2') === true ) ) {
+	if( isset( $luxe['sns_bottoms_enable'] ) || ( function_exists('dynamic_sidebar') === true && is_active_sidebar('post-under-1') === true ) ) {
 		echo '<hr class="pbhr" />';
 	}
 ?>
@@ -259,15 +271,15 @@ if( isset( $luxe['next_prev_nav_page_visible'] ) ) {
 		else {
 			$thumb = 'thumbnail';
 		}
-		$next_thumb = get_the_post_thumbnail( $next_post->ID, $thumb );
-		if( empty( $next_thumb ) ) $next_thumb = '<div class="no-img-next">' . $awesome['text'] . '</div>';
+		$next_thumb = thk_get_the_post_thumbnail( $next_post->ID, $thumb );
+		if( empty( $next_thumb ) ) $next_thumb = '<div class="no-img-next"><i class="' . $awesome['fas'] . $fa_file . '"></i></div>';
 ?>
-<div class="next"><?php next_post_link( '%link', $next_thumb . '<div class="ntitle">' . $next_post->post_title . '</div><div class="next-arrow">' . $awesome['arrow-forward'] . '<span>' . __( 'Next', 'luxeritas' ) . '</span></div>' ); ?></div>
+<div class="next"><?php next_post_link( '%link', $next_thumb . '<div class="ntitle">' . $next_post->post_title . '</div><div class="next-arrow"><i class="' . $awesome['fas'] . 'fa-arrow-right fa-pull-right"></i>' . __( 'Next', 'luxeritas' ) . '</div>' ); ?></div>
 <?php
 	}
 	else {
 ?>
-<div class="next"><a href="<?php echo THK_HOME_URL; ?>"><?php echo $awesome['nav-home']; ?><div class="next-arrow"><?php echo $awesome['arrow-forward'], '<span>', __( 'Home ', 'luxeritas' ); ?></span></div></a></div>
+<div class="next"><a href="<?php echo THK_HOME_URL; ?>"><i class="<?php echo $awesome['fas']; ?>fa-home navi-home"></i><div class="next-arrow"><i class="<?php echo $awesome['fas']; ?>fa-arrow-right fa-pull-right"></i><?php echo __( 'Home ', 'luxeritas' ); ?></div></a></div>
 <?php
 	}
 	//$prev_post = get_previous_post();
@@ -287,15 +299,15 @@ if( isset( $luxe['next_prev_nav_page_visible'] ) ) {
 		else {
 			$thumb = 'thumbnail';
 		}
-		$prev_thumb = get_the_post_thumbnail( $prev_post->ID, $thumb );
-		if( empty( $prev_thumb ) ) $prev_thumb = '<div class="no-img-prev">' . $awesome['text-rotate'] . '</div>';
+		$prev_thumb = thk_get_the_post_thumbnail( $prev_post->ID, $thumb );
+		if( empty( $prev_thumb ) ) $prev_thumb = '<div class="no-img-prev"><i class="' . $awesome['fas'] . $fa_file . ' fa-rotate-180"></i></div>';
 ?>
-<div class="prev"><?php previous_post_link( '%link', $prev_thumb . '<div class="ptitle">' . $prev_post->post_title . '</div><div class="prev-arrow">' . $awesome['arrow-back'] . '<span>' . __( 'Prev', 'luxeritas' ) . '</span></div>' ); ?></div>
+<div class="prev"><?php previous_post_link( '%link', $prev_thumb . '<div class="ptitle">' . $prev_post->post_title . '</div><div class="prev-arrow"><i class="' . $awesome['fas'] . 'fa-arrow-left fa-pull-left"></i>' . __( 'Prev', 'luxeritas' ) . '</div>' ); ?></div>
 <?php
 	}
 	else {
 ?>
-<div class="prev"><a href="<?php echo THK_HOME_URL; ?>"><?php echo $awesome['nav-home']; ?><div class="prev-arrow"><?php echo $awesome['arrow-back'], '<span>', __( 'Home ', 'luxeritas' ); ?></span></div></a></div>
+<div class="prev"><a href="<?php echo THK_HOME_URL; ?>"><i class="<?php echo $awesome['fas']; ?>fa-home navi-home"></i><div class="prev-arrow"><i class="<?php echo $awesome['fas']; ?>fa-arrow-left fa-pull-left"></i><?php echo __( 'Home ', 'luxeritas' ); ?></div></a></div>
 <?php
 	}
 ?>
@@ -312,8 +324,8 @@ if( isset( $luxe['comment_page_visible'] ) ) {
 if( isset( $luxe['trackback_page_visible'] ) && pings_open() === true ) {
 ?>
 <div id="trackback" class="grid">
-<h3 class="tb"><?php echo $awesome['trackback'], __( 'TrackBack URL', 'luxeritas' ); ?></h3>
-<input type="text" name="trackback_url" aria-label="Trackback url" size="60" value="<?php trackback_url() ?>" readonly="readonly" class="trackback-url" tabindex="0" accesskey="t" />
+<h3 class="tb"><i class="<?php echo $awesome['fas']; ?>fa-reply-all"></i><?php echo __( 'TrackBack URL', 'luxeritas' ); ?></h3>
+<input type="text" name="trackback_url" aria-hidden="true" size="60" value="<?php trackback_url() ?>" readonly="readonly" class="trackback-url" tabindex="0" accesskey="t" />
 </div>
 <?php
 }

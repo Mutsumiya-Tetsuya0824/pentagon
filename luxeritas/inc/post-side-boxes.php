@@ -31,7 +31,7 @@ add_action( 'admin_menu', function() {
 
 /* スタイル追加 */
 add_action( 'admin_print_styles', function() {
-	wp_register_style( 'thk_post_update_style', get_template_directory_uri() . '/css/post-update.css?v=' . $_SERVER['REQUEST_TIME'], array(), 'all' );
+	wp_register_style( 'thk_post_update_style', get_template_directory_uri() . '/css/post-update.css', false, false );
         wp_enqueue_style( 'thk_post_update_style' );
 });
 
@@ -41,10 +41,10 @@ function post_update_level_box() {
 	global $post;
 ?>
 <div style="padding-top: 5px; overflow: hidden;">
-<label class="thk-block-label" style="padding:5px 0"><input class="thk-block-input" name="update_level" type="radio" value="high" checked="checked" /><?php echo  __( 'Normal update', 'luxeritas' ); ?></label>
-<label class="thk-block-label" style="padding: 5px 0"><input class="thk-block-input" name="update_level" type="radio" value="low" /><?php echo  __( 'Quick fix (No change to modify date)', 'luxeritas' ); ?></label>
-<label class="thk-block-label" style="padding: 5px 0"><input class="thk-block-input" name="update_level" type="radio" value="del" /><?php echo  __( 'Erase modify date (Publish date and modify date becomes the same)', 'luxeritas' ); ?></label>
-<label class="thk-block-label" style="padding: 5px 0; margin-bottom: 10px"><input id="update_level_edit" class="thk-block-input" name="update_level" type="radio" value="edit" /><?php echo  __( 'Set the modify date manually', 'luxeritas' ); ?></label>
+<div style="padding:5px 0"><input name="update_level" type="radio" value="high" checked="checked" /><?php echo  __( 'Normal update', 'luxeritas' ); ?></div>
+<div style="padding: 5px 0"><input name="update_level" type="radio" value="low" /><?php echo  __( 'Quick fix (No change to modify date)', 'luxeritas' ); ?></div>
+<div style="padding: 5px 0"><input name="update_level" type="radio" value="del" /><?php echo  __( 'Erase modify date (Publish date and modify date becomes the same)', 'luxeritas' ); ?></div>
+<div style="padding: 5px 0; margin-bottom: 10px"><input id="update_level_edit" name="update_level" type="radio" value="edit" /><?php echo  __( 'Set the modify date manually', 'luxeritas' ); ?></div>
 <?php
 	if( get_the_modified_date( 'c' ) ) {
 		$stamp = __( 'Modified on:', 'luxeritas' ) . ' <span style="font-weight:bold">' . get_the_modified_date( __( 'M j, Y @ H:i', 'luxeritas') ) . '</span>';
@@ -174,57 +174,39 @@ add_action( 'admin_menu', function() {
 if( function_exists( 'thk_robots_box' ) === false ):
 function thk_robots_box() {
 	global $post;
+	/* 既に値がある場合 */
+	$thk_robots = get_post_meta( $post->ID, 'thk_robots', true );
+	$thk_robots = explode( ',', $thk_robots );
 
-	$disabled = '';
-
-	$page_template = get_post_meta( $post->ID, '_wp_page_template', true );
-	if( !empty( $page_template ) && stripos( $page_template, 'pages/wrapper-menu.php' ) !== false ) {
-		/* カスタムグローバルメニューの場合は全部チェック( noindex, nofollow, noarchive, noimageindex ) */
-		$thk_noindex = 'enable';
-		$thk_nofollow = 'enable';
-		$thk_noarchive = 'enable';
-		$thk_noimageindex = 'enable';
-
-		$disabled = ' disabled';
-		$opacity  = ' style="opacity:.7"';
-	}
-	else {
-		/* 既に値がある場合 */
-		$thk_robots = get_post_meta( $post->ID, 'thk_robots', true );
-		$thk_robots = explode( ',', $thk_robots );
-
-		$thk_noindex = isset( $thk_robots[0] ) && $thk_robots[0] == 1 ? 'enable' : 'disable';
-		$thk_nofollow = isset( $thk_robots[1] ) && $thk_robots[1] == 1 ? 'enable' : 'disable';
-		$thk_noarchive = isset( $thk_robots[2] ) && $thk_robots[2] == 1 ? 'enable' : 'disable';
-		$thk_noimageindex = isset( $thk_robots[3] ) && $thk_robots[3] == 1 ? 'enable' : 'disable';
-	}
+	$thk_noindex = isset( $thk_robots[0] ) && $thk_robots[0] == 1 ? 'enable' : 'disable';
+	$thk_nofollow = isset( $thk_robots[1] ) && $thk_robots[1] == 1 ? 'enable' : 'disable';
+	$thk_noarchive = isset( $thk_robots[2] ) && $thk_robots[2] == 1 ? 'enable' : 'disable';
+	$thk_noimageindex = isset( $thk_robots[3] ) && $thk_robots[3] == 1 ? 'enable' : 'disable';
 ?>
-<div<?php echo $opacity; ?>>
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-noindex" class="thk-block-input" type="checkbox" name="thk_noindex" value="<?php echo $thk_noindex; ?>"<?php echo $thk_noindex === 'enable' ? ' checked' : ''; echo $disabled; ?> />
+<label class="selectit">
+<input id="thk-noindex" type="checkbox" name="thk_noindex" value="<?php echo $thk_noindex; ?>"<?php echo $thk_noindex === 'enable' ? ' checked' : ''; ?> />
 Noindex<br /><?php echo __( 'Noindex tells search engines not to index.', 'luxeritas' ); ?>
 </label>
 </p>
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-nofollow" class="thk-block-input" type="checkbox" name="thk_nofollow" value="<?php echo $thk_nofollow; ?>"<?php echo $thk_nofollow === 'enable' ? ' checked' : ''; echo $disabled; ?> />
+<label class="selectit">
+<input id="thk-nofollow" type="checkbox" name="thk_nofollow" value="<?php echo $thk_nofollow; ?>"<?php echo $thk_nofollow === 'enable' ? ' checked' : ''; ?> />
 Nofollow<br /><?php echo __( 'Nofollow tells search engines not to follow the links.', 'luxeritas' ); ?>
 </label>
 </p>
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-noarchive" class="thk-block-input" type="checkbox" name="thk_noarchive" value="<?php echo $thk_noarchive; ?>"<?php echo $thk_noarchive === 'enable' ? ' checked' : ''; echo $disabled; ?> />
+<label class="selectit">
+<input id="thk-noarchive" type="checkbox" name="thk_noarchive" value="<?php echo $thk_noarchive; ?>"<?php echo $thk_noarchive === 'enable' ? ' checked' : ''; ?> />
 Noarchive<br /><?php echo __( 'Noarchive tells search engines not to store a cache.', 'luxeritas' ); ?>
 </label>
 </p>
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-noimageindex" class="thk-block-input" type="checkbox" name="thk_noimageindex" value="<?php echo $thk_noimageindex; ?>"<?php echo $thk_noimageindex === 'enable' ? ' checked' : ''; echo $disabled; ?> />
+<label class="selectit">
+<input id="thk-noimageindex" type="checkbox" name="thk_noimageindex" value="<?php echo $thk_noimageindex; ?>"<?php echo $thk_noimageindex === 'enable' ? ' checked' : ''; ?> />
 Noimageindex<br /><?php echo __( 'Noimageindex tells search engines not to index images on this page.', 'luxeritas' ); ?>
 </label>
 </p>
-</div>
 <?php
 }
 endif;
@@ -250,8 +232,8 @@ function thk_thk_disable_async_jquery_box() {
 ?>
 <div id="thk-disable-async-jquery-form">
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-disable-async-jquery" class="thk-block-input" type="checkbox" name="thk_disable_async_jquery" value="<?php echo $thk_disable_async_jquery; ?>"<?php echo $thk_disable_async_jquery === 'disable' ? ' checked' : ''; ?> />
+<label class="selectit">
+<input id="thk-disable-async-jquery" type="checkbox" name="thk_disable_async_jquery" value="<?php echo $thk_disable_async_jquery; ?>"<?php echo $thk_disable_async_jquery === 'disable' ? ' checked' : ''; ?> />
 <?php echo __( 'Disable jQuery Asynchronous on this page', 'luxeritas' ); ?>
 </label>
 </p>
@@ -282,8 +264,8 @@ function thk_post_amp_box() {
 ?>
 <div id="thk-post-amp-form">
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-amp" class="thk-block-input" type="checkbox" name="thk_amp" value="<?php echo $thk_amp; ?>"<?php echo $thk_amp === 'disable' ? ' checked' : ''; ?> />
+<label class="selectit">
+<input id="thk-amp" type="checkbox" name="thk_amp" value="<?php echo $thk_amp; ?>"<?php echo $thk_amp === 'disable' ? ' checked' : ''; ?> />
 <?php echo __( 'Disable AMP on this page', 'luxeritas' ); ?>
 </label>
 </p>
@@ -313,8 +295,8 @@ function thk_post_toc_box() {
 ?>
 <div id="thk-post-toc-form">
 <p class="meta-options">
-<label class="selectit thk-block-label">
-<input id="thk-hide-toc" class="thk-block-input" type="checkbox" name="thk_hide_toc" value="<?php echo $thk_toc; ?>"<?php echo $thk_toc === 'disable' ? ' checked' : ''; ?> />
+<label class="selectit">
+<input id="thk-hide-toc" type="checkbox" name="thk_hide_toc" value="<?php echo $thk_toc; ?>"<?php echo $thk_toc === 'disable' ? ' checked' : ''; ?> />
 <?php echo __( 'Hide TOC on this page', 'luxeritas' ); ?>
 </label>
 </p>

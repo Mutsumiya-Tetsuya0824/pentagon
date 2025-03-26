@@ -209,6 +209,7 @@ if(
 	stripos( $_SERVER['REQUEST_URI'], 'wp-admin/post.php' ) !== false ||
 	( isset( $_REQUEST['page'] ) && stripos( $_SERVER['REQUEST_URI'], 'luxe' ) !== false )
 ) {
+
 	add_action( 'add_meta_boxes', function() {
 		// amp_custom
 		if( get_theme_mod( 'amp_enable', false ) === true ) {

@@ -147,8 +147,7 @@ function create_ladmin_script() {
 
 window.addEventListener("load", function c() {
 	document.getElementById("ladmin").removeAttribute("style");
-	this.removeEventListener("load", c, !1 );
-}, !1 );
+}, false );
 
 SCRIPT;
 	return $ret;

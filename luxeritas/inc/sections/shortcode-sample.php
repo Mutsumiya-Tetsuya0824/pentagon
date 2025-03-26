@@ -16,12 +16,8 @@
 
 settings_fields( 'shortcode_sample' );
 
-$sc_mods = get_pattern_list( 'shortcode', false, true );
+$sc_mods = get_phrase_list( 'shortcode', false, true );
 ?>
-<fieldset class="luxe-field">
-<legend>
-<h2 class="luxe-field-title"><?php echo __( 'Shortcode', 'luxeritas' ), __( ' sample', 'luxeritas' ); ?></h2>
-</legend>
 <ul>
 <li>
 <p class="control-title"><?php echo __( 'Tutorial', 'luxeritas' ); ?></p>
@@ -45,4 +41,3 @@ Google Adsense ( <?php echo __( 'Please edit contents after registration.', 'lux
 </p>
 </li>
 </ul>
-</fieldset>

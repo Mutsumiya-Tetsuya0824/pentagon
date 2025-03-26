@@ -59,16 +59,26 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 	$published = '';
 	$meta = '';
 
+	$fa_clock  = 'fa-clock';
+	$fa_repeat = 'fa-redo-alt';
+	$fa_calen  = 'fa-calendar-alt';
+
+	if( $awesome['ver'][0] === '4' ) {
+		$fa_clock  = 'fa-clock-o';
+		$fa_repeat = 'fa-repeat';
+		$fa_calen  = 'fa-calendar';
+	}
+
 	if( $visible['P'] === true || $visible['M'] === true ) {
 		if( $_is['singular'] === true ) {
-			$meta .= $awesome['clock'];
+			$meta .= '<i class="' . $awesome['far'] . $fa_clock . '"></i>';
 			$published = ' published';
 		}
 		elseif( ( $visible['P'] === false && $visible['M'] === true ) ) {
-			$meta .= $awesome['repeat'];
+			$meta .= '<i class="' . $awesome['fas'] . $fa_repeat . '"></i>';
 		}
 		else {
-			$meta .= $awesome['calendar'];
+			$meta .= '<i class="' . $awesome['far'] . $fa_calen . '"></i>';
 		}
 
 		if( empty( $postdate ) && empty( $mdfdate ) ) {
@@ -85,7 +95,7 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 					if( $luxe['published'] === 'updated' ) {
 						$meta .= sprintf(
 							'<span class="date' . $published . '"><meta itemprop="datePublished" content="%1$s" />%2$s</span>' .
-							$awesome['repeat'] .
+							'<i class="' . $awesome['fas'] . $fa_repeat . '"></i>' .
 							'<span class="date"><time class="entry-date updated" datetime="%3$s" itemprop="dateModified">%4$s</time></span>',
 							get_the_date( 'c' ), get_the_date(), get_the_modified_date( 'c' ), get_the_modified_date()
 						);
@@ -93,7 +103,7 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 					else {
 						$meta .= sprintf(
 							'<span class="date' . $published . '"><time class="entry-date updated" datetime="%1$s" itemprop="datePublished">%2$s</time></span>' .
-							$awesome['repeat'] .
+							'<i class="' . $awesome['fas'] . $fa_repeat . '"></i>' .
 							'<span class="date"><meta itemprop="dateModified" content="%3$s">%4$s</span>',
 							get_the_date( 'c' ), get_the_date(), get_the_modified_date( 'c' ), get_the_modified_date()
 						);
@@ -153,7 +163,7 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 			$category = implode( '<span class="break">,</span>', $categories );
 
 			if( !empty( $category ) ) {
-				$meta .= '<span class="category items" itemprop="keywords"><span class="first-item">' . $awesome['folder'] . $category . '</span>';
+				$meta .= '<span class="category items" itemprop="keywords"><span class="first-item"><i class="' . $awesome['fas'] . 'fa-folder"></i>' . $category . '</span>';
 			}
 		}
 
@@ -179,7 +189,7 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 			$tag = implode( '<span class="break">,</span>', $tags );
 
 			if( !empty( $tag ) ) {
-				$meta .= '<span class="tags items" itemprop="keywords"><span class="first-item">' . $awesome['tags'] . $tag . '</span>';
+				$meta .= '<span class="tags items" itemprop="keywords"><span class="first-item"><i class="' . $awesome['fas'] . 'fa-tags"></i>' . $tag . '</span>';
 			}
 		}
 
@@ -201,7 +211,7 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 			}
 
 			foreach( (array)array_unique( $tax_names ) as $value ) {
-				$taxonomy_array = array_merge( $taxonomy_array, (array)get_the_terms( $wp_query->post->ID, $value ) );
+				$taxonomy_array += get_the_terms( $wp_query->post->ID, $value );
 			}
 
 			if( isset( $luxe['list_meta_max_item'] ) && is_int( $luxe['list_meta_max_item'] ) ) {
@@ -221,7 +231,7 @@ if( $visible['P'] === true || $visible['M'] === true || $visible['C'] === true |
 			$tax = implode( '<span class="break">,</span>', $taxs );
 
 			if( !empty( $taxs ) ) {
-				$meta .= '<span class="taxs items" itemprop="keywords"><span class="first-item">' . $awesome['tag'] . $tax . '</span>';
+				$meta .= '<span class="taxs items" itemprop="keywords"><span class="first-item"><i class="' . $awesome['fas'] . 'fa-tag"></i>' . $tax . '</span>';
 			}
 		}
 	}

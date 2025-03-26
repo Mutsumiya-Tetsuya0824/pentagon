@@ -68,8 +68,10 @@ function thk_shortcode_regist( $regist_name, $shortcodes = array(), $code_text =
 	if( $ret !== true ) {
 		$json_enc = @json_encode( $shortcodes );
 		if( $json_enc !== false ) {
-			$filesystem = thk_filesystem_init();
 			global $wp_filesystem;
+
+			$filesystem = new thk_filesystem();
+			if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 			$shortcodes_dir = SPATH . DSEP . 'shortcodes' . DSEP;
 
@@ -159,11 +161,13 @@ endif;
  *---------------------------------------------------------------------------*/
 $_POST = stripslashes_deep( $_POST );
 
-thk_filesystem_init();
+require_once( INC . 'optimize.php' );
 global $wp_filesystem;
 
+$filesystem = new thk_filesystem();
+if( $filesystem->init_filesystem( site_url() ) === false ) return false;
+
 if( isset( $_FILES['add-file-shortcode']['name'] ) && isset( $_FILES['add-file-shortcode']['tmp_name'] ) ) {
-	/*** インポート ***/
 	$json_file = $_FILES['add-file-shortcode']['tmp_name'];
 	$json = $wp_filesystem->get_contents( $json_file );
 	$a = (array)@json_decode( $json );
@@ -187,7 +191,6 @@ if( isset( $_FILES['add-file-shortcode']['name'] ) && isset( $_FILES['add-file-s
 	}
 }
 elseif( isset( $_POST['code_save'] ) && isset( $_POST['code_save_item'] ) ) {
-	/*** エクスポート ***/
 	$save = trim( esc_attr( stripslashes( $_POST['code_save_item'] ) ) );
 	$save_file = $save;
 
@@ -226,7 +229,6 @@ elseif( isset( $_POST['code_save'] ) && isset( $_POST['code_save_item'] ) ) {
 	exit;
 }
 elseif( isset( $_POST['code_delete'] ) && isset( $_POST['code_delete_item'] ) ) {
-	/*** 削除 ***/
 	$del = trim( esc_attr( $_POST['code_delete_item'] ) );
 	remove_theme_phrase_mod( 'sc-' . $del );
 
@@ -239,7 +241,6 @@ elseif( isset( $_POST['code_delete'] ) && isset( $_POST['code_delete_item'] ) ) 
 	}
 }
 else {
-	/*** 新規追加 ***/
 	if( isset( $_POST['code_name'] ) ) {
 		$regist_name = trim( esc_attr( $_POST['code_name'] ) );
 

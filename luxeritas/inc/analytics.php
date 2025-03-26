@@ -34,14 +34,7 @@ class thk_analytics {
 				$amplink  = thk_get_amp_permalink( get_queried_object_id() );
 				$amptitle = wp_get_document_title();
 
-				if( strpos( $analytics, "'UA-"  ) !== false ) {
-					preg_match( '/[\'|"](UA-[0-9]+?-[0-9]+?)[\'|"]/sm', $analytics, $ua );	// Google Analytics ( old )
-				}
-
-				if( strpos( $analytics, "'G-"  ) !== false ) {
-					preg_match( '/[\'|"](G-[0-9A-Z-]+?)[\'|"]/sm', $analytics, $ga );	// Google Analytics 4
-				}
-
+				preg_match( '/(UA-[0-9]+?-[0-9]+)/ism', $analytics, $ua );
 				// img タグを埋め込んでトラッキングするタイプのアクセス解析は <noscript> 等を外して amp-pixel に置換
 				$analytics = preg_replace( '/<img[^>]+?src=([\'|\"][^>]+?[\'|\"])[^>]*?>/ism', '<amp-pixel src=$1></amp-pixel>', $analytics );
 				$analytics = thk_amp_not_allowed_tag_replace( $analytics );
@@ -50,40 +43,6 @@ class thk_analytics {
 				$analytics = preg_replace( '/<amp-pixel[^>]+?src=([\'|\"]http\:\/\/[^>]+?[\'|\"])[^>]*?><\/amp-pixel>/ism', '<amp-img src=$1 width="1" height="1" alt=""></amp-img>', $analytics );
 
 				// Google Analytics が記述されていたら amp-analytics に置換
-
-				// Google Analytics 4
-				if( !empty( $ga[1] ) ) {
-					$parent_file = TPATH . DSEP . 'add-amp-analytics4.php';
-					$child_file  = SPATH . DSEP . 'add-amp-analytics4.php';
-
-					if( TPATH !== SPATH && file_exists( $child_file ) === true ) {
-						require( $child_file );
-					}
-					elseif( file_exists( $parent_file ) === true ) {
-						require( $parent_file );
-					}
-					else {
-						$analytics .= <<<AMP_ANALYTICS4
-<amp-analytics type="googleanalytics" config="https://amp.analytics-debugger.com/ga4.json" data-credentials="include">
-<script type="application/json">
-{
-	"vars": {
-		"GA4_MEASUREMENT_ID": "{$ga[1]}",
-		"GA4_ENDPOINT_HOSTNAME": "www.google-analytics.com",
-		"DEFAULT_PAGEVIEW_ENABLED": true,
-		"GOOGLE_CONSENT_ENABLED": false,
-		"WEBVITALS_TRACKING": false,
-		"PERFORMANCE_TIMING_TRACKING": false,
-		"SEND_DOUBLECLICK_BEACON": false
-	}
-}
-</script>
-</amp-analytics>
-AMP_ANALYTICS4;
-					}
-				}
-
-				// Google Analytics (old)
 				if( !empty( $ua[1] ) ) {
 					$parent_file = TPATH . DSEP . 'add-amp-analytics.php';
 					$child_file  = SPATH . DSEP . 'add-amp-analytics.php';
@@ -99,19 +58,19 @@ AMP_ANALYTICS4;
 <amp-analytics type="googleanalytics" id="analytics1">
 <script type="application/json">
 {
-	"vars": {
-		"account": "{$ua[1]}"
-	},
-	"triggers": {
-		"trackPageviewWithAmpdocUrl": {
-			"on": "visible",
-			"request": "pageview",
-			"vars": {
-				"title": "{$amptitle}",
-				"ampdocUrl": "{$amplink}"
-			}
-		}
-	}
+  "vars": {
+    "account": "{$ua[1]}"
+  },
+  "triggers": {
+    "trackPageviewWithAmpdocUrl": {
+      "on": "visible",
+      "request": "pageview",
+      "vars": {
+        "title": "{$amptitle}",
+        "ampdocUrl": "{$amplink}"
+      }
+    }
+  }
 }
 </script>
 </amp-analytics>

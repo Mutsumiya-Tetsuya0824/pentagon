@@ -93,7 +93,7 @@ class thk_qr_code extends WP_Widget {
 <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label><br /><input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
 <p><label for="<?php echo $this->get_field_id('size'); ?>"><?php echo __( 'Size', 'luxeritas' ); ?>:</label><br /><input class="widefat" style="width:80px" id="<?php echo $this->get_field_id('size'); ?>" name="<?php echo $this->get_field_name('size'); ?>" type="number" min="40" value="<?php echo $size; ?>" /></p>
 <p><label for="<?php echo $this->get_field_id('margin'); ?>"><?php echo __( 'Margin:', 'luxeritas' ); ?></label><br /><input class="widefat" style="width:80px" id="<?php echo $this->get_field_id('margin'); ?>" name="<?php echo $this->get_field_name('margin'); ?>" type="number" min="0" value="<?php echo $margin; ?>" /></p>
-
+<p>
 <label for="<?php echo $this->get_field_id('align'); ?>"><?php echo __( 'Alignment:', 'luxeritas' ); ?></label><br />
 <select id="<?php echo $this->get_field_id('align'); ?>" name="<?php echo $this->get_field_name('align'); ?>" style="width:80px">
 <option value="left"<?php if( $align === 'left') echo ' selected'; ?>><?php echo __( 'Left', 'luxeritas' ); ?></option>
@@ -120,7 +120,9 @@ class thk_recent_comments extends WP_Widget {
 	}
 
 	public function widget( $args, $instance ) {
-		global $comments, $comment;
+		global $awesome, $comments, $comment;
+
+		$fa_comment = $awesome['ver'][0] === '4' ? 'fa-comment-o' : 'fa-comment';
 
 		$title = ( !empty( $instance['title'] ) ) ? $instance['title'] : '';
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
@@ -187,8 +189,8 @@ class thk_recent_comments extends WP_Widget {
 <time class="comment_date" itemprop="commentTime" datetime="<?php echo get_comment_date( 'Y-m-d', $comment ); ?>"><?php echo get_comment_date( __( 'F j, Y', 'luxeritas' ) ); ?></time>
 <span class="author_link" itemprop="creator name"><?php echo $author_link; ?></span>
 </div>
-<div class="comment_excerpt" itemprop="commentText"><i class="ico-comment"></i><?php echo $excerpt; ?></div>
-<span class="comment_post"><i class="ico-angle-double-right"></i><a href="<?php echo get_comment_link($comment->comment_ID); ?>" aria-label="<?php echo __( 'Post of this comment', 'luxeritas' ); ?>"><?php echo $post_title; ?></a></span>
+<div class="comment_excerpt" itemprop="commentText"><i class="<?php echo $awesome['far'], $fa_comment; ?>"></i><?php echo $excerpt; ?></div>
+<span class="comment_post"><i class="<?php echo $awesome['fas']; ?>fa-angle-double-right"></i><a href="<?php echo get_comment_link($comment->comment_ID); ?>" aria-label="<?php echo __( 'Post of this comment', 'luxeritas' ); ?>"><?php echo $post_title; ?></a></span>
 </div>
 <?php
 			}
@@ -225,7 +227,7 @@ class thk_recent_comments extends WP_Widget {
 <p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label>
 <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></p>
 <p><label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php echo __( 'Number of comments to show:', 'luxeritas' ); ?></label>
-<input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="number" value="<?php echo $number; ?>" min="1" style="max-width:60px" /></p>
+<input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo $number; ?>" size="3" /></p>
 <?php
 	}
 }
@@ -241,63 +243,21 @@ class thk_recent_posts extends WP_Widget {
 		parent::__construct( 'thk_recent_posts', '#5 ' . __( 'Recent posts', 'luxeritas' ) . ' (' . __( 'by Luxeritas', 'luxeritas' ) . ')', $widget_ops );
 	}
 
-	public static function term_style() {
-		// 横長サムネイル使用時の figure (.term) の style。AMP の時は thk_widget_concat で呼び出す
-		return <<< TERM_STYLE
-			float: none;
-			overflow: hidden;
-			margin: 0 0 16px;
-			max-width: 388px;
-			max-height: 218px;
-TERM_STYLE;
-	}
-
-	public static function img_style() {
-		// 横長サムネイル使用時の img の style。AMP の時は thk_widget_concat で呼び出す
-		return <<< IMG_STYLE
-			margin: 0;
-			padding: 0;
-			border: 0;
-			min-width: 100%;
-			max-width: none;
-			max-height: none;
-IMG_STYLE;
-	}
-
 	public function widget( $args, $instance ) {
 		$title = !empty( $instance['title'] ) ? $instance['title'] : '';
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
-		$cat = !empty( $instance['cat'] ) ? absint( $instance['cat'] ) : 0;
-
-		$sort = !empty( $instance['sort'] ) && absint( $instance['sort'] ) === 1 ? 'modified' : 'date';
-
 		$number = !empty( $instance['number'] ) ? absint( $instance['number'] ) : 5;
 		if( empty( $number ) ) $number = 5;
 
-		$thumb_type = isset( $instance['thumb_type'] ) ? $instance['thumb_type'] : 'suqare';
-		$cat_tag    = isset( $instance['cat_tag'] ) ? $instance['cat_tag'] : 'cat';
-		$date       = isset( $instance['date'] ) ? $instance['date'] : 0;
-		$excerpt    = isset( $instance['excerpt'] ) ? $instance['excerpt'] : 0;
-		$thumbnail  = isset( $instance['thumbnail'] ) ? $instance['thumbnail'] : 0;
+		$thumbnail = isset( $instance['thumbnail'] ) ? $instance['thumbnail'] : 0;
 
 		echo $args['before_widget'];
-
 		if( !empty( $title ) ) echo $args['before_title'], $title, $args['after_title'];
-
-		if( $thumb_type === 'wide' ) {
-			global $luxe;
-
-			if( !isset( $luxe['amp'] ) ) {
-				$term_style = '#' . $args['widget_id'] . ' .term {' . thk_recent_posts::term_style() . '}';
-				$img_style  = '#' . $args['widget_id'] . ' .term img {' . thk_recent_posts::img_style() . '}';
-?><style><?php echo thk_simple_css_minify( $term_style . $img_style ); ?></style><?php
-			}
-		}
 ?>
 <div id="thk-new">
 <?php
-		$arr = array( 'cat' => $cat, 'orderby' => $sort, 'posts_per_page' => $number );
+		$arr = array( 'posts_per_page' => $number );
 		$st_query = new WP_Query( $arr );
 
 		if( $st_query->have_posts() === true ) {
@@ -306,164 +266,59 @@ IMG_STYLE;
 
 			while( $st_query->have_posts() === true ) {
 				$st_query->the_post();
-?><div class="toc clearfix"><?php
-				if( empty( $thumbnail ) ) {
-					$attachment_id = false;
-					$echo = false;
-					$post_thumbnail = has_post_thumbnail();
+?>
+<div class="toc clearfix">
+<?php if( empty( $thumbnail ) ): ?>
+<div class="term"><a href="<?php the_permalink() ?>" aria-hidden="true"><?php
+				$attachment_id = false;
+				$post_thumbnail = has_post_thumbnail();
 
-					if( $post_thumbnail === false && isset( $luxe['no_img'] ) ) {
-						$attachment_id = thk_get_image_id_from_url( $luxe['no_img'] );
-						if( $attachment_id !== false ) {
-							$post_thumbnail = true;
-							$echo = true;
-							$aria_label = 'aria-label="No Imaage"';
+				if( $post_thumbnail === false && isset( $luxe['no_img'] ) ) {
+					$attachment_id = thk_get_image_id_from_url( $luxe['no_img'] );
+					if( $attachment_id !== false ) $post_thumbnail = true;
+				}
+
+				if( $post_thumbnail === true ) {
+					$thumb = 'thumb100';
+					$image_id = get_post_thumbnail_id();
+					$image_url = wp_get_attachment_image_src( $image_id, $thumb );
+					if( isset( $image_url[0] ) && stripos( $image_url[0], '-100x100.' ) !== false ) {
+						$image_path = str_replace( $wp_upload_dir['baseurl'], $wp_upload_dir['basedir'], $image_url[0] );
+
+						if( file_exists( $image_path ) === false ) {
+							$thumb = 'thumbnail';
 						}
-					}
-
-					if( $post_thumbnail === true ) {
-						if( $thumb_type === 'wide' ) {
-							$thumb = 'thumb320';
-							$image_id = $attachment_id;
-
-							if( $attachment_id === false ) {
-								$image_id = get_post_thumbnail_id();
-							}
-							$image_url = wp_get_attachment_image_src( $image_id, $thumb );
-
-							if( isset( $image_url[0] ) && stripos( $image_url[0], '-320x180.' ) !== false ) {
-								$image_path = str_replace( $wp_upload_dir['baseurl'], $wp_upload_dir['basedir'], $image_url[0] );
-
-								if( file_exists( $image_path ) === false ) {
-									$thumb = 'thumbnail';
-								}
-							}
-							else {
-								$thumb = 'full';
-							}
-						}
-						else {
-							$thumb = 'thumb100';
-							$image_id = $attachment_id;
-
-							if( $attachment_id === false ) {
-								$image_id = get_post_thumbnail_id();
-							}
-							$image_url = wp_get_attachment_image_src( $image_id, $thumb );
-
-							if( isset( $image_url[0] ) && stripos( $image_url[0], '-100x100.' ) !== false ) {
-								$image_path = str_replace( $wp_upload_dir['baseurl'], $wp_upload_dir['basedir'], $image_url[0] );
-
-								if( file_exists( $image_path ) === false ) {
-									$thumb = 'thumbnail';
-								}
-							}
-							else {
-								$thumb = 'thumbnail';
-							}
-						}
-
-						if( $attachment_id === false ) {
-							$attachment_id = get_post_thumbnail_id();
-							$attachment_image = wp_get_attachment_image( $attachment_id );
-
-							if( isset( $luxe['amp'] ) ) {
-								$aria_label = 'aria-hidden="true"';
-							}
-							else {
-								if( !empty( $attachment_image ) && stripos( $attachment_image, 'alt="' ) !== false ) {
-									$aria_label = substr( $attachment_image, stripos( $attachment_image, 'alt="' ) + 5 );
-									$aria_label = substr( $aria_label, 0, stripos( $aria_label, '"' ) );
-									if( empty( $aria_label ) ) {
-										$aria_label = 'aria-label="' . thk_random_alt_or_aria_label( 'Thumbnail of new posts' ) . '"';
-									}
-									else {
-										$aria_label = 'aria-label="' . $aria_label . '"';
-									}
-								}
-								else {
-									$aria_label = 'aria-label="' . thk_random_alt_or_aria_label( 'Thumbnail of new posts' ) . '"';
-								}
-							}
-							//the_post_thumbnail( $thumb );
-							//$src = preg_replace( '/srcset=.+?sizes/', 'sizes', get_the_post_thumbnail( $post->ID, $thumb ) );
-							$src = get_the_post_thumbnail( $post->ID, $thumb );
-						}
-						else {
-							if( isset( $luxe['amp'] ) ) {
-								$aria_label = 'aria-hidden="true"';
-							}
-							else {
-								$aria_label = 'aria-label="No Image"';
-							}
-							//echo wp_get_attachment_image( $attachment_id );
-							//$src = preg_replace( '/srcset=.+?sizes/', 'sizes', wp_get_attachment_image( $attachment_id ) );
-							$src = wp_get_attachment_image( $attachment_id, $thumb );
-						}
-
-						$src = preg_replace( array("/( data-srcset| srcset| sizes)=[\"']{1}((?:\\\.|[^\"\\\])*)[\"']{1}/i"), '', $src );
-
-?><figure class="term"><a href="<?php the_permalink() ?>" <?php echo $aria_label; ?>><?php
-						//echo $src;
-						echo thk_alt_attribute( $src, 'Thumbnail of new posts' );
 					}
 					else {
-						$aria_label = isset( $luxe['amp'] ) ? 'aria-hidden="true"' : 'aria-label="No Image"';
-
-						$no_img_width  = 100;
-						$no_img_height = 100;
-						if( $thumb_type === 'wide' ) {
-							$no_img_width  = 320;
-							$no_img_height = 180;
-						}
-?><figure class="term"><a href="<?php the_permalink() ?>" <?php echo $aria_label; ?>><img src="<?php echo esc_url( get_template_directory_uri() ); ?>/images/no-img-<?php echo $no_img_width, 'x', $no_img_height; ?>.png" alt="No Image" title="No Image" width="<?php echo $no_img_width; ?>" height="<?php echo $no_img_height; ?>" /><?php
+						$thumb = 'thumbnail';
 					}
-?></a>
-</figure>
-<?php
+					if( $attachment_id !== false ) {
+						//echo wp_get_attachment_image( $attachment_id );
+						//$src = preg_replace( '/srcset=.+?sizes/', 'sizes', wp_get_attachment_image( $attachment_id ) );
+						$src = wp_get_attachment_image( $attachment_id );
+					}
+					else {
+						//the_post_thumbnail( $thumb );
+						//$src = preg_replace( '/srcset=.+?sizes/', 'sizes', thk_get_the_post_thumbnail( $post->ID, $thumb ) );
+						$src = thk_get_the_post_thumbnail( $post->ID, $thumb );
+					}
+					$src = preg_replace( array("/( data-srcset| srcset| sizes)=[\"']{1}((?:\\\.|[^\"\\\])*)[\"']{1}/i"), '', $src );
+					echo $src;
 				}
-?>
+				else {
+?><img src="<?php echo get_template_directory_uri(); ?>/images/no-img-100x100.png" alt="No Image" title="No Image" width="100" height="100" /><?php
+				}
+?></a>
+</div>
+<?php endif; ?>
 <div class="excerpt"<?php if( !empty( $thumbnail ) ) echo ' style="padding:0 10px"'; ?>>
+<p class="new-title"><a href="<?php the_permalink(); ?>" aria-label="<?php echo __( 'Recent posts', 'luxeritas' ); ?>"><?php the_title(); ?></a></p>
+<p><?php
+echo apply_filters( 'thk_excerpt_no_break', 40 );
+?></p>
+</div>
+</div>
 <?php
-if( $date === 0 || $cat_tag !== 'none' ) {
-	?><p class="new-meta"><?php
-	if( $date === 0 ) {
-		if( $sort === 'date' ) {
-			printf( '<time class="date" datetime="%1$s">%2$s</time>', get_the_date( 'c' ), get_the_date() );
-		} else {
-			printf( '<time class="date" datetime="%1$s">%2$s</time>', get_the_modified_date( 'c' ), get_the_modified_date() );
-		}
-	}
-	if( $cat_tag !== 'none' ) {
-		$cat_array = get_the_category();
-		$tag_array = get_the_tags();
-
-		if( $date === 0 && ( isset( $cat_array[0]->cat_name ) || isset( $tag_array[0]->name ) ) ) { ?><span class="sep"> : </span><?php }
-
-		if( $cat_tag === 'cat' ) {
-			if( isset( $cat_array[0]->cat_name ) ) {
-				?><span class="cat_or_tag"><?php echo $cat_array[0]->cat_name; ?></span><?php
-			}
-			elseif( isset( $tag_array[0]->name ) ) {
-				?><span class="cat_or_tag"><?php echo $tag_array[0]->name; ?></span><?php
-			}
-		}
-		else {
-			if( isset( $tag_array[0]->name ) ) {
-				?><span class="cat_or_tag"><?php echo $tag_array[0]->name; ?></span><?php
-			}
-			elseif( isset( $cat_array[0]->cat_name ) ) {
-				?><span class="cat_or_tag"><?php echo $cat_array[0]->cat_name; ?></span><?php
-			}
-		}
-	}
-	?></p><?php
-}
-?>
-<p class="new-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></p><?php
-
-if( $excerpt === 0 ) echo apply_filters( 'thk_excerpt_no_break', 40 );
-?></div></div><?php
 			}
 		}
 		else {
@@ -481,68 +336,23 @@ if( $excerpt === 0 ) echo apply_filters( 'thk_excerpt_no_break', 40 );
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 		$instance['title']	= sanitize_text_field( $new_instance['title'] );
-		$instance['thumb_type']	= sanitize_text_field( $new_instance['thumb_type'] );
-		$instance['cat']	= absint( $new_instance['cat'] );
-		$instance['sort']	= absint( $new_instance['sort'] );
 		$instance['number']	= absint( $new_instance['number'] );
-		$instance['cat_tag']	= sanitize_text_field( $new_instance['cat_tag'] );
-		$instance['date']       = absint( $new_instance['date'] );
-		$instance['excerpt']    = absint( $new_instance['excerpt'] );
-		$instance['thumbnail']	= absint( $new_instance['thumbnail'] );
+		$instance['thumbnail']	= $new_instance['thumbnail'];
 
 		return $instance;
 	}
 
 	public function form( $instance ) {
 		$title  = isset( $instance['title'] ) ? esc_attr( $instance['title'] ) : __( 'Recent posts', 'luxeritas' );
-		$cat    = isset( $instance['cat'] ) ? absint( $instance['cat'] ) : 0;
-		$thumb_type = isset( $instance['thumb_type'] ) ? esc_attr( $instance['thumb_type'] ) : 'square';
-		$sort   = isset( $instance['sort'] ) ? absint( $instance['sort'] ) : 0;
 		$number = isset( $instance['number'] ) ? absint( $instance['number'] ) : 5;
-		$cat_tag = isset( $instance['cat_tag'] ) ? $instance['cat_tag'] : 'cat';
-		$date    = isset( $instance['date'] ) ? absint( $instance['date'] ) : 0;
-		$excerpt = isset( $instance['excerpt'] ) ? absint( $instance['excerpt'] ) : 0;
-		$thumbnail = isset( $instance['thumbnail'] ) ? absint( $instance['thumbnail'] ) : 0;
+		$thumbnail = isset( $instance['thumbnail'] ) ? $instance['thumbnail'] : 0;
 ?>
-<p><label for="<?php echo $this->get_field_id( 'title' ); ?>" style="line-height:2"><?php echo __( 'Title:', 'luxeritas' ); ?></label>
+<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label>
 <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></p>
-<table><tbody><tr>
-<td style="padding:10px 0"><label for="<?php echo $this->get_field_id( 'cat' ); ?>"><?php echo __( 'Category', 'luxeritas' ); ?></label></td>
-<td><?php wp_dropdown_categories( array('show_option_all' => __( 'All Categories', 'luxeritas' ), 'id' => $this->get_field_id( 'cat' ), 'name' => $this->get_field_name( 'cat' ), 'selected' => $cat ) ) ?></td>
-</tr><tr>
-<td style="padding:10px 0"><label for="<?php echo $this->get_field_id( 'thumb_type' ); ?>"><?php echo __( 'Thumbnail', 'luxeritas' ); ?></label></td>
-<td><select id="<?php echo $this->get_field_id( 'thumb_type' ); ?>" name="<?php echo $this->get_field_name( 'thumb_type' ); ?>">
-<option value="square"><?php echo __( 'Small square thumbnail', 'luxeritas' ); ?></option>
-<option value="wide" <?php selected( $thumb_type, 'wide' ); ?>><?php echo __( 'Wide thumbnail', 'luxeritas' ); ?></option>
-</select>
-</td>
-</tr><tr>
-<td style="padding:10px 0"><label for="<?php echo $this->get_field_id( 'sort' ); ?>"><?php echo __( 'Sort', 'luxeritas' ); ?></label></td>
-<td>
-<select id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'sort' ); ?>">
-<option value="0"><?php echo __( 'publish date', 'luxeritas' ); ?></option>
-<option value="1" <?php selected( $sort, 1 ); ?>><?php echo __( 'updated date', 'luxeritas' ); ?></option>
-</select>
-</td>
-</tr><tr>
-<td style="padding:10px 0"><label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php echo __( 'Number of posts to show:', 'luxeritas' ); ?></label></td>
-<td><input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="number" value="<?php echo $number; ?>" min="1" style="max-width:60px" /></td>
-</tr></tbody></table>
-<p><?php echo __( 'Category or tag display:', 'luxeritas' ); ?></p>
-<table><tbody>
-<tr><td style="padding:0 0 3px 10px "><input class="radio" id="<?php echo $this->get_field_name('cat_tag'); ?>" name="<?php echo $this->get_field_name('cat_tag'); ?>" type="radio" value="cat" <?php checked( $cat_tag === 'cat' ? 1 : 0 ); ?> />
-<label for="<?php echo $this->get_field_id('cat_tag'); ?>"><?php echo __( 'Display category preferentially', 'luxeritas' ); ?></label></td></tr>
-<tr><td style="padding:3px 0 3px 10px"><input class="radio" id="<?php echo $this->get_field_name('cat_tag'); ?>" name="<?php echo $this->get_field_name('cat_tag'); ?>" type="radio" value="tag" <?php checked( $cat_tag === 'tag' ? 1 : 0 ); ?> />
-<label for="<?php echo $this->get_field_id('cat_tag'); ?>"><?php echo __( 'Display tag preferentially', 'luxeritas' ); ?></label></td></tr>
-<tr><td style="padding:3px 0 3px 10px"><input class="radio" id="<?php echo $this->get_field_name('cat_tag'); ?>" name="<?php echo $this->get_field_name('cat_tag'); ?>" type="radio" value="none" <?php checked( $cat_tag === 'none' ? 1 : 0 ); ?> />
-<label for="<?php echo $this->get_field_id('cat_tag'); ?>"><?php echo __( 'Do not display', 'luxeritas' ); ?></label></td></tr>
-</tbody></table>
-<p><input class="checkbox" id="<?php echo $this->get_field_id( 'date' ); ?>" name="<?php echo $this->get_field_name( 'date' ); ?>" type="checkbox" value="1" <?php checked( $date, 1 ); ?> />
-<label for="<?php echo $this->get_field_id( 'date' ); ?>"><?php echo __( 'No date', 'luxeritas' ); ?></label></p>
-<p><input class="checkbox" id="<?php echo $this->get_field_id( 'excerpt' ); ?>" name="<?php echo $this->get_field_name( 'excerpt' ); ?>" type="checkbox" value="1" <?php checked( $excerpt, 1 ); ?> />
-<label for="<?php echo $this->get_field_id( 'excerpt' ); ?>"><?php echo __( 'No excerpt', 'luxeritas' ); ?></label></p>
+<p><label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php echo __( 'Number of posts to show:', 'luxeritas' ); ?></label>
+<input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo $number; ?>" size="3" /></p>
 <p><input class="checkbox" id="<?php echo $this->get_field_id( 'thumbnail' ); ?>" name="<?php echo $this->get_field_name( 'thumbnail' ); ?>" type="checkbox" value="1" <?php checked( $thumbnail, 1 ); ?> />
-<label for="<?php echo $this->get_field_id( 'thumbnail' ); ?>"><?php echo __( 'No thumbnail', 'luxeritas' ); ?></label></p>
+<label for="<?php echo $this->get_field_id( 'thumbnail' ); ?>"><?php echo __( 'No Thumbnail', 'luxeritas' ); ?></label></p>
 <?php
 	}
 }
@@ -601,23 +411,23 @@ class thk_follow_button extends WP_Widget {
 <ul>
 <?php
 	if( isset( $instance['twitter'] ) ):
-?><li><span class="snsf twitter"><a href="//twitter.com/<?php echo isset($instance['twitter_id']) ? rawurlencode( rawurldecode( $instance['twitter_id'] ) ) : ''; ?>" target="blank" title="Twitter" rel="nofollow noopener" itemprop="sameAs"><i class="ico-x-twitter"></i><?php if( $instance['icon'] ) echo '<span class="fname">Twitter</span>'; ?></a></span></li>
+?><li><span class="snsf twitter"><a href="//twitter.com/<?php echo isset($instance['twitter_id']) ? rawurlencode( rawurldecode( $instance['twitter_id'] ) ) : ''; ?>" target="blank" title="Twitter" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-twitter"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">Twitter</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['facebook'] ) ):
-?><li><span class="snsf facebook"><a href="//www.facebook.com/<?php echo isset($instance['facebook_id']) ? rawurlencode( rawurldecode( $instance['facebook_id'] ) ) : ''; ?>" target="blank" title="Facebook" rel="nofollow noopener" itemprop="sameAs"><i class="ico-facebook"></i><?php if( $instance['icon'] ) echo '<span class="fname">Facebook</span>'; ?></a></span></li>
+?><li><span class="snsf facebook"><a href="//www.facebook.com/<?php echo isset($instance['facebook_id']) ? rawurlencode( rawurldecode( $instance['facebook_id'] ) ) : ''; ?>" target="blank" title="Facebook" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-facebook-f"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">Facebook</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['instagram'] ) ):
-?><li><span class="snsf instagram"><a href="//www.instagram.com/<?php echo isset($instance['instagram_id']) ? rawurlencode( rawurldecode( $instance['instagram_id'] ) ) : ''; ?>?ref=badge" target="blank" title="Instagram" rel="nofollow noopener" itemprop="sameAs"><i class="ico-instagram"></i><?php if( $instance['icon'] ) echo '<span class="fname">Instagram</span>'; ?></a></span></li>
+?><li><span class="snsf instagram"><a href="//www.instagram.com/<?php echo isset($instance['instagram_id']) ? rawurlencode( rawurldecode( $instance['instagram_id'] ) ) : ''; ?>?ref=badge" target="blank" title="Instagram" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-instagram"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">Instagram</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['pinit'] ) ):
-?><li><span class="snsf pinit"><a href="//www.pinterest.com/<?php echo isset($instance['pinit_id']) ? rawurlencode( rawurldecode( $instance['pinit_id'] ) ) : ''; ?>" target="blank" title="Pinterest" rel="nofollow noopener" itemprop="sameAs"><i class="ico-pinterest-p"></i><?php if( $instance['icon'] ) echo '<span class="fname">Pinterest</span>'; ?></a></span></li>
+?><li><span class="snsf pinit"><a href="//www.pinterest.com/<?php echo isset($instance['pinit_id']) ? rawurlencode( rawurldecode( $instance['pinit_id'] ) ) : ''; ?>" target="blank" title="Pinterest" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-pinterest-p"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">Pinterest</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['hatena'] ) ):
-?><li><span class="snsf hatena"><a href="//b.hatena.ne.jp/<?php echo isset($instance['hatena_id']) ? rawurlencode( rawurldecode( $instance['hatena_id'] ) ) : ''; ?>" target="blank" title="<?php echo __( 'Hatena Bookmark', 'luxeritas' ); ?>" rel="nofollow noopener" itemprop="sameAs"><i class="ico-hatena bold">B!</i><?php if( $instance['icon'] ) echo '<span class="fname">Hatena</span>'; ?></a></span></li>
+?><li><span class="snsf hatena"><a href="//b.hatena.ne.jp/<?php echo isset($instance['hatena_id']) ? rawurlencode( rawurldecode( $instance['hatena_id'] ) ) : ''; ?>" target="blank" title="<?php echo __( 'Hatena Bookmark', 'luxeritas' ); ?>" rel="nofollow noopener" itemprop="sameAs">B!<?php if( $instance['icon'] ) echo '<span class="fname">Hatena</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['youtube'] ) ):
@@ -630,19 +440,19 @@ class thk_follow_button extends WP_Widget {
 			$youtube_id = rawurlencode( rawurldecode( $instance['youtube_id'] ) );
 			$youtube_type = 'user/';
 		}
-?><li><span class="snsf youtube"><a href="//www.youtube.com/<?php echo $youtube_type, $youtube_id; ?>" class="nofloatbox" target="blank" title="YouTube" rel="nofollow noopener" itemprop="sameAs"><i class="ico-youtube-play"></i><?php if( $instance['icon'] ) echo '<span class="fname">YouTube</span>'; ?></a></span></li>
+?><li><span class="snsf youtube"><a href="//www.youtube.com/<?php echo $youtube_type, $youtube_id; ?>" class="nofloatbox" target="blank" title="YouTube" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-youtube"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">YouTube</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['line'] ) ):
-?><li><span class="snsf line"><a href="//line.naver.jp/ti/p/<?php echo isset($instance['line_id']) ? rawurlencode( rawurldecode( $instance['line_id'] ) ) : ''; ?>" target="blank" title="LINE" rel="nofollow noopener" itemprop="sameAs"><i class="ico-line"></i><?php if( $instance['icon'] ) echo '<span class="fname">LINE</span>'; ?></a></span></li>
+?><li><span class="snsf line"><a href="//line.naver.jp/ti/p/<?php echo isset($instance['line_id']) ? rawurlencode( rawurldecode( $instance['line_id'] ) ) : ''; ?>" target="blank" title="LINE" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-line"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">LINE</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['rss'] ) ):
-?><li><span class="snsf rss"><a href="<?php echo get_bloginfo('rss2_url'); ?>" target="_blank" title="RSS" rel="nofollow noopener" itemprop="sameAs"><?php echo $awesome['rss']; ?><?php if( $instance['icon'] ) echo '<span class="fname">RSS</span>'; ?></a></span></li>
+?><li><span class="snsf rss"><a href="<?php echo get_bloginfo('rss2_url'); ?>" target="_blank" title="RSS" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fas']; ?>fa-rss"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">RSS</span>'; ?></a></span></li>
 <?php
 	endif;
 	if( isset( $instance['feedly'] ) ):
-?><li><span class="snsf feedly"><a href="//feedly.com/index.html#subscription/feed/<?php echo rawurlencode( get_bloginfo('rss2_url') ); ?>" target="blank" title="Feedly" rel="nofollow noopener" itemprop="sameAs"><i class="ico-feedly"></i><?php if( $instance['icon'] ) echo '<span class="fname">Feedly</span>'; ?></a></span></li>
+?><li><span class="snsf feedly"><a href="//feedly.com/index.html#subscription/feed/<?php echo rawurlencode( get_bloginfo('rss2_url') ); ?>" target="blank" title="Feedly" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-feedly"></i>&nbsp;<?php if( $instance['icon'] ) echo '<span class="fname">Feedly</span>'; ?></a></span></li>
 <?php
 	endif;
 ?></ul>
@@ -803,7 +613,7 @@ class thk_rss_feedly extends WP_Widget {
 ?>
 <div id="thk-rss-feedly">
 <ul>
-<li><a href="<?php echo get_bloginfo('rss2_url'); ?>" class="icon-rss-button" target="_blank" title="RSS" rel="nofollow noopener"><?php echo $awesome['rss']; ?><span>RSS</span></a></li>
+<li><a href="<?php echo get_bloginfo('rss2_url'); ?>" class="icon-rss-button" target="_blank" title="RSS" rel="nofollow noopener"><i class="<?php echo $awesome['fas']; ?>fa-rss"></i><span>RSS</span></a></li>
 <li><a href="//feedly.com/index.html#subscription/feed/<?php echo rawurlencode( get_bloginfo('rss2_url') ); ?>" class="icon-feedly-button" target="blank" title="feedly" rel="nofollow noopener"><i class="ico-feedly"></i><span>Feedly</span></a></li>
 </ul>
 <div class="clearfix"></div>
@@ -1072,10 +882,10 @@ class thk_adsense_widget extends WP_Widget {
 		$instance = $old_instance;
 		$instance['title']	= isset( $new_instance['title'] )	? sanitize_text_field( $new_instance['title'] ) : null;
 		$instance['title']	= sanitize_text_field( $new_instance['title'] );
-		if( current_user_can( 'unfiltered_html' ) ) {
+		if ( current_user_can( 'unfiltered_html' ) ) {
 			$instance['text'] = isset( $new_instance['text'] )	? $new_instance['text']		: null;
 		} else {
-			$instance['text'] = isset( $new_instance['text'] )	? esc_attr( $new_instance['text'] ) : null;
+			$instance['text'] = isset( $new_instance['text'] )	? wp_kses_post( $new_instance['text'] ) : null;
 		}
 		$instance['adsense']	= isset( $new_instance['adsense'] )	? $new_instance['adsense']	: null;
 		$instance['center']	= isset( $new_instance['center'] )	? $new_instance['center']	: null;
@@ -1087,7 +897,7 @@ class thk_adsense_widget extends WP_Widget {
 		if ( current_user_can( 'unfiltered_html' ) ) {
 			$instance['ids'] = isset( $new_instance['ids'] )	? $new_instance['ids']	: null;
 		} else {
-			$instance['ids'] = isset( $new_instance['ids'] )	? esc_attr( $new_instance['ids'] ) : null;
+			$instance['ids'] = isset( $new_instance['ids'] )	? wp_kses_post( $new_instance['ids'] ) : null;
 		}
 
 		foreach( $this->_pages as $key => $val ) {
@@ -1098,15 +908,11 @@ class thk_adsense_widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$title  = isset( $instance['title'] ) ? sanitize_text_field( $instance['title'] ) : '';
-		if ( current_user_can( 'unfiltered_html' ) ) {
-			$text = isset( $instance['text'] ) ? $instance['text'] : '';
-		} else {
-			$text	= isset( $instance['text'] ) ? esc_attr( $instance['text'] ) : '';
-		}
+		$title  = isset( $instance['title'] )	? sanitize_text_field( $instance['title'] ) : '';
+		$text   = isset( $instance['text'] )	? $instance['text']	: '';
 		$adsense= isset( $instance['adsense'] ) ? $instance['adsense']	: 'none';
 		$label	= isset( $instance['label'] )	? $instance['label']	: 'none';
-		$ids	= isset( $instance['ids'] )	? sanitize_text_field( $instance['ids'] ) : '';
+		$ids	= isset( $instance['ids'] )	? sanitize_text_field( $instance['ids'] )   : '';
 		$fullwidth = isset( $instance['fullwidth'] ) ? (int)$instance['fullwidth'] : 0;
 
 		if( empty( $instance ) ) {
@@ -1119,7 +925,7 @@ class thk_adsense_widget extends WP_Widget {
 <p><label style="font-weight:bold" for="<?php echo $this->get_field_id('title'); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label>
 <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></p>
 <p><label style="font-weight:bold" for="<?php echo $this->get_field_id('text'); ?>"><?php echo __( 'Content:', 'luxeritas' ); ?></label>
-<textarea class="widefat" rows="10" cols="20" id="<?php echo $this->get_field_id('text'); ?>" name="<?php echo $this->get_field_name('text'); ?>"><?php echo $text; ?></textarea></p>
+<textarea class="widefat" rows="10" cols="20" id="<?php echo $this->get_field_id('text'); ?>" name="<?php echo $this->get_field_name('text'); ?>"><?php echo $text; ?></textarea>
 <p><?php echo __( '* Google Adsense please paste responsive ads.', 'luxeritas' ); ?></p>
 <p><?php echo __( '* In addition to advertisements, you can write whatever you like text, HTML, shortcode etc.', 'luxeritas' ); ?></p>
 
@@ -1267,8 +1073,7 @@ class thk_swiper_widget extends WP_Widget {
 			'thumbnail'	=> 'medium',
 			'item_max'	=> 10,
 			'show_max'	=> 5,
-			//'height'	=> 'auto',
-			'height'	=> 'full',
+			'height'	=> 'auto',
 			'height_px'	=> 300,
 			'width'		=> 'auto',
 			'slide_bg'	=> '#ffffff',
@@ -1321,17 +1126,17 @@ class thk_swiper_widget extends WP_Widget {
 			$args,
 			$title,
 			$instance['item_types'],
+			$instance['ids'],
 			$instance['item_max'],
 			$instance['show_max'],
-			$instance['navigation'],
-			$instance['next_prev'],
-			$instance['nav_color'],
-			$instance['ids'],
 			$instance['thumbnail'],
 			$instance['height'],
 			$instance['height_px'],
 			$instance['width'],
 			$instance['slide_bg'],
+			$instance['navigation'],
+			$instance['next_prev'],
+			$instance['nav_color'],
 			$instance['titleview'],
 			$instance['efect'],
 			$instance['darkness'],
@@ -1401,8 +1206,8 @@ class thk_swiper_widget extends WP_Widget {
 			$instance['no_lazyload']	= 0;
 		}
 ?>
-<p style="font-weight:bold"><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label></p>
-<p><input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></p>
+<p style="font-weight:bold"><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label>
+<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></p>
 <p style="font-weight:bold"><?php echo __( 'Page display this widget', 'luxeritas' ); ?>:</p>
 <?php
 		foreach( $this->_pages as $key => $val ) {
@@ -1424,10 +1229,10 @@ class thk_swiper_widget extends WP_Widget {
 ?>
 <textarea class="widefat" rows="5" cols="20" id="<?php echo $this->get_field_id('ids'); ?>" name="<?php echo $this->get_field_name('ids'); ?>"><?php echo $ids; ?></textarea>
 
-<p><input class="widefat" style="width:50px" id="<?php echo $this->get_field_id('show_max'); ?>" name="<?php echo $this->get_field_name('show_max'); ?>" type="number" value="<?php echo esc_attr($showmax); ?>" /></p>
+<p><input class="widefat" style="width:50px" id="<?php echo $this->get_field_id('show_max'); ?>" name="<?php echo $this->get_field_name('show_max'); ?>" type="number" value="<?php echo esc_attr($showmax); ?>" />
 <label for="<?php echo $this->get_field_id('show_max'); ?>"><?php echo __( ' : Maximum display number ( * a number smaller than the number of items )', 'luxeritas' ); ?></label>
 
-<p><input class="widefat" style="width:50px" id="<?php echo $this->get_field_id('item_max'); ?>" name="<?php echo $this->get_field_name('item_max'); ?>" type="number" value="<?php echo esc_attr($itemmax); ?>" /></p>
+<p><input class="widefat" style="width:50px" id="<?php echo $this->get_field_id('item_max'); ?>" name="<?php echo $this->get_field_name('item_max'); ?>" type="number" value="<?php echo esc_attr($itemmax); ?>" />
 <label for="<?php echo $this->get_field_id('item_max'); ?>"><?php echo __( ' : Maximum number of items', 'luxeritas' ); ?></label>
 
 <hr style="margin:20px 0 0 0" />
@@ -1483,7 +1288,7 @@ class thk_swiper_widget extends WP_Widget {
 <p><input class="thk-color-picker" type="text" id="<?php echo $this->get_field_id( 'nav_color' ); ?>" name="<?php echo $this->get_field_name( 'nav_color' ); ?>" value="<?php echo esc_attr( $instance['nav_color'] ); ?>" /></p>
 
 <hr style="margin:20px 0 0 0" />
-<p style="font-weight:bold"><label for="<?php echo $this->get_field_id('efect'); ?>"><?php echo __( 'Efects', 'luxeritas' ); ?>:</label></p>
+<p style="font-weight:bold"><label for="<?php echo $this->get_field_id('efect'); ?>"><?php echo __( 'Efects', 'luxeritas' ); ?>:</label>
 
 <?php
 		foreach( $this->_efect as $key => $val ) {
@@ -1498,7 +1303,7 @@ class thk_swiper_widget extends WP_Widget {
 <label for="<?php echo $this->get_field_id('darkness'); ?>"><?php echo __( 'Display non-active slides dark', 'luxeritas' ); ?></label></p>
 
 <hr style="margin:20px 0 0 0" />
-<p style="font-weight:bold"><label for="<?php echo $this->get_field_id('options'); ?>"><?php echo __( 'Options', 'luxeritas' ); ?>:</label></p>
+<p style="font-weight:bold"><label for="<?php echo $this->get_field_id('options'); ?>"><?php echo __( 'Options', 'luxeritas' ); ?>:</label>
 
 <?php
 		foreach( $this->_center as $key => $val ) {
@@ -1546,9 +1351,7 @@ class thk_toc_widget extends WP_Widget {
 			$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 			$post = get_post( $wp_query->post->ID );
-			//$contents = $post->post_content;
-			// ページング対応は wpfunc.php でやるので、以下に変更
-			$contents = apply_filters( 'the_content', $post->post_content );
+			$contents = $post->post_content;
 
 			$toc_array = thk_create_toc( $contents, false );
 
@@ -1602,6 +1405,8 @@ class thk_reusable_blocks_widget extends WP_Widget {
 		parent::__construct( 'thk_reusable_blocks_widget', '#2 ' . __( 'Reusable Blocks', 'luxeritas' ) . ' (' . __( 'by Luxeritas', 'luxeritas' ) . ')', $widget_ops );
 	}
 	public function widget( $args, $instance ) {
+		global $luxe;
+
 		if( !empty( $instance['title'] ) ) {
 			$title = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 			$title = $args['before_title'] . $title . $args['after_title'];
@@ -1655,116 +1460,6 @@ class thk_reusable_blocks_widget extends WP_Widget {
 		else {
 			echo '<input type="text" value="', __( 'No reusable block available to select.', 'luxeritas' ), '" disabled />';
 		}
-?></p><?php
-	}
-}
-endif;
-
-/*---------------------------------------------------------------------------
- * PWA インストールボタン
- *---------------------------------------------------------------------------*/
-if( class_exists( 'thk_pwa_install' ) === false ):
-class thk_pwa_install extends WP_Widget {
-	public function __construct() {
-		$widget_ops = array( 'classname' => 'thk_pwa_install', 'description' => __( 'PWA install button', 'luxeritas' ) );
-		parent::__construct( 'thk_pwa_install', '#10 ' . __( 'PWA install button', 'luxeritas' ) . ' (' . __( 'by Luxeritas', 'luxeritas' ) . ')', $widget_ops );
-	}
-
-	public function widget( $args, $instance ) {
-		global $_is, $luxe, $awesome;
-
-		$mobile = true;
-
-		if( $_is['mobile'] === false && isset( $instance['mobile'] ) && (int)$instance['mobile'] === 1 ) {
-			$mobile = false;
-		}
-
-		if( isset( $luxe['pwa_enable'] ) && isset( $luxe['pwa_offline_enable'] ) && isset( $luxe['pwa_install_widget'] ) && $mobile === true ) {
-			$title = !empty( $instance['title'] ) ? $instance['title'] : '';
-			$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
-
-			$name = !empty( $instance['name'] ) ? $instance['name'] : '';
-			$description = !empty( $instance['description'] ) ? $instance['description'] : '';
-			$color = !empty( $instance['color'] ) ? $instance['color'] : '#333333';
-			$bg = !empty( $instance['bg'] ) ? $instance['bg'] : '#fef8ee';
-			$border = !empty( $instance['border'] ) ? $instance['border'] : '#f0b849';
-
-			$box_style = '';
-			if( $color !== '#333333' || $bg !== '#fef8ee' || $border !== '#f0b849' ) {
-				$box_style .= ' style="';
-				if( $color  !== '#333333' ) $box_style .= 'color:' . $color . ';';
-				if( $bg     !== '#fef8ee' ) $box_style .= 'background:' . $bg . ';';
-				if( $border !== '#f0b849' ) $box_style .= 'border-color:' . $border . ';';
-				$box_style = rtrim( $box_style, ';' );
-				$box_style .= '"';
-			}
-
-			echo str_replace( '<div id=', '<div style="display:none" id=', $args['before_widget'] );
-			if( !empty( $title ) ) echo $args['before_title'], $title, $args['after_title'];
-?>
-<div class="pwa_install_box"<?php echo $box_style; ?>><div class="pwa_install_msg">
-<?php
-			if( !empty( $description ) ) {
-?><div><?php echo $description; ?></div><?php
-			}
-?><button type="button" class="pwa_install"><?php echo !empty( $name ) ? $name : __( 'Install', 'luxeritas'); ?></button>
-</div></div>
-<?php
-			echo $args['after_widget'];
-		}
-	}
-
-	public function update( $new_instance, $old_instance ) {
-		$instance = $old_instance;
-		$instance['title'] = sanitize_text_field( $new_instance['title'] );
-		$instance['name'] = wp_kses_post( $new_instance['name'] );
-		/*
-		if( current_user_can( 'unfiltered_html' ) ) {
-			$instance['description'] = isset( $new_instance['description'] ) ? $new_instance['description'] : null;
-		} else {
-			$instance['description'] = isset( $new_instance['description'] ) ? wp_kses_post( $new_instance['description'] ) : null;
-		}
-		*/
-		$instance['description'] = isset( $new_instance['description'] ) ? wp_kses_post( $new_instance['description'] ) : null;
-		$instance['color'] = sanitize_text_field( $new_instance['color'] );
-		$instance['bg'] = sanitize_text_field( $new_instance['bg'] );
-		$instance['border'] = sanitize_text_field( $new_instance['border'] );
-		$instance['mobile'] = (int)$new_instance['mobile'];
-
-		return $instance;
-	}
-
-	public function form( $instance ) {
-		$title  = isset( $instance['title'] ) ? sanitize_text_field( $instance['title'] ) : '';
-		$name   = isset( $instance['name'] )  ? esc_attr( $instance['name'] ) : __( 'Install', 'luxeritas' );
-		/*
-		if( current_user_can( 'unfiltered_html' ) ) {
-			$description = isset( $instance['description'] ) ? $instance['description'] : 'Add this site to Home screen as a web app.';
-		} else {
-			$description = isset( $instance['description'] ) ? wp_kses_post( $instance['description'] ) : 'Add this site to Home screen as a web app.';
-		}
-		*/
-		$description = isset( $instance['description'] ) ? esc_attr( $instance['description'] ) : 'Add this site to Home screen as a web app.';
-		$color = isset( $instance['color'] ) ? sanitize_text_field( $instance['color'] ) : '#333333';
-		$bg = isset( $instance['bg'] ) ? sanitize_text_field( $instance['bg'] ) : '#fef8ee';
-		$border = isset( $instance['border'] ) ? sanitize_text_field( $instance['border'] ) : '#f0b849';
-		$mobile = isset( $instance['mobile'] ) ? (int)$instance['mobile'] : 0;
-?>
-<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php echo __( 'Title:', 'luxeritas' ); ?></label>
-<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></p>
-<p><label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php echo __( 'Button name', 'luxeritas' ); ?>:</label><br />
-<input class="widefat" style="max-width:160px" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" value="<?php echo $name; ?>" /></p>
-<p><label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php echo __( 'Button description', 'luxeritas' ); ?>:</label><br />
-<textarea id="<?php echo $this->get_field_id( 'description' ); ?>" name="<?php echo $this->get_field_name( 'description' ); ?>" rows="6" style="width:100%"><?php echo $description; ?></textarea></p>
-<p><label for="<?php echo $this->get_field_id( 'color' ); ?>"><?php echo __( 'Text color', 'luxeritas' ); ?>:</label><br />
-<input class="thk-color-picker" type="text" id="<?php echo $this->get_field_id( 'color' ); ?>" name="<?php echo $this->get_field_name( 'color' ); ?>" value="<?php echo esc_attr( $color ); ?>" /></p>
-<p><label for="<?php echo $this->get_field_id( 'bg' ); ?>"><?php echo __( 'Background color', 'luxeritas' ); ?>:</label><br />
-<input class="thk-color-picker" type="text" id="<?php echo $this->get_field_id( 'bg' ); ?>" name="<?php echo $this->get_field_name( 'bg' ); ?>" value="<?php echo esc_attr( $bg ); ?>" /></p>
-<p><label for="<?php echo $this->get_field_id( 'border' ); ?>"><?php echo __( 'Border color', 'luxeritas' ); ?>:</label><br />
-<input class="thk-color-picker" type="text" id="<?php echo $this->get_field_id( 'border' ); ?>" name="<?php echo $this->get_field_name( 'border' ); ?>" value="<?php echo esc_attr( $border ); ?>" /></p>
-<p><input class="checkbox" id="<?php echo $this->get_field_name('mobile'); ?>" name="<?php echo $this->get_field_name('mobile'); ?>" type="checkbox" value="1" <?php checked( isset( $instance['mobile'] ) ? $instance['mobile'] : 0 ); ?> />
-<label for="<?php echo $this->get_field_id('mobile'); ?>"><?php echo __( 'Display only when mobile device.', 'luxeritas' ); ?></label></p>
-<?php
 	}
 }
 endif;
@@ -1783,15 +1478,6 @@ function thk_list_categories_archives( $out ) {
 	return $out;
 }
 endif;
-
-add_action( 'wp_head', function() {
-	if( isset( $luxe['categories_a_inner'] ) ) {
-		add_filter( 'wp_list_categories', 'thk_list_categories_archives', 10, 2 );
-	}
-	if( isset( $luxe['archives_a_inner'] ) ) {
-		add_filter( 'get_archives_link', 'thk_list_categories_archives', 10, 2 );
-	}
-}, 99 );
 
 /*---------------------------------------------------------------------------
  * ウィジェットの WAF 対策 ?
@@ -2239,7 +1925,6 @@ add_action( 'widgets_init', function() {
 		'thk_swiper_widget',
 		'thk_toc_widget',
 		'thk_reusable_blocks_widget',
-		'thk_pwa_install',
 	);
 
 	if( $_is['admin'] === true ) {

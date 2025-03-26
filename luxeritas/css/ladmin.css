@@ -25,9 +25,6 @@
 	list-style-type: none;
 	white-space: nowrap;
 }
-#ladmin-o {
-	padding: 16px 0;
-}
 #ladmin ul {
 	display: table;
 	position: fixed;

@@ -53,10 +53,7 @@ endif;
 /*---------------------------------------------------------------------------
  * オリジナルディスクリプション挿入
  *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_insert_description' ) === false ):
-function thk_insert_description() {
-	global $luxe, $_is;
-
+add_filter( 'wp_head', function() use( $luxe, $_is ) {
 	$desc = apply_filters( 'thk_create_description', '' );
 ?>
 <meta name="description" content="<?php echo $desc; ?>" />
@@ -106,20 +103,13 @@ function thk_insert_description() {
 <meta name="format-detection" content="<?php echo $format_detection; ?>">
 <?php
 	}
-?>
-<meta name="referrer" content="no-referrer-when-downgrade" />
-<?php
-}
-endif;
-
-add_filter( 'wp_head', 'thk_insert_description', 5 );
+}, 5 );
 
 /*---------------------------------------------------------------------------
  * OGP 挿入
  *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_insert_ogp' ) === false ):
-function thk_insert_ogp() {
-	global $luxe, $_is, $awesome, $post;
+add_filter( 'wp_head', function() use( $luxe ) {
+	global $_is, $awesome, $post;
 
 	if( isset( $luxe['facebook_ogp_enable'] ) || isset( $luxe['twitter_card_enable'] ) ) {
 		$url = '';
@@ -165,11 +155,11 @@ function thk_insert_ogp() {
 		else {
 			$url = THK_HOME_URL;
 
-			if( isset( $luxe['og_img'] ) ) {
-				$image = $luxe['og_img'];
-			}
-			elseif( !empty( get_header_image() ) ) {
+			if( get_header_image() === true ){
 				$image = get_header_image();
+			}
+			elseif( isset( $luxe['og_img'] ) ) {
+				$image = $luxe['og_img'];
 			}
 			else {
 				$uri = TURI === SURI ? TURI : SURI;
@@ -252,23 +242,23 @@ function thk_insert_ogp() {
 <?php } ?>
 <?php
 	}
-	if( !isset( $luxe['amp'] ) ) {
-		if( isset( $luxe['awesome_load'] ) && isset( $luxe['awesome_type'] ) && $luxe['awesome_type'] === 'svg' ) {
-			if( isset( $awesome['awesome']['ver'] ) && ( $awesome['awesome']['ver'][0] === '5' || $awesome['awesome']['ver'][0] === '6' ) ) {
+	if( !isset( $luxe['amp'] ) && $awesome['ver'][0] === '5' ) {
+		if( isset( $luxe['awesome_load'] ) && $luxe['awesome_load'] === 'svg' ) {
+			if( isset( $luxe['awesome_load_js_file'] ) && $luxe['awesome_load_js_file'] === 'local' ) {
 ?>
-<script src="https://<?php echo $awesome['awesome']['cdn']; ?>/releases/v<?php echo $awesome['awesome']['ver']; ?>/js/all.js" crossorigin="anonymous" async defer></script>
+<script src="<?php echo TDEL; ?>/js/fontawesome/all.js" crossorigin="anonymous" async defer></script>
+<?php
+			}
+			else {
+?>
+<script src="https://<?php echo $awesome['cdn']; ?>/releases/v<?php echo $awesome['ver']; ?>/js/all.js" crossorigin="anonymous" async defer></script>
 <?php
 			}
 		}
-		if( isset( $luxe['awesome_load'] ) && isset( $luxe['awesome_4_support'] ) ) {
-			if( isset( $awesome['awesome']['ver'] ) && ( $awesome['awesome']['ver'][0] === '5' || $awesome['awesome']['ver'][0] === '6' ) ) {
+		if( isset( $luxe['awesome_4_support'] ) ) {
 ?>
-<script src="https://<?php echo $awesome['awesome']['cdn']; ?>/releases/v<?php echo $awesome['awesome']['ver']; ?>/js/v4-shims.js" crossorigin="anonymous" async defer></script>
+<script src="https://<?php echo $awesome['cdn']; ?>/releases/v<?php echo $awesome['ver']; ?>/js/v4-shims.js" crossorigin="anonymous" async defer></script>
 <?php
-			}
 		}
 	}
-}
-endif;
-
-add_filter( 'wp_head', 'thk_insert_ogp', 6 );
+}, 6 );

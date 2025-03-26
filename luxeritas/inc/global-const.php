@@ -19,8 +19,6 @@
  *---------------------------------------------------------------------------*/
 const DSEP = DIRECTORY_SEPARATOR;
 const INC = TPATH . DSEP . 'inc' . DSEP;
-const MIN_MEM_INT = '268435456';
-const MIN_MEM = '256M';
 
 /*---------------------------------------------------------------------------
  * global
@@ -37,16 +35,10 @@ $_is['mobile']			= wp_is_mobile();
 $_is['admin']			= is_admin();
 $_is['customize_preview']	= is_customize_preview();
 $_is['user_logged_in']		= is_user_logged_in();
-$_is['widget_preview']		= false;
-
 if( $_is['user_logged_in'] === true ) {
 	$_is['edit_posts']		= current_user_can( 'edit_posts' );
 	$_is['edit_published_posts']	= current_user_can( 'edit_published_posts' );
 	$_is['edit_theme_options']	= current_user_can( 'edit_theme_options' );
-
-	if( stripos( (string)wp_get_raw_referer(), 'wp-admin/widgets.php' ) !== false ) {
-		$_is['widget_preview'] = true;
-	}
 }
 else {
 	$_is['edit_posts']		= false;
@@ -74,13 +66,24 @@ $_is['day']		= false;
 $_is['month']		= false;
 $_is['year']		= false;
 $_is['author']		= false;
+$_is['search']		= false;
 $_is['post_type_archive'] = false;
 
-$_is['fsinit']		= false;
-
-if( $_is['admin'] === true ) {
-	if( stripos( $_SERVER['REQUEST_URI'], 'active=version' ) !== false ) {
-		$iniget = 'ini' . '_get';
-		define( 'MEMORY_LIMIT_INI', $iniget( 'memory_limit' ) );
-	}
+if( isset( $luxe['awesome_version'] ) && (int)$luxe['awesome_version'] === 4 ) {
+	$awesome['ver'] = '4.7.0';
+	$awesome['cdn'] = 'maxcdn.bootstrapcdn.com';
+	$awesome['uri'] = 'https://' . $awesome['cdn'] . '/font-awesome/' . $awesome['ver'] . '/';
+	$awesome['css'] = 'css/font-awesome.min.css';
+	$awesome['fas'] = 'fa ';
+	$awesome['far'] = 'fa ';
+	$awesome['fab'] = 'fa ';
+}
+else {
+	$awesome['ver'] = '5.14.0';
+	$awesome['cdn'] = 'use.fontawesome.com';
+	$awesome['uri'] = 'https://' . $awesome['cdn'] . '/releases/v' . $awesome['ver'] . '/';
+	$awesome['css'] = 'css/all.css';
+	$awesome['fas'] = 'fas ';
+	$awesome['far'] = 'far ';
+	$awesome['fab'] = 'fab ';
 }

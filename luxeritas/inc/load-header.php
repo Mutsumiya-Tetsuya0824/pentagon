@@ -51,28 +51,28 @@ add_action( 'wp_head', function() {
 			$style_async_v = filemtime( TPATH . DSEP . 'style.async.min.css' );
 ?>
 <link rel="preload" as="style" type="text/css" href="<?php echo TURI; ?>/style.async.min.css<?php echo $style_async_v !== false ? '?v=' . $style_async_v : ''; ?>" />
-<link rel="preload" as="font" type="font/woff2" href="<?php echo TURI; ?>/fonts/icomoon/fonts/icomoon.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff" href="<?php echo $fonts_path; ?>/fonts/icomoon/fonts/icomoon.woff" crossorigin />
 <?php
 		}
 
-		// thk-swiper.min.css のプリロード
-		if( isset( $luxe['thk_swiper_preload'] ) ) {
-			if( file_exists( TPATH . DSEP . 'styles' . DSEP . 'thk-swiper.min.css' ) === true && filesize( TPATH . DSEP . 'styles' . DSEP . 'thk-swiper.min.css' ) > 0 ) {
-				$style_swiper_v = filemtime( TPATH . DSEP . 'styles' . DSEP . 'thk-swiper.min.css' );
-?>
-<link rel="preload" as="style" type="text/css" href="<?php echo TURI; ?>/styles/thk-swiper.min.css<?php echo $style_swiper_v !== false ? '?v=' . $style_swiper_v : ''; ?>" />
-<?php
-			}
-		}
+		// Preload Font files
+		thk_preload_web_font( $luxe['font_alphabet'] );
+		thk_preload_web_font( $luxe['font_japanese'] );
 
-		// サムネイル自動挿入の background img preload
-		if( $_is['singular'] === true && isset( $luxe['thumb_auto_insert_preload'] ) ) {
-			$thumb_src = get_the_post_thumbnail_url( null, 'full' );
-
-			if( !empty( $thumb_src ) ) {
+		if( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] === 'sync' && $_is['customize_preview'] === false ) {
+			if( $luxe['awesome_load_file'] !== 'cdn' ) {
+				if( $awesome['ver'][0] === '4' ) {
 ?>
-<link rel="preload" as="image" href="<?php echo $thumb_src; ?>" />
+<link rel="preload" as="font" type="font/woff2" href="<?php echo $fonts_path; ?>/fonts/fontawesome-webfont.woff2" crossorigin />
 <?php
+				}
+				else {
+?>
+<link rel="preload" as="font" type="font/woff2" href="<?php echo $fonts_path; ?>/webfonts/fa-brands-400.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="<?php echo $fonts_path; ?>/webfonts/fa-regular-400.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="<?php echo $fonts_path; ?>/webfonts/fa-solid-900.woff2" crossorigin />
+<?php
+				}
 			}
 		}
 
@@ -153,31 +153,29 @@ add_action( 'wp_head', function() {
 
 	// Site Icon
 	if( has_site_icon() === false ) {
-		// ファビコン
-		$icon = 'fav' . 'icon.ico';
-		if( file_exists( SPATH . DSEP . 'images' . DSEP . $icon ) ) {
+		// favicon.ico
+		if( file_exists( SPATH . DSEP . 'images' . DSEP . 'favicon.ico' ) ) {
 ?>
-<link rel="<?php echo 'icon" href="' . SURI . '/images/' . $icon; ?>" />
+<link rel="icon" href="<?php echo SURI; ?>/images/favicon.ico" />
 <?php
 		}
 		else {
 ?>
-<link rel="<?php echo 'icon" href="' . TURI . '/images/' . $icon; ?>" />
+<link rel="icon" href="<?php echo TURI; ?>/images/favicon.ico" />
 <?php
 		}
 
 		// Apple Touch icon
-		$apple_touch = 'apple-touch-icon';
-		if( file_exists( SPATH . DSEP . 'images' . DSEP . $apple_touch . '-precomposed.png' ) ) {
+		if( file_exists( SPATH . DSEP . 'images' . DSEP . 'apple-touch-icon-precomposed.png' ) ) {
 ?>
-<link rel="<?php echo $apple_touch; ?>-precomposed" href="<?php echo SURI . '/images/' . $apple_touch; ?>-precomposed.png" />
-<link rel="<?php echo $apple_touch; ?>" href="<?php echo SURI . '/images/' . $apple_touch; ?>-precomposed.png" />
+<link rel="apple-touch-icon-precomposed" href="<?php echo SURI; ?>/images/apple-touch-icon-precomposed.png" />
+<link rel="apple-touch-icon" href="<?php echo SURI; ?>/images/apple-touch-icon-precomposed.png" />
 <?php
 		}
 		else {
 ?>
-<link rel="<?php echo $apple_touch; ?>-precomposed" href="<?php echo TURI . '/images/' . $apple_touch; ?>-precomposed.png" />
-<link rel="<?php echo $apple_touch; ?>" href="<?php echo SURI . '/images/' . $apple_touch; ?>-precomposed.png" />
+<link rel="apple-touch-icon-precomposed" href="<?php echo TURI; ?>/images/apple-touch-icon-precomposed.png" />
+<link rel="apple-touch-icon" href="<?php echo SURI; ?>/images/apple-touch-icon-precomposed.png" />
 <?php
 		}
 	}
@@ -286,46 +284,26 @@ add_action( 'wp_head', function() use( $load_files ) {
 	$ver = file_exists( TPATH . $fle ) === true ? filemtime( TPATH . $fle ) : $_SERVER['REQUEST_TIME'];
 	wp_enqueue_style( 'nav', TDEL . $fle . '?v=' . $ver, array(), false, 'all' );
 
-	// 非同期で読み込む CSS ( noscript 用 ) style.async.min.css
+	// 非同期で読み込む CSS ( noscript 用 )
 	if( file_exists( $load_files['p-async'][0] ) === true ) {
 		wp_enqueue_style( 'async', $load_files['p-async'][1] . '?v=' . $_SERVER['REQUEST_TIME'], array(), false, 'all' );
 	}
 
-	// Material icons の CSS ( CDN から読み込む場合 )
-	if( isset( $luxe['material_load'] ) ) {
+	// Font Awsome の CSS ( noscript 用 )
+	if( isset( $luxe['awesome_load'] ) && $luxe['awesome_load'] === 'svg' ) {
 		global $awesome;
-
-		if( $luxe['material_load_async'] === 'async' || $luxe['material_load'] === 'svg' ) {
-			// noscript 用
-			wp_enqueue_style( 'material', $awesome['material']['uri'] . $awesome['material']['css'], array(), false, 'all' );
-		}
-		elseif( $luxe['material_load_async'] === 'sync' ) {
-			// 同期的な読み込み
-			wp_enqueue_style( 'material-cdn', $awesome['material']['uri'] . $awesome['material']['css'], array(), false, 'all' );
-		}
+		wp_enqueue_style( 'awesome', $awesome['uri'] . $awesome['css'], array(), false, 'all' );
 	}
 
 	// Font Awsome の CSS ( CDN から読み込む場合 )
-	if( isset( $luxe['awesome_load'] ) ) {
+	if( isset( $luxe['awesome_load_async'] ) && isset ( $luxe['awesome_load_css_file'] ) && $luxe['awesome_load_css_file'] === 'cdn' ) {
 		global $awesome;
 
-		if( $luxe['awesome_load_async'] === 'async' || $luxe['awesome_load'] === 'svg' ) {
-			// noscript 用
-			wp_enqueue_style( 'awesome', $awesome['awesome']['uri'] . $awesome['awesome']['css'], array(), false, 'all' );
+		if( $luxe['awesome_load_async'] === 'async' ) {
+			wp_enqueue_style( 'awesome', $awesome['uri'] . $awesome['css'], array(), false, 'all' );
 		}
 		elseif( $luxe['awesome_load_async'] === 'sync' ) {
-			// 同期的な読み込み
-			wp_enqueue_style( 'awesome-cdn', $awesome['awesome']['uri'] . $awesome['awesome']['css'], array(), false, 'all' );
-		}
-	}
-
-	// Web font の CSS ( 同期的に読み込む場合 )
-	if( !isset( $luxe['web_font_async'] ) ) {
-		if( isset( Web_Font::$japanese[$luxe['font_alphabet']][1] ) ) {
-			wp_enqueue_style( 'rom-font', Web_Font::$alphabet[$luxe['font_alphabet']][1], array(), false, 'all' );
-		}
-		if( isset( Web_Font::$japanese[$luxe['font_japanese']][1] ) ) {
-			wp_enqueue_style( 'jp-font', Web_Font::$japanese[$luxe['font_japanese']][1], array(), false, 'all' );
+			wp_enqueue_style( 'awesome-cdn', $awesome['uri'] . $awesome['css'], array(), false, 'all' );
 		}
 	}
 

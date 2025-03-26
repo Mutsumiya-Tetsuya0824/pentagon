@@ -75,32 +75,15 @@ $admin_url = admin_url();
 <p class="f09em"><?php echo __( '* ', 'luxeritas' ), '<span class="bg-gray">', __( 'Please do not check if you do not have knowledge.', 'luxeritas' ), '</span>', ' (', __( 'Some plugin may not work correctly when this option is enabled.', 'luxeritas' ), ')'; ?></p>
 </li>
 <li class="m25-b">
-<p class="control-title"><a href="<?php echo $admin_url; ?>admin.php?page=luxe&active=icon"><?php echo __( 'Icon fonts', 'luxeritas' ); ?></a></p>
-<p><?php printf( __( 'How to Load CSS of %s', 'luxeritas' ), 'Material icons' ); ?></p>
-<select name="material_load_async">
-<option value="sync"<?php thk_value_check( 'material_load_async', 'select', 'sync' ); ?>><?php echo __( 'Synchronism', 'luxeritas' ), ' (', __( 'No delays in icon font', 'luxeritas' ), ')'; ?></option>
-<option value="async"<?php thk_value_check( 'material_load_async', 'select', 'async' ); ?>><?php echo __( 'Asynchronous', 'luxeritas' ), ' (', __( 'High rendering speed', 'luxeritas' ), ')'; ?></option>
-</select>
-<p><?php printf( __( 'How to Load CSS of %s', 'luxeritas' ), 'Font Awesome' ); ?></p>
+<p class="control-title"><a href="<?php echo $admin_url; ?>admin.php?page=luxe&active=icon">Font Awesome</a></p>
+<p><?php echo __( 'How to load CSS', 'luxeritas' ); ?></p>
 <select name="awesome_load_async">
 <option value="sync"<?php thk_value_check( 'awesome_load_async', 'select', 'sync' ); ?>><?php echo __( 'Synchronism', 'luxeritas' ), ' (', __( 'No delays in icon font', 'luxeritas' ), ')'; ?></option>
 <option value="async"<?php thk_value_check( 'awesome_load_async', 'select', 'async' ); ?>><?php echo __( 'Asynchronous', 'luxeritas' ), ' (', __( 'High rendering speed', 'luxeritas' ), ')'; ?></option>
 </select>
 </li>
-
 <li>
 <p class="control-title"><a href="<?php echo $admin_url; ?>customize.php?return=%2Fwp-admin%2Fadmin.php%3Fpage%3Dluxe_fast&luxe=custom"><?php echo 'Lazy Load (' . __( 'Lazy loading of image', 'luxeritas' ) . ')' ?></a></p>
-<p class="radio">
-<input type="radio" value="native" name="lazyload_type"<?php thk_value_check( 'lazyload_type', 'radio', 'native' ); ?> />
-<?php echo 'Native Lazyload ( WP 5.5 or later )'; ?>
-</p>
-<p class="radio">
-<input type="radio" value="intersection" name="lazyload_type"<?php thk_value_check( 'lazyload_type', 'radio', 'intersection' ); ?> />
-<?php echo 'Intersection Observer'; ?>
-</p>
-
-<ul id="intersection-observer" style="margin-left:30px">
-<li>
 <p class="checkbox">
 <input type="checkbox" value="" name="lazyload_thumbs"<?php thk_value_check( 'lazyload_thumbs', 'checkbox' ); ?> />
 <?php echo __( 'Enable Lazy Load for various thumbnail images', 'luxeritas' ); ?>
@@ -133,15 +116,8 @@ if( isset( $luxe['fucking_jetpack'] ) ) {
 <?php
 }
 ?>
-</li>
-</ul>
 
-<p class="radio">
-<input type="radio" value="none" name="lazyload_type"<?php thk_value_check( 'lazyload_type', 'radio', 'none' ); ?> />
-<?php echo __( 'None', 'luxeritas' ); ?>
-</p>
 </li>
-
 <li>
 <p class="control-title"><a href="<?php echo $admin_url; ?>admin.php?page=luxe&active=others"><?php echo __( 'Others', 'luxeritas' ); ?></a></p>
 <p class="checkbox">
@@ -178,8 +154,6 @@ if( isset( $luxe['fucking_jetpack'] ) ) {
 <p><?php echo __( '* Please setting this item yourself.', 'luxeritas' ); ?></p>
 </li>
 </ul>
-
-<div style="display:none">
 <script>
 jQuery(document).ready(function(o) {
 	var A = o('select[name="html_compress"]'),
@@ -187,11 +161,9 @@ jQuery(document).ready(function(o) {
 		z = o('select[name="child_js_compress"]'),
 		n = o('input[name="css_to_style"]'),
 		v = o('select[name="wp_block_library_load"]'),
-		I = o('select[name="material_load_async"]'),
 		H = o('select[name="awesome_load_async"]'),
 		x = o('select[name="jquery_load"]'),
 		s = o('input[name="jquery_defer"]'),
-		Y = o('input[name="lazyload_type"][value="native"]'),
 		y = o('input[name="lazyload_thumbs"]'),
 		G = o('input[name="lazyload_contents"]'),
 		t = o('input[name="lazyload_sidebar"]'),
@@ -207,17 +179,14 @@ jQuery(document).ready(function(o) {
 		z.val("comp");
 		n.prop("checked", true);
 		v.val("inline");
-		I.val("async");
 		H.val("async");
 		x.val("google3");
 		s.prop("checked", false);
-		Y.prop("checked", true);
-		intersection();
-		y.prop("checked", false);
-		G.prop("checked", false);
+		y.prop("checked", true);
+		G.prop("checked", true);
 		t.prop("checked", false);
-		q.prop("checked", false);
-		r.prop("checked", false);
+		q.prop("checked", true);
+		r.prop("checked", true);
 		p.prop("checked", true);
 		w.prop("checked", false);
 		u.prop("checked", true);
@@ -229,17 +198,14 @@ jQuery(document).ready(function(o) {
 		z.val("comp");
 		n.prop("checked", true);
 		v.val("async");
-		I.val("async");
 		H.val("async");
 		x.val("google3");
 		s.prop("checked", false);
-		Y.prop("checked", true);
-		intersection();
-		y.prop("checked", false);
-		G.prop("checked", false);
+		y.prop("checked", true);
+		G.prop("checked", true);
 		t.prop("checked", false);
-		q.prop("checked", false);
-		r.prop("checked", false);
+		q.prop("checked", true);
+		r.prop("checked", true);
 		p.prop("checked", true);
 		w.prop("checked", false);
 		u.prop("checked", true);
@@ -251,17 +217,14 @@ jQuery(document).ready(function(o) {
 		z.val("comp");
 		n.prop("checked", true);
 		v.val("async");
-		I.val("async");
 		H.val("async");
 		x.val("google3");
 		s.prop("checked", true);
-		Y.prop("checked", true);
-		intersection();
-		y.prop("checked", false);
-		G.prop("checked", false);
-		t.prop("checked", false);
-		q.prop("checked", false);
-		r.prop("checked", false);
+		y.prop("checked", true);
+		G.prop("checked", true);
+		t.prop("checked", true);
+		q.prop("checked", true);
+		r.prop("checked", true);
 		p.prop("checked", true);
 		w.prop("checked", true);
 		u.prop("checked", true);
@@ -273,12 +236,9 @@ jQuery(document).ready(function(o) {
 		z.val("none");
 		n.prop("checked", true);
 		v.val("inline");
-		I.val("async");
 		H.val("async");
 		x.val("google3");
 		s.prop("checked", false);
-		Y.prop("checked", true);
-		intersection();
 		y.prop("checked", false);
 		G.prop("checked", false);
 		t.prop("checked", false);
@@ -307,22 +267,5 @@ jQuery(document).ready(function(o) {
 	o("#speed-delay").prop("disabled", false);
 	o("#speed-extreme").prop("disabled", false);
 	o("#speed-default").prop("disabled", false)
-
-	var intersection = function() {
-		var intersectionObserver = o("#intersection-observer")
-		,   intersectionObserverInput = o('input[name="lazyload_type"]:checked').val()
-		if( "intersection" != intersectionObserverInput ) {
-			intersectionObserver.css("opacity", ".6"), intersectionObserver.css("pointer-events", "none");
-		} else {
-			intersectionObserver.css("opacity", "");
-			intersectionObserver.css("pointerEvents", "");
-		}
-	};
-	intersection();
-
-	o('input[name="lazyload_type"]').on("click", function() {
-		intersection();
-	});
 });
 </script>
-</div>

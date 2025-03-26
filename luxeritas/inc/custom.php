@@ -1480,12 +1480,12 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'section'	=> 'view_section',
 		'type'		=> 'radio',
 		'choices'	=> array(
-			'fa_arrow_up'		=> 'Arrow up',
-			'fa_caret_up'		=> 'Caret up',
-			'fa_chevron_up'		=> 'Chevron up',
-			//'fa_chevron_circle_up'	=> 'Chevron circle up',
-			'fa_arrow_circle_up'	=> 'Arrow circle up',
-			'fa_angle_double_up'	=> 'Angle double up'
+			'fa_arrow_up'		=> 'fa-arrow-up',
+			'fa_caret_up'		=> 'fa-caret-up',
+			'fa_chevron_up'		=> 'fa-chevron-up',
+			'fa_chevron_circle_up'	=> 'fa-chevron-circle-up',
+			'fa_arrow_circle_up'	=> 'fa-arrow-circle-up',
+			'fa_angle_double_up'	=> 'fa-angle-double-up'
 		),
 		'priority'	=> 50
 	));
@@ -2026,7 +2026,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'choices'	=> $thumbnail_is_size_choices,
 		'priority'	=> 26
 	));
-
+/*
 	// サムネイル自動挿入
 	$wp_customize->add_setting( 'dummy5', array( 'sanitize_callback' => 'thk_sanitize' ) );
 	$wp_customize->add_control( 'dummy5', array(
@@ -2044,13 +2044,13 @@ add_action( 'customize_register', function( $wp_customize ) {
 	));
 	$wp_customize->add_control( 'thumb_auto_post', array(
 		'settings'	=> 'thumb_auto_post',
-		'label'		=> __( 'Auto insert into posts', 'luxeritas' ),
+		'label'		=> __( 'Auto insert into post', 'luxeritas' ),
 		'section'	=> 'thumbnail_section',
 		'type'		=> 'checkbox',
 		'priority'	=> 31
 	));
 
-	// 固定ページへのサムネイル自動挿入
+	// 投稿ページへのサムネイル自動挿入
 	$wp_customize->add_setting( 'thumb_auto_page', array(
 		'default' 	=> false,
 		'sanitize_callback' => 'thk_sanitize_boolean'
@@ -2061,19 +2061,6 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'section'	=> 'thumbnail_section',
 		'type'		=> 'checkbox',
 		'priority'	=> 32
-	));
-
-	// 固定フロントページへのサムネイル自動挿入
-	$wp_customize->add_setting( 'thumb_auto_front_page', array(
-		'default' 	=> false,
-		'sanitize_callback' => 'thk_sanitize_boolean'
-	));
-	$wp_customize->add_control( 'thumb_auto_front_page', array(
-		'settings'	=> 'thumb_auto_front_page',
-		'label'		=> __( 'Auto insert into front page', 'luxeritas' ),
-		'section'	=> 'thumbnail_section',
-		'type'		=> 'checkbox',
-		'priority'	=> 33
 	));
 
 	// サムネイルを自動挿入する場所
@@ -2090,57 +2077,24 @@ add_action( 'customize_register', function( $wp_customize ) {
 			'above'		=> __( 'Above the post', 'luxeritas' ),
 			'below'		=> __( 'Below the title', 'luxeritas' ),
 			'top'		=> __( 'Above the title', 'luxeritas' ),
-			'back-black-1'	=> __( 'Title background', 'luxeritas' ) . ' ( Black type 1 )',
-			'back-black-2'	=> __( 'Title background', 'luxeritas' ) . ' ( Black type 2 )',
-			'back-white-1'	=> __( 'Title background', 'luxeritas' ) . ' ( White type 1 )',
-			'back-white-2'	=> __( 'Title background', 'luxeritas' ) . ' ( White type 2 )',
+			'background'	=> __( 'Title background', 'luxeritas' ),
 		),
 		'priority'	=> 35
 	));
 
-	// 自動挿入サムネイルの横幅
-	$wp_customize->add_setting( 'thumb_auto_insert_width', array(
-		'default' 	=> 'wide',
-		'sanitize_callback' => 'thk_sanitize'
-	));
-	$wp_customize->add_control( 'thumb_auto_insert_width', array(
-		'settings'	=> 'thumb_auto_insert_width',
-		'description'	=> __( 'Width', 'luxeritas' ),
-		'section'	=> 'thumbnail_section',
-		'type'		=> 'radio',
-		'choices'	=> array(
-			'wide'		=> __( 'Full width', 'luxeritas' ),
-			'orign'		=> __( 'Original size', 'luxeritas' ),
-		),
-		'priority'	=> 40
-	));
-
-	// 自動挿入サムネイルの高さ制限
-	$wp_customize->add_setting( 'thumb_auto_insert_limit_height', array(
-		'default' 	=> 0,
-		'sanitize_callback' => 'thk_sanitize_integer'
-	));
-	$wp_customize->add_control( 'thumb_auto_insert_limit_height', array(
-		'settings'	=> 'thumb_auto_insert_limit_height',
-		'description'	=> __( 'Limit the height', 'luxeritas' ) . ' ( px ) ' . __( '* 0 would be no limit', 'luxeritas' ),
-		'section'	=> 'thumbnail_section',
-		'type'		=> 'number',
-		'priority'	=> 45
-	));
-
-	// 自動挿入サムネイルの preload
-	$wp_customize->add_setting( 'thumb_auto_insert_preload', array(
-		'default' 	=> true,
+	// 自動挿入サムネイルの横幅いっぱい
+	$wp_customize->add_setting( 'thumb_auto_insert_full_width', array(
+		'default' 	=> false,
 		'sanitize_callback' => 'thk_sanitize_boolean'
 	));
-	$wp_customize->add_control( 'thumb_auto_insert_preload', array(
-		'settings'	=> 'thumb_auto_insert_preload',
-		'label'		=> __( 'Image preload', 'luxeritas' ),
+	$wp_customize->add_control( 'thumb_auto_insert_full_width', array(
+		'settings'	=> 'thumb_auto_insert_full_width',
+		'label'		=> __( 'Full width', 'luxeritas' ),
 		'section'	=> 'thumbnail_section',
 		'type'		=> 'checkbox',
-		'priority'	=> 50
+		'priority'	=> 40
 	));
-
+*/
 	// サムネイルの No Image 画像
 	$wp_customize->add_setting( 'no_img', array(
 		'default'	=> get_template_directory_uri() . '/images/no-img.png',
@@ -2150,7 +2104,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'settings'	=> 'no_img',
 		'label'		=> 'No Image',
 		'section'	=> 'thumbnail_section',
-		'priority'	=> 55
+		'priority'	=> 45
 	)));
 
 	//---------------------------------------------------------------------------
@@ -2243,7 +2197,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 
 	// Web font の非同期読み込み
 	$wp_customize->add_setting( 'web_font_async', array(
-		'default' 	=> false,
+		'default' 	=> true,
 		'sanitize_callback' => 'thk_sanitize_boolean'
 	));
 	$wp_customize->add_control( 'web_font_async', array(
@@ -3210,6 +3164,18 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'priority'	=> 35
 	));
 
+	// サイドバー背景画像
+	$wp_customize->add_setting( 'side_bg_img', array(
+		'default'	=> null,
+		'sanitize_callback' => 'thk_sanitize_url'
+	));
+	$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'side_bg_img', array(
+		'settings'	=> 'side_bg_img',
+		'label'		=> __( 'Sidebar ', 'luxeritas' ) . __( 'Background image', 'luxeritas' ),
+		'section'	=> 'img_section',
+		'priority'	=> 40
+	)));
+
 	// ヘッダー背景画像
 	$wp_customize->add_setting( 'head_bg_img', array(
 		'default'	=> null,
@@ -3218,8 +3184,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 	$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'head_bg_img', array(
 		'settings'	=> 'head_bg_img',
 		'label'		=> __( 'Header ', 'luxeritas' ) . __( 'Background image', 'luxeritas' ),
+		'description'	=> __( '* In responsive style, we recommend you to use the Logo Image setting below this page, rather than using background as logo.', 'luxeritas' ),
 		'section'	=> 'img_section',
-		'priority'	=> 40
+		'priority'	=> 45
 	)));
 
 	// ヘッダー背景画像を横いっぱいに
@@ -3371,18 +3338,6 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'priority'	=> 70
 	));
 
-	// サイドバー背景画像
-	$wp_customize->add_setting( 'side_bg_img', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_url'
-	));
-	$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'side_bg_img', array(
-		'settings'	=> 'side_bg_img',
-		'label'		=> __( 'Sidebar ', 'luxeritas' ) . __( 'Background image', 'luxeritas' ),
-		'section'	=> 'img_section',
-		'priority'	=> 75
-	)));
-
 	// ロゴ画像
 	$wp_customize->add_setting( 'logo_img', array(
 		'default'	=> null,
@@ -3392,7 +3347,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'settings'	=> 'logo_img',
 		'label'		=> __( 'Logo image', 'luxeritas' ),
 		'section'	=> 'img_section',
-		'priority'	=> 80
+		'priority'	=> 75
 	)));
 
 	// ロゴ画像の位置
@@ -3405,7 +3360,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'label'		=> __( 'On top of the global navigation', 'luxeritas' ),
 		'section'	=> 'img_section',
 		'type'		=> 'checkbox',
-		'priority'	=> 85
+		'priority'	=> 80
 	));
 
 	//---------------------------------------------------------------------------
@@ -3576,6 +3531,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 	$wp_customize->add_control( 'head_band_fixed', array(
 		'settings'	=> 'head_band_fixed',
 		'label'		=> __( 'Make band menu sticky', 'luxeritas' ),
+		'description'	=> '<p class="f09em mm23l">' . __( '* may not work properly with old Android (2.x system)', 'luxeritas' ) . '</p>',
 		'section'	=> 'head_band_section',
 		'type'		=> 'checkbox',
 		'priority'	=> 10
@@ -3976,7 +3932,6 @@ add_action( 'customize_register', function( $wp_customize ) {
 	//---------------------------------------------------------------------------
 	$wp_customize->add_section( 'gnavi_section', array(
 		'title'		=> __( 'Global Nav (Header Nav)', 'luxeritas' ),
-		'description'	=> '<p class="bold f11em mm15b">' . __( 'Global Nav', 'luxeritas' ) . '</p>',
 		'priority'	=> 55
 	));
 
@@ -4021,12 +3976,10 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'section'	=> 'gnavi_section',
 		'type'		=> 'select',
 		'choices'	=> array(
-			'luxury'	=> __( 'Luxury version', 'luxeritas' ) . ' ( on screen )',
-			'global'	=> __( 'Global menu only', 'luxeritas' ) . ' ( on screen )',
-			'luxury_head'	=> __( 'Luxury version', 'luxeritas' ) . ' ( in header )',
-			'global_head'	=> __( 'Global menu only', 'luxeritas' ) . ' ( in header )',
+			'luxury'	=> __( 'Luxury version', 'luxeritas' ),
+			'global'	=> __( 'Global menu only', 'luxeritas' )
 		),
-		'priority'	=> 15
+		'priority'	=> 11
 	));
 
 	// モバイルメニュー開閉方法
@@ -4043,7 +3996,68 @@ add_action( 'customize_register', function( $wp_customize ) {
 			'individual'	=> __( 'Individually opening and closing the parent and child', 'luxeritas' ),
 			'all'		=> __( 'All opening and closing', 'luxeritas' )
 		),
+		'priority'	=> 12
+	));
+
+	// ナビをスクロールで最上部に固定する
+	$wp_customize->add_setting( 'global_navi_sticky', array(
+		'default'	=> 'none',
+		'sanitize_callback' => 'thk_sanitize'
+	));
+	$wp_customize->add_control( 'global_navi_sticky', array(
+		'settings'	=> 'global_navi_sticky',
+		'label'		=> __( 'Make it sticky', 'luxeritas' ),
+		'description'	=> __( '* may not work properly with old Android (2.x system)', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'type'		=> 'select',
+		'choices'	=> array(
+			'none'	=> __( 'Not make it sticky', 'luxeritas' ),
+			'all'	=> __( 'Make it sticky', 'luxeritas' ),
+			'smart'	=> __( 'Make it sticky on small devices', 'luxeritas' ),
+			'pc'	=> __( 'Make it sticky on PC', 'luxeritas' )
+		),
+		'priority'	=> 15
+	));
+
+	// スクロールで固定したとき影を付ける (影の濃さ)
+	$wp_customize->add_setting( 'global_navi_shadow', array(
+		'default'	=> 0,
+		'sanitize_callback' => 'thk_sanitize_integer'
+	));
+	$wp_customize->add_control( 'global_navi_shadow', array(
+		'settings'	=> 'global_navi_shadow',
+		'label'		=> __( 'Sticky options', 'luxeritas' ),
+		'description'	=> __( 'Shadow density when sticky', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'type'		=> 'range',
 		'priority'	=> 20
+	));
+
+	// スクロールで固定したとき半透明にする
+	$wp_customize->add_setting( 'global_navi_translucent', array(
+		'default'	=> false,
+		'label'		=> __( 'Make it sticky', 'luxeritas' ),
+		'sanitize_callback' => 'thk_sanitize_boolean'
+	));
+	$wp_customize->add_control( 'global_navi_translucent', array(
+		'settings'	=> 'global_navi_translucent',
+		'label'		=> __( 'Semi transparent when sticky', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'type'		=> 'checkbox',
+		'priority'	=> 21
+	));
+
+	// 上スクロールの時だけ固定表示
+	$wp_customize->add_setting( 'global_navi_scroll_up_sticky', array(
+		'default'	=> false,
+		'sanitize_callback' => 'thk_sanitize_boolean'
+	));
+	$wp_customize->add_control( 'global_navi_scroll_up_sticky', array(
+		'settings'	=> 'global_navi_scroll_up_sticky',
+		'label'		=> __( 'Sticky only when scrolling up', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'type'		=> 'checkbox',
+		'priority'	=> 23
 	));
 
 	// 横幅の大きさ
@@ -4061,7 +4075,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 			'full'	=> __( 'Automatically resize the width', 'luxeritas' ) . '( ' . __( 'full width', 'luxeritas' ) . ' )',
 			'same'	=> __( 'All the same width', 'luxeritas' ),
 		),
-		'priority'	=> 25
+		'priority'	=> 30
 	));
 
 	// 中央寄せ
@@ -4074,7 +4088,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'label'		=> __( 'Align center', 'luxeritas' ),
 		'section'	=> 'gnavi_section',
 		'type'		=> 'checkbox',
-		'priority'	=> 30
+		'priority'	=> 32
 	));
 
 	// セパレーター（区切り線）を付ける
@@ -4095,106 +4109,6 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'priority'	=> 35
 	));
 
-	// ナビをスクロールで最上部に固定する
-	$wp_customize->add_setting( 'global_navi_sticky', array(
-		'default'	=> 'none',
-		'sanitize_callback' => 'thk_sanitize'
-	));
-	$wp_customize->add_control( 'global_navi_sticky', array(
-		'settings'	=> 'global_navi_sticky',
-		'label'		=> __( 'Make it sticky', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'type'		=> 'select',
-		'choices'	=> array(
-			'none'	=> __( 'Not make it sticky', 'luxeritas' ),
-			'all'	=> __( 'Make it sticky', 'luxeritas' ),
-			'smart'	=> __( 'Make it sticky on small devices', 'luxeritas' ),
-			'pc'	=> __( 'Make it sticky on PC', 'luxeritas' )
-		),
-		'priority'	=> 40
-	));
-
-	// スクロールで固定したとき影を付ける (影の濃さ)
-	$wp_customize->add_setting( 'global_navi_shadow', array(
-		'default'	=> 0,
-		'sanitize_callback' => 'thk_sanitize_integer'
-	));
-	$wp_customize->add_control( 'global_navi_shadow', array(
-		'settings'	=> 'global_navi_shadow',
-		'label'		=> __( 'Sticky options', 'luxeritas' ),
-		'description'	=> __( 'Shadow density when sticky', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'type'		=> 'range',
-		'priority'	=> 45
-	));
-
-	// スクロールで固定したとき半透明にする
-	$wp_customize->add_setting( 'global_navi_translucent', array(
-		'default'	=> false,
-		'label'		=> __( 'Make it sticky', 'luxeritas' ),
-		'sanitize_callback' => 'thk_sanitize_boolean'
-	));
-	$wp_customize->add_control( 'global_navi_translucent', array(
-		'settings'	=> 'global_navi_translucent',
-		'label'		=> __( 'Semi transparent when sticky', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'type'		=> 'checkbox',
-		'priority'	=> 50
-	));
-
-	// 上スクロールの時だけ固定表示
-	$wp_customize->add_setting( 'global_navi_scroll_up_sticky', array(
-		'default'	=> false,
-		'sanitize_callback' => 'thk_sanitize_boolean'
-	));
-	$wp_customize->add_control( 'global_navi_scroll_up_sticky', array(
-		'settings'	=> 'global_navi_scroll_up_sticky',
-		'label'		=> __( 'Sticky only when scrolling up', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'type'		=> 'checkbox',
-		'priority'	=> 55
-	));
-
-	// スクロールプログレスバー
-	$wp_customize->add_setting( 'dummy6', array( 'sanitize_callback' => 'thk_sanitize' ) );
-	$wp_customize->add_control( 'dummy6', array(
-		'settings'	=> 'dummy6',
-		'description'	=> '<p class="bold snormal f11em mm23l mm10b">' . __( 'Scroll progress bar', 'luxeritas' ) . '</p>',
-		'section'	=> 'gnavi_section',
-		'type'		=> 'hidden',
-		'priority'	=> 56
-	));
-
-	$wp_customize->add_setting( 'global_navi_scroll_progress', array(
-		'default'	=> false,
-		'sanitize_callback' => 'thk_sanitize_boolean'
-	));
-	$wp_customize->add_control( 'global_navi_scroll_progress', array(
-		'settings'	=> 'global_navi_scroll_progress',
-		'label'		=> __( 'Display scroll progress bar on underline', 'luxeritas' ),
-		'description'	=> '<p class="f09em m0b">' . __( '* Require sticky', 'luxeritas' ) . '</p>',
-		'section'	=> 'gnavi_section',
-		'type'		=> 'checkbox',
-		'priority'	=> 57
-	));
-
-	// スクロールプログレスバーの進捗率
-	$wp_customize->add_setting( 'global_navi_progress_rate', array(
-		'default'	=> 'page',
-		'sanitize_callback' => 'thk_sanitize'
-	));
-	$wp_customize->add_control( 'global_navi_progress_rate', array(
-		'settings'	=> 'global_navi_progress_rate',
-		'label'		=> __( 'Scroll progress rate', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'type'		=> 'radio',
-		'choices'	=> array(
-			'page'	=> __( 'Bottom of page is 100%', 'luxeritas' ),
-			'post'	=> __( 'Bottom of post is 100%', 'luxeritas' )
-		),
-		'priority'	=> 58
-	));
-
 	// ナビ文字色
 	$wp_customize->add_setting( 'gnavi_color', array(
 		'default'	=> null,
@@ -4202,93 +4116,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 	));
 	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_color', array(
 		'settings'	=> 'gnavi_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Text color', 'luxeritas' ),
+		'label'		=> __( 'Navigation ', 'luxeritas' ) . __( 'Text color', 'luxeritas' ),
 		'section'	=> 'gnavi_section',
-		'priority'	=> 60
-	)));
-
-	// ナビ説明文文字色
-	$wp_customize->add_setting( 'gnavi_desc_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_desc_color', array(
-		'settings'	=> 'gnavi_desc_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Description text color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 62
-	)));
-
-	// ナビ背景色
-	$wp_customize->add_setting( 'gnavi_bg_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bg_color', array(
-		'settings'	=> 'gnavi_bg_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Background color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 65
-	)));
-
-	// ナビホバー文字色
-	$wp_customize->add_setting( 'gnavi_hover_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_hover_color', array(
-		'settings'	=> 'gnavi_hover_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Link hover color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 75
-	)));
-
-	// ナビホバー背景色
-	$wp_customize->add_setting( 'gnavi_bg_hover_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bg_hover_color', array(
-		'settings'	=> 'gnavi_bg_hover_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Link hover background color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 80
-	)));
-
-	// ナビカレント文字色
-	$wp_customize->add_setting( 'gnavi_current_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_current_color', array(
-		'settings'	=> 'gnavi_current_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Current color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 85
-	)));
-
-	// ナビカレント説明文文字色
-	$wp_customize->add_setting( 'gnavi_current_desc_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_current_desc_color', array(
-		'settings'	=> 'gnavi_current_desc_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Current item description text color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 87
-	)));
-
-	// ナビカレント背景色
-	$wp_customize->add_setting( 'gnavi_bg_current_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bg_current_color', array(
-		'settings'	=> 'gnavi_bg_current_color',
-		'label'		=> __( 'Nav item: ', 'luxeritas' ) . __( 'Current background color', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 90
+		'priority'	=> 40
 	)));
 
 	// ナビバー背景色
@@ -4298,9 +4128,69 @@ add_action( 'customize_register', function( $wp_customize ) {
 	));
 	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bar_bg_color', array(
 		'settings'	=> 'gnavi_bar_bg_color',
-		'label'		=> __( 'Nav bar: ', 'luxeritas' ) . __( 'Background color', 'luxeritas' ),
+		'label'		=> __( 'Navigation bar ', 'luxeritas' ) . __( 'Background color', 'luxeritas' ),
 		'section'	=> 'gnavi_section',
-		'priority'	=> 92
+		'priority'	=> 45
+	)));
+
+	// ナビ背景色
+	$wp_customize->add_setting( 'gnavi_bg_color', array(
+		'default'	=> null,
+		'sanitize_callback' => 'thk_sanitize_color'
+	));
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bg_color', array(
+		'settings'	=> 'gnavi_bg_color',
+		'label'		=> __( 'Navigation ', 'luxeritas' ) . __( 'Background color', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'priority'	=> 50
+	)));
+
+	// ナビホバー文字色
+	$wp_customize->add_setting( 'gnavi_hover_color', array(
+		'default'	=> null,
+		'sanitize_callback' => 'thk_sanitize_color'
+	));
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_hover_color', array(
+		'settings'	=> 'gnavi_hover_color',
+		'label'		=> __( 'Navigation ', 'luxeritas' ) . __( 'Link hover color', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'priority'	=> 52
+	)));
+
+	// ナビホバー背景色
+	$wp_customize->add_setting( 'gnavi_bg_hover_color', array(
+		'default'	=> null,
+		'sanitize_callback' => 'thk_sanitize_color'
+	));
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bg_hover_color', array(
+		'settings'	=> 'gnavi_bg_hover_color',
+		'label'		=> __( 'Navigation ', 'luxeritas' ) . __( 'Link hover background color', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'priority'	=> 55
+	)));
+
+	// ナビカレント文字色
+	$wp_customize->add_setting( 'gnavi_current_color', array(
+		'default'	=> null,
+		'sanitize_callback' => 'thk_sanitize_color'
+	));
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_current_color', array(
+		'settings'	=> 'gnavi_current_color',
+		'label'		=> __( 'Navigation ', 'luxeritas' ) . __( 'Current color', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'priority'	=> 57
+	)));
+
+	// ナビカレント背景色
+	$wp_customize->add_setting( 'gnavi_bg_current_color', array(
+		'default'	=> null,
+		'sanitize_callback' => 'thk_sanitize_color'
+	));
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_bg_current_color', array(
+		'settings'	=> 'gnavi_bg_current_color',
+		'label'		=> __( 'Navigation ', 'luxeritas' ) . __( 'Current background color', 'luxeritas' ),
+		'section'	=> 'gnavi_section',
+		'priority'	=> 60
 	)));
 
 	// ナビ上の線の色
@@ -4310,9 +4200,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 	));
 	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_border_top_color', array(
 		'settings'	=> 'gnavi_border_top_color',
-		'label'		=> __( 'Nav bar: ', 'luxeritas' ) . __( 'Color of the lines above the Nav', 'luxeritas' ),
+		'label'		=> __( 'Color of the lines above the Nav', 'luxeritas' ),
 		'section'	=> 'gnavi_section',
-		'priority'	=> 95
+		'priority'	=> 65
 	)));
 
 	// ナビ下の線の色
@@ -4322,21 +4212,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 	));
 	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_border_bottom_color', array(
 		'settings'	=> 'gnavi_border_bottom_color',
-		'label'		=> __( 'Nav bar: ', 'luxeritas' ) . __( 'Color of the line bottom to the Nav', 'luxeritas' ),
+		'label'		=> __( 'Color of the line bottom to the Nav', 'luxeritas' ),
 		'section'	=> 'gnavi_section',
-		'priority'	=> 100
-	)));
-
-	// スクロールプログレスバーの色
-	$wp_customize->add_setting( 'gnavi_progress_bar_color', array(
-		'default'	=> null,
-		'sanitize_callback' => 'thk_sanitize_color'
-	));
-	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_progress_bar_color', array(
-		'settings'	=> 'gnavi_progress_bar_color',
-		'label'		=> __( 'Nav bar: ', 'luxeritas' ) . __( 'Color of the progress bar', 'luxeritas' ),
-		'section'	=> 'gnavi_section',
-		'priority'	=> 102
+		'priority'	=> 70
 	)));
 
 	// セパレーター（区切り線）の色
@@ -4346,9 +4224,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 	));
 	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'gnavi_separator_color', array(
 		'settings'	=> 'gnavi_separator_color',
-		'label'		=> __( 'Nav bar: ', 'luxeritas' ) . __( 'Color of the separator line', 'luxeritas' ),
+		'label'		=> __( 'Color of the separator line', 'luxeritas' ),
 		'section'	=> 'gnavi_section',
-		'priority'	=> 105
+		'priority'	=> 75
 	)));
 
 	// ナビ上の線の太さ
@@ -4364,7 +4242,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'input_attrs' => array(
 			'min' => 0,
 		),
-		'priority'	=> 110
+		'priority'	=> 80
 	));
 
 	// ナビ下の線の太さ
@@ -4380,7 +4258,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'input_attrs' => array(
 			'min' => 0,
 		),
-		'priority'	=> 115
+		'priority'	=> 85
 	));
 
 	// ナビ上下パディング
@@ -4396,7 +4274,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'input_attrs' => array(
 			'min' => 0,
 		),
-		'priority'	=> 120
+		'priority'	=> 90
 	));
 
 	// ナビバー上下パディング
@@ -4412,7 +4290,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'input_attrs' => array(
 			'min' => 0,
 		),
-		'priority'	=> 125
+		'priority'	=> 95
 	));
 
 	//---------------------------------------------------------------------------
@@ -4537,7 +4415,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 
 	// モバイルでホームに戻るボタンを表示
 	$wp_customize->add_setting( 'mobile_home_button', array(
-		'default'	=> true,
+		'default'	=> false,
 		'sanitize_callback' => 'thk_sanitize_boolean'
 	));
 	$wp_customize->add_control( 'mobile_home_button', array(
@@ -4551,7 +4429,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 
 	// モバイルでメニューボタンを表示
 	$wp_customize->add_setting( 'mobile_menu_button', array(
-		'default'	=> true,
+		'default'	=> false,
 		'sanitize_callback' => 'thk_sanitize_boolean'
 	));
 	$wp_customize->add_control( 'mobile_menu_button', array(
@@ -4632,7 +4510,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 
 	// モバイルでページ上に戻るボタンを表示
 	$wp_customize->add_setting( 'mobile_pagetop_button', array(
-		'default'	=> true,
+		'default'	=> false,
 		'sanitize_callback' => 'thk_sanitize_boolean'
 	));
 	$wp_customize->add_control( 'mobile_pagetop_button', array(
@@ -4873,9 +4751,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'priority'	=> 25
 	));
 
-	$wp_customize->add_setting( 'dummy7', array( 'sanitize_callback' => 'thk_sanitize' ) );
-	$wp_customize->add_control( 'dummy7', array(
-		'settings'	=> 'dummy7',
+	$wp_customize->add_setting( 'dummy6', array( 'sanitize_callback' => 'thk_sanitize' ) );
+	$wp_customize->add_control( 'dummy6', array(
+		'settings'	=> 'dummy6',
 		'description'	=> '<p class="bold snormal f11em mm23l mm10b">' . __( 'Post type to display', 'luxeritas' ) . '</p>',
 		'section'	=> 'toc_section',
 		'type'		=> 'hidden',
@@ -4944,9 +4822,9 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'priority'	=> 47
 	));
 
-	$wp_customize->add_setting( 'dummy8', array( 'sanitize_callback' => 'thk_sanitize' ) );
-	$wp_customize->add_control( 'dummy8', array(
-		'settings'	=> 'dummy8',
+	$wp_customize->add_setting( 'dummy7', array( 'sanitize_callback' => 'thk_sanitize' ) );
+	$wp_customize->add_control( 'dummy7', array(
+		'settings'	=> 'dummy7',
 		'description'	=> '<p class="snormal f11em mm23l mm10b"><hr />' . __( 'Items below this do not apply to widgets', 'luxeritas' ) . '<hr class="m10t" /></p>',
 		'section'	=> 'toc_section',
 		'type'		=> 'hidden',
@@ -5327,8 +5205,8 @@ add_action( 'customize_register', function( $wp_customize ) {
 		'section'	=> 'external_link_section',
 		'type'		=> 'radio',
 		'choices'	=> array(
-			'normal'	=> 'External link',
-			'square'	=> 'External link square'
+			'normal'	=> 'fa-external-link',
+			'square'	=> 'fa-external-link-square'
 		),
 		'priority'	=> 30
 	));
@@ -5888,7 +5766,7 @@ add_action( 'customize_register', function( $wp_customize ) {
 	$wp_customize->add_control( 'sns_fb_appid', array(
 		'settings'	=> 'sns_fb_appid',
 		'label'		=> __( 'Facebook settings', 'luxeritas' ),
-		'description'	=> '<p class="f08em" style="margin-top:0;margin-bottom:0">' . __( '* Required to display Facebook share count.', 'luxeritas' ) . '</p><p class="f09em" style="margin-top:15px;margin-bottom:0">App ID ( <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">Get ID</a> )</p>',
+		'description'	=> '<p class="f08em" style="margin-top:0;margin-bottom:0">' . __( '* Required when acquiring a count value of 5 digits or more.', 'luxeritas' ) . '</p><p class="f09em" style="margin-top:15px;margin-bottom:0">App ID ( <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">Get ID</a> )</p>',
 		'section'	=> 'sns_section',
 		'type'		=> 'text',
 		'priority'	=> 80

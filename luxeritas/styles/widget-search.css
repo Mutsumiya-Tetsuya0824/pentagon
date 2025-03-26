@@ -37,14 +37,33 @@
 	height: 28px;
 	padding: 8px;
 	font-size: 1.2rem;
-	background: none;
-	cursor: pointer;
 }
 
+.search-field::-webkit-input-placeholder {
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	color: #767676;
+	font-size: 1.4rem;
+}
+.search-field:-moz-placeholder {
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	color: #767676;
+	font-size: 1.4rem;
+}
+.search-field:-ms-input-placeholder {
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	color: #767676;
+	font-size: 1.4rem;
+}
 .search-field:placeholder-shown {
-	font-family: "icomoon";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
 	color: #767676;
 	font-size: 1.4rem;
 }
 
-#search input:focus::placeholder { color:transparent; }
+#search input:focus::-webkit-input-placeholder { color:transparent; }
+#search input:focus:-moz-placeholder { color:transparent; }
+#search input:focus:-ms-placeholder { color:transparent; }

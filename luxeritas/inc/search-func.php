@@ -19,16 +19,16 @@
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_search_extend' ) === false ):
 function thk_search_extend() {
-	global $luxe;
+	global $luxe, $_is;
 
+	$_is['search'] = is_search();
 	thk_default_set();
 
 	add_action( 'posts_request', function( $query ) {
 		global $luxe, $wpdb;
 
-		if( stripos( $query, 'SELECT ' ) === 0 && stripos( $query, ' DISTINCT' ) === false ) {
-			// 検索文字列に「SELECT」という文言が入ってるとアカンので str_replace でなく substr_replace 使う
-			$query = substr_replace( $query, 'SELECT DISTINCT ', 0, 7 );
+		if( stripos( $query, ' DISTINCT' ) === false ) {
+			$query = str_replace( 'SELECT', 'SELECT DISTINCT', $query );
 		}
 		$query = thk_search_query_replace( $query );
 
@@ -61,13 +61,6 @@ function thk_search_extend() {
 			}
 		}
 
-		// ラッパーメニュー用の固定ページを含まないようにする
-		if( stripos( $query, 'pages/wrapper-menu.php' ) === false ) {
-			if( thk_wrap_menu_used() === true ) {
-				// 最初の一個目の WHERE 文だけ置換したいので str_replace でなく preg_replace 使う
-				$query = preg_replace( '/ WHERE /i', ' WHERE ' . $wpdb->posts . '.ID NOT IN (SELECT DISTINCT ' . $wpdb->postmeta . '.post_id FROM ' . $wpdb->postmeta . ' WHERE ' . $wpdb->postmeta . ".meta_value = 'pages/wrapper-menu.php' AND " . $wpdb->postmeta . '.post_id IS NOT NULL ) AND ', $query, 1 );
-			}
-		}
 		return $query;
 	});
 
@@ -116,7 +109,7 @@ if( function_exists( 'thk_search_query_replace' ) === false ):
 function thk_search_query_replace( $query ) {
 	$wild_card = thk_get_query_wild_card( $query );
 
-	$query = preg_replace( '/\{([0-9a-z]{16,}?)\}/', $wild_card, $query );
+	$query = preg_replace( '/\{([0-9a-z]+?)\}/', $wild_card, $query );
 
 	return $query;
 }
@@ -133,7 +126,7 @@ function thk_get_query_wild_card( $query ) {
 		return $thk_search_query_wild_card;
 	}
 	else {
-		preg_match( '/\{([0-9a-z]{16,}?)\}/', $query, $match );
+		preg_match( '/\{([0-9a-z]+?)\}/', $query, $match );
 		if( !isset( $match[0] ) ) {
 			$thk_search_query_wild_card = '%';
 		}
@@ -192,9 +185,7 @@ function thk_search_excerpt( $content = null ) {
 		$comments_query = new WP_Comment_Query;
 		$comments = $comments_query->query( array( 'post_id' => $post->ID ) );
 		foreach ( (array)$comments as $comment ) {
-			if( (string)$comment->comment_approved === '1' ) {
-				$content .= $comment->comment_content;
-			}
+			$content .= $comment->comment_content;
 		}
 	}
 

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Luxeritas\n"
-"POT-Creation-Date: 2021-04-19 09:20+0900\n"
-"PO-Revision-Date: 2021-04-19 09:21+0900\n"
+"POT-Creation-Date: 2020-01-11 18:32+0900\n"
+"PO-Revision-Date: 2020-01-11 18:33+0900\n"
 "Last-Translator: \n"
 "Language-Team: Thought is Free\n"
 "Language: ja\n"
@@ -168,7 +168,7 @@ msgid "Menu"
 msgstr ""
 
 #: translations.php:39
-msgid "Install"
+msgid " Menu"
 msgstr ""
 
 #: translations.php:40
@@ -419,9 +419,6 @@ msgstr ""
 #: translations.php:98
 msgid "Log out ?"
 msgstr ""
-
-#~ msgid " Menu"
-#~ msgstr " メニュー"
 
 #~ msgid "Authentication is not valid."
 #~ msgstr "認証が無効です。"

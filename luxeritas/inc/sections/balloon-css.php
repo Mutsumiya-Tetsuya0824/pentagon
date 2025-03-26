@@ -20,7 +20,7 @@
 <tbody>
 <?php
 if( !isset( $sc_mods ) ) {
-	$sc_mods = get_pattern_list( 'shortcode', false, true );
+	$sc_mods = get_phrase_list( 'shortcode', false, true );
 }
 $disabled = false;
 if( isset( $sc_mods['balloon_left'] ) || isset( $sc_mods['balloon_right'] ) ) {

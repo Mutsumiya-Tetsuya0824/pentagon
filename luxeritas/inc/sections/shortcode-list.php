@@ -15,24 +15,19 @@
  */
 
 ?>
-<ul style="display:flex;flex-wrap:wrap">
-<li style="white-space:nowrap;margin-right:14px">
 <form enctype="multipart/form-data" id="add-form" method="post" action="">
 <?php
-settings_fields( 'shortcode' );	// インポートで必要
+settings_fields( 'shortcode' );
 ?>
+<ul>
+<li>
 <input type="button" class="button secondary add-shortcode" value="<?php echo __( 'Add New', 'luxeritas' ); ?>" name="" onclick="thkEditBtn(this)" />
 <label class="button secondary"><?php echo __( 'Import', 'luxeritas' ); ?>
 <input type="file" id="add-file-shortcode" name="add-file-shortcode" style="display:none" />
 </label>
-</form>
-</li>
-<li>
-<input type="button" id="thkSampleBtn" class="button secondary" value="<?php echo __( 'Sample registration', 'luxeritas' ); ?>" name="" />
 </li>
 </ul>
-
-<div style="display:none;">
+</form>
 <script>
 var cname = ''
 ,   cexnm = ''
@@ -61,7 +56,6 @@ function thkFileSaveBtn(button) {
 	cname = button.getAttribute('name');
 }
 </script>
-</div>
 
 <p class="f09em m10-b"><?php printf( __( '* %s names with the same name can not be registered.', 'luxeritas' ), __( 'Shortcode', 'luxeritas' ) ); ?></p>
 <p class="f09em m10-b"><?php echo __( '* Import is self responsible, please import only from the trustworthy file.', 'luxeritas' ); ?></p>
@@ -72,7 +66,7 @@ function thkFileSaveBtn(button) {
 $values  = array( 'label' => '', 'php' => false, 'close' => false, 'hide' => false, 'active' => false );
 $yes = '<i class="dashicons dashicons-yes"></i>';
 $no  = '-';
-$sc_mods = get_pattern_list( 'shortcode' );
+$sc_mods = get_phrase_list( 'shortcode' );
 
 foreach( (array)$sc_mods as $key => $val ) {
 	$sc_mods[$key] = wp_parse_args( @json_decode( $val ), $values );
@@ -200,62 +194,6 @@ add_action( 'admin_footer', function() {
 </form>
 </div>
 
-<form id="luxe-customize" style="display:none" method="post" action>
-<style>
-#shortcode-sample-wrap {
-	padding: 0 24px;
-	min-width: 380px;
-}
-#shortcode-sample-title {
-	padding:.4em 1em;
-}
-#shortcode-overlay {
-	position: fixed;
-	margin: auto;
-	top: 0;
-	width:100vw;
-	height: 100vh;
-	background: #000;
-	opacity: .7;
-	z-index: 9999;
-}
-#shortcode-sample {
-	overflow: auto;
-	position: fixed;
-	margin: auto;
-	top: 60px;
-	left: 0;
-	right: 0;
-	padding: .2em;
-	width: 80vw;
-	min-width: 380px;
-	height: 86vh;
-	border-radius: 4px;
-	background: #f1f1f1;
-	z-index: 9999;
-}
-.ui-icon-closethick:after {
-	position: absolute;
-	top: 0;
-}
-</style>
-<div id="shortcode-overlay"></div>
-<div id="shortcode-sample" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front ui-dialog-buttons ui-draggable ui-resizable">
-<div id="shortcode-sample-title" class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">
-<span class="ui-dialog-title"><?php echo __( 'Sample registration', 'luxeritas' ); ?></span>
-<button type="button" id="shortcode-sample-close" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close">
-<span class="ui-button-icon ui-icon ui-icon-closethick">Close</span>
-</button>
-</div>
-<div id="shortcode-sample-wrap">
-<?php require( 'shortcode-sample.php' ); ?>
-<?php require( 'shortcode-balloon.php' ); ?>
-<?php submit_button( '', 'primary', 'save', true ); ?>
-</div>
-</div>
-</form>
-
-<div style="display:none">
 <script>
 jQuery(function($) {
 	var sc = '#thk-code-'
@@ -342,12 +280,7 @@ jQuery(function($) {
 		fm.dialog('open');
 		fm.find(sc + 'label').val(label);
 		fm.find(sc + 'name').val(cname);
-		if( action === 'edit' ) {
-			fm.find(sc + 'text').val('<?php echo __( "Loding...", "luxeritas" ), "\\n", __( "Please wait a little while.", "luxeritas" ); ?>');
-		}
-		else {
-			fm.find(sc + 'text').val('');
-		}
+		fm.find(sc + 'text').val('');
 		err.text('');
 
 		if( action === 'add' ) {
@@ -359,7 +292,7 @@ jQuery(function($) {
 			fm.find(sc + 'active').prop('checked', true);
 			fm.find(sc + 'func-before').hide();
 			fm.find(sc + 'func-after').hide();
-			$('.ui-dialog-buttonset .ui-button:first').button('enable');
+			$('.ui-button').button('enable');
 		}
 		else {
 			$('.ui-dialog-buttonset .ui-button:first').button('disable');
@@ -397,12 +330,14 @@ jQuery(function($) {
 				dataType: 'text',
 				async: true,
 				cache: false,
-				timeout: 10000
-			}).then( function( response ) {
-				$('textarea').val( response );
-				save_enable = true;
-			}, function() {
-				$('textarea').val( '<?php echo __( "Failed to read.", "luxeritas" ); ?>' );
+				timeout: 10000,
+				success: function( response ) {
+					$('textarea').val( response );
+					save_enable = true;
+				},
+				error: function() {
+					$('textarea').val( '<?php echo __( "Failed to read.", "luxeritas" ); ?>' );
+				}
 			});
 		}
 		return false;
@@ -411,28 +346,16 @@ jQuery(function($) {
 	// 値が変更されたら保存ボタン活性化
 	$('form').on( "keyup change", function() {
 		if( save_enable === true ) {
-			$('.ui-dialog-buttonset .ui-button:first').button('enable');
+			$('.ui-button').button('enable');
 		}
 	});
 
-	// ダイアログ用のオーバーレイがクリックされたらダイアログを閉じる
+	// オーバーレイがクリックされたらダイアログを閉じる
 	$(document).on( 'click', '.ui-widget-overlay', function() {
 		fm.dialog('close');
 		setTimeout( function(){ $('iframe').eq(0).focus(); }, 0 );
 		setTimeout( function(){ $('textarea').eq(0).focus(); }, 0 );
 	}); 
-
-	// サンプル登録が押されたらサンプル登録画面表示
-	$('#thkSampleBtn').on( 'click', function() {
-		var o = document.getElementById("luxe-customize");
-		o.style.display = 'block';
-	});
-
-	// サンプル登録用のオーバーレイがクリックされたら登録画面を閉じる
-	$(document).on( 'click', '#shortcode-overlay, #shortcode-sample-close', function() {
-		var o = document.getElementById("luxe-customize");
-		o.style.display = 'none';
-	});
 });
 
 // タブの入力ができるようにする
@@ -449,6 +372,5 @@ for( var i = 0; i < count; i++ ) {
 	}
 }
 </script>
-</div>
 <?php
 });

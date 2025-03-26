@@ -28,6 +28,8 @@ div[class*="sns-"] i {
 	max-width: 16px;
 }
 .snsb {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
 	flex-wrap: wrap;
 	padding:  0;
@@ -49,8 +51,8 @@ div[class*="sns-"] i {
 	padding: 1px;
 	height: 32px;
 }
-.sns-c .snsb li [aria-label],
-.sns-w .snsb li [aria-label] {
+.sns-c .snsb li a,
+.sns-w .snsb li a {
 	display: block;
 	position: relative;
 	margin: auto;
@@ -64,17 +66,17 @@ div[class*="sns-"] i {
 	text-decoration: none;
 	border-radius: 3px;
 }
-.sns-c .snsb li [aria-label] {
+.sns-c .snsb li a {
 	color: #fff;
 	background: #000;
 	box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.3);
 }
 
-.sns-c .snsb li [aria-label]:hover {
+.sns-c .snsb li a:hover {
 	color: #fff;
 	opacity: 0.6;
 }
-.sns-w .snsb li [aria-label]:hover {
+.sns-w .snsb li a:hover {
 	background: #f8f8f8;
 	opacity: 0.7;
 }
@@ -87,29 +89,22 @@ div[class*="sns-"] i {
 	margin-right: 0;
 }
 
-.sns-c .ico-hatena,
-.sns-w .ico-hatena {
+.sns-c .fa-hatena,
+.sns-w .fa-hatena {
 	font-weight: bold;
 	font-family: Verdana, Arial, Helvetica, Roboto;
 }
 
-.sns-c .snsb [aria-label],
-.sns-w .snsb [aria-label] {
+.sns-c .snsb a,
+.sns-w .snsb a {
 	text-align: center;
 }
 .sns-c .snsb i,
 .sns-w .snsb i {
-	margin-right: 5px;
-}
-div[class$=-w] ul[class*=sns] li a,
-div[class$=-w] ul[class*=sns] li.cp-button [aria-label] {
-	color: #666;
-	background: #fbfbfb;
-	border: 1px solid #ccc;
+	margin-right: 2px;
 }
 
-/*.sns-c .snsb .twitter a  { background: #1c9be2; }*/
-.sns-c .snsb .twitter a  { background: #010101; }
+.sns-c .snsb .twitter a  { background: #1c9be2; }
 .sns-c .snsb .facebook a { background: #3b5998; }
 .sns-c .snsb .linkedin a { background: #0479b4; }
 .sns-c .snsb .pinit a    { background: #bd081c; }
@@ -118,10 +113,9 @@ div[class$=-w] ul[class*=sns] li.cp-button [aria-label] {
 .sns-c .snsb .line a     { background: #00c300; }
 .sns-c .snsb .rss a      { background: #f86300; }
 .sns-c .snsb .feedly a   { background: #2bb24c; }
-.sns-c .snsb .cp-button [aria-label] { background: #56350d; }
+.sns-c .snsb .cp-button a { background: #56350d; }
 
-/*.sns-w .snsb .twitter a  { color: #1c9be2; }*/
-.sns-w .snsb .twitter a  { color: #010101; }
+.sns-w .snsb .twitter a  { color: #1c9be2; }
 .sns-w .snsb .facebook a { color: #3b5998; }
 .sns-w .snsb .linkedin a { color: #0479b4; }
 .sns-w .snsb .pinit a    { color: #bd081c; }
@@ -130,7 +124,7 @@ div[class$=-w] ul[class*=sns] li.cp-button [aria-label] {
 .sns-w .snsb .line a     { color: #00c300; }
 .sns-w .snsb .rss a      { color: #f86300; }
 .sns-w .snsb .feedly a   { color: #2bb24c; }
-.sns-w .snsb .cp-button [aria-label] { color: #56350d; }
+.sns-w .snsb .cp-button a { color: #56350d; }
 
 .snscnt {
 	display: block;

@@ -31,9 +31,12 @@ $phrases_dir = TPATH . DSEP . 'samples' . DSEP . 'phrases' . DSEP;
 $shortcodes_dir = TPATH . DSEP . 'samples' . DSEP . 'shortcodes' . DSEP;
 
 require_once( INC . 'phrase-regist.php' );
+require_once( INC . 'optimize.php' );
 
-thk_filesystem_init();
-global $wp_filesystem;
+global $wp_filesystem, $filesystem;
+
+$filesystem = new thk_filesystem();
+if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 foreach( $phrase_file_names as $key => $val ) {
 	if( isset( $_POST['phrase_' . $key . '_sample'] ) ) {

@@ -14,7 +14,6 @@
 
 .luxe-field {
 	max-width: 100%;
-	min-width: 0;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	padding: 0.35em 0.625em 0.75em 1em;
@@ -48,16 +47,6 @@
 	border-top: 0.4em solid #555;
 	top: 40%;
 	left: 12px;
-}
-@media (max-width: 575px) {
-	.luxe-field select {
-		max-width: 300px;
-	}
-}
-@media (max-width: 320px) {
-	.luxe-field select {
-		max-width: 260px;
-	}
 }
 .nav-tab {
 	margin-top: 4px;
@@ -121,12 +110,17 @@
 	width: 100%;
 }
 
-.wrap textarea.luxe-edit {
+.wrap textarea.luxe-edit,
+.luxe-field textarea.htaccess {
 	font-family: Consolas, "Courier New", Courier, Monaco, monospace, "ＭＳ ゴシック", "MS Gothic", "Osaka−等幅";
 	margin: 10px 0;
 	width: 100%;
 	font-size: 12px;
 	background: #f9f9f9;
+}
+.luxe-field textarea.htaccess {
+	max-width: 760px;
+	width: 100%;
 }
 .wrap h2.luxe-customize-title {
 	margin-bottom: 15px;
@@ -184,8 +178,12 @@
 	font-size: 11px;
 	display: inline-block;
 	padding: 2px 8px;
+	-webkit-border-radius: 2px;
 	border-radius: 2px;
 	margin: 0 0 -10px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 	user-select: none;
 }
 
@@ -398,14 +396,6 @@
 	padding: 5px 0;
 	width: 75px;
 	text-align: center;
-}
-
-/**
-------------------------------------
- table nowrap
-------------------------------------*/
-.table-nowrap td {
-	white-space: nowrap;
 }
 
 /**

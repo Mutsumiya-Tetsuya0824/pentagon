@@ -102,10 +102,7 @@ class defConfig {
 			'organization_logo'	=> 'none',
 			'org_logo'		=> null,
 			'pwa_enable'		=> false,
-			'pwa_offline_enable'	=> false,
-			//'pwa_mobile'		=> false,
-			'pwa_install_button'	=> false,
-			'pwa_install_widget'	=> true,
+			'pwa_mobile'		=> false,
 			'pwa_manifest'		=> false,
 			'pwa_theme_color'	=> '#4285f4',
 			'pwa_dynamic_files'	=> false,
@@ -131,23 +128,21 @@ class defConfig {
 			'og_img'		=> null,
 			'child_css'		=> true,
 			'css_to_style'		=> true,
-			//'css_to_plugin_style'	=> false,
+			'css_to_plugin_style'	=> false,
 			'wp_block_library_load'	=> 'inline',
-			'wp_disable_duotone'	=> false,
 			'bootstrap_js_load_type' => 'none',
 			'jquery_load'		=> 'google3',
 			'jquery_defer'		=> false,
+			//'jquery_migrate'	=> 'not',
 			'jquery_migrate_load'	=> false,
-			'material_load'		=> true,
-			'material_add_rounded'	=> false,
-			'material_add_sharp'	=> false,
-			'material_add_two_tone'	=> false,
-			'material_load_async'	=> 'async',
-			'awesome_load'		=> false,
-			'awesome_version'	=> 6,
+			'awesome_version'	=> 5,
+			'awesome_load'		=> 'css',
 			'awesome_4_support'	=> false,
-			'awesome_type'		=> 'css',
+			//'awesome_css_type'	=> 'minimum',
 			'awesome_load_async'	=> 'async',
+			'awesome_load_css_file'	=> 'cdn',
+			'awesome_load_file'	=> 'cdn',
+			'awesome_load_js_file'	=> 'cdn',
 			'html_compress'		=> 'low',
 			'child_css_compress'	=> 'bind',
 			'child_js_compress'	=> 'none',
@@ -176,7 +171,6 @@ class defConfig {
 			'thumbnail_visible'	=> true,
 			'noimage_visible'	=> true,
 			'no_img'		=> null,
-			'web_font_async'	=> false,
 			'font_priority'		=> false,
 			'font_alphabet'		=> 'segoe-helvetica',
 			'font_japanese'		=> 'meiryo-sanfrancisco',
@@ -201,10 +195,8 @@ class defConfig {
 			'global_navi_position'		=> 'under',
 			'global_navi_mobile_type'	=> 'luxury',
 			'global_navi_sticky'		=> 'none',
-			'global_navi_scroll_progress'	=> false,
 			'disable_jetpack_ogp'		=> false,
 			'disable_jetpack_lazyload'	=> false,
-			'lazyload_type'			=> 'native',
 			'lazyload_thumbs'		=> false,
 			'lazyload_avatar'		=> false,
 			'lazyload_sidebar'		=> false,
@@ -235,18 +227,16 @@ class defConfig {
 			'follow_line_id'		=> null,
 			'head_band_rss'			=> true,
 			'head_band_feedly'		=> true,
-			'mobile_home_button'		=> true,
-			'mobile_menu_button'		=> true,
+			'mobile_home_button'		=> false,
+			'mobile_menu_button'		=> false,
 			'mobile_sns_button'		=> false,
 			'mobile_sidebar_button'		=> false,
 			'mobile_toc_button'		=> false,
 			'mobile_comment_button'		=> false,
 			'mobile_search_button'		=> false,
-			'mobile_pagetop_button'		=> true,
+			'mobile_pagetop_button'		=> false,
 			'mobile_button_scroll_hide'	=> true,
-			'mobile_button_name_hide'	=> false,
 			'mobile_button_icon_text'	=> 'vertical',
-			'allow_self_pingback'	=> false,
 			'user_scalable'		=> 'yes',
 			'buffering_enable'	=> false,
 			'add_role_attribute'	=> false,
@@ -274,10 +264,8 @@ class defConfig {
 				'category_meta_u_visible'	=> true,
 				'tag_meta_u_visible'		=> true,
 				'tax_meta_u_visible'		=> false,
-				'thumb_auto_insert_position'	=> 'above',
-				'thumb_auto_insert_width'	=> 'wide',
-				'thumb_auto_insert_limit_height'=> 0,
-				'thumb_auto_insert_preload'	=> true,
+				//'thumb_auto_insert_position'	=> 'above',
+				//'thumb_auto_insert_full_width'	=> false,
 				'toc_auto_insert'		=> false,
 				'toc_amp'			=> false,
 				'toc_number_of_headings'	=> 1,
@@ -342,7 +330,7 @@ class defConfig {
 					'related_visible'	=> true,
 					'comment_visible'	=> true,
 					'trackback_visible'	=> true,
-					'thumb_auto_post'	=> false,
+					//'thumb_auto_post'	=> false,
 				);
 			}
 			if( $this->_is_page === true || $fchk === true ) {
@@ -350,7 +338,7 @@ class defConfig {
 					'next_prev_nav_page_visible'	=> false,
 					'comment_page_visible'	=> true,
 					'trackback_page_visible'=> true,
-					'thumb_auto_page'	=> false,
+					//'thumb_auto_page'	=> false,
 					'sns_page_view'		=> true,
 				);
 			}
@@ -368,7 +356,6 @@ class defConfig {
 				$defaults += array(
 					'title_front_page'	=> 'site_catch',
 					'front_page_post_title'	=> true,
-					'thumb_auto_front_page'	=> false,
 				);
 			}
 		}
@@ -515,13 +502,13 @@ class defConfig {
 				'hide_luxe_adminbar'	=> false,
 			);
 		}
+		/*
 		if( $this->_is_admin === true || $fchk === true ) {
 			$defaults += array(
-				//'media_alt_auto_input'	=> false,
-				'pwa_admin_cache_delete'	=> true,
+				'media_alt_auto_input'	=> false,
 			);
 		}
-
+		*/
 		if( $fchk === true ) {
 			$defaults += $this->custom_variables();
 		}
@@ -574,8 +561,6 @@ class defConfig {
 
 	public function custom_variables() {
 		return array(
-			'smooth_scroll_off'	=> false,
-			'smooth_scroll_hash'	=> false,
 			//'parent_css_uncompress'	=> false,
 			//'measures_against_waf'	=> false,
 			'excerpt_opacity'	=> 100,
@@ -644,17 +629,20 @@ class defConfig {
 			'font_size_side_h4'		=> 18,
 			'font_size_foot'		=> 14,
 			'font_size_foot_h4'		=> 18,
+			'web_font_async'	=> true,
 			'copy_button_target'	=> 'title-and-url',
+			'pwa_bg_color'		=> '#ffffff',
 			'pwa_name'		=> $this->_blog_name,
 			'pwa_short_name'	=> $this->_blog_name,
 			'pwa_description'	=> THK_DESCRIPTION,
 			'pwa_start_url'		=> 0,
+			'pwa_offline_enable'	=> false,
+			'pwa_install_button'	=> false,
 			'pwa_offline_page'	=> 0,
-			'pwa_display'		=> 'standalone',
+			'pwa_display'		=> 'minimal-ui',
 			'pwa_orientation'	=> 'any',
 			'css_search'		=> true,
 			'css_archive'		=> true,
-			'css_archive_drop'	=> true,
 			'css_calendar'		=> true,
 			'css_tagcloud'		=> true,
 			'css_new_post'		=> true,
@@ -663,9 +651,7 @@ class defConfig {
 			'css_follow_button'	=> true,
 			'css_rss_feedly'	=> true,
 			'css_qr_code'		=> true,
-			'css_pwa_install_box'	=> true,
 			'amp_css_archive'	=> true,
-			'amp_css_archive_drop'	=> true,
 			'amp_css_calendar'	=> true,
 			'amp_css_tagcloud'	=> true,
 			'amp_css_new_post'	=> true,
@@ -736,25 +722,21 @@ class defConfig {
 			'head_band_border_bottom_width'	=> 1,
 			'head_band_follow_color'	=> false,
 			'global_navi_open_close'	=> 'individual',
-			'global_navi_auto_resize'	=> 'auto',
-			'global_navi_center'		=> false,
-			'global_navi_sep'		=> 'none',
+			'global_navi_translucent'	=> false,
 			'global_navi_scroll_up_sticky'	=> false,
 			'global_navi_shadow'		=> 0,
-			'global_navi_translucent'	=> false,
-			'global_navi_progress_rate'	=> 'page',
+			'global_navi_center'		=> false,
+			'global_navi_sep'		=> 'none',
+			'global_navi_auto_resize'	=> 'auto',
 			'gnavi_color'			=> null,
-			'gnavi_desc_color'		=> null,
 			'gnavi_bar_bg_color'		=> null,
 			'gnavi_bg_color'		=> null,
 			'gnavi_hover_color'		=> null,
 			'gnavi_bg_hover_color'		=> null,
 			'gnavi_current_color'		=> null,
-			'gnavi_current_desc_color'	=> null,
 			'gnavi_bg_current_color'	=> null,
 			'gnavi_border_top_color'	=> null,
 			'gnavi_border_bottom_color'	=> null,
-			'gnavi_progress_bar_color'	=> null,
 			'gnavi_separator_color'		=> null,
 			'gnavi_border_top_width'	=> 1,
 			'gnavi_border_bottom_width'	=> 1,
@@ -769,6 +751,7 @@ class defConfig {
 			'mobile_button_transparent'	=> 60,
 			'mobile_button_radius'		=> 0,
 			'mobile_button_space'		=> 2,
+			'mobile_button_name_hide'	=> false,
 			'mobile_button_font_size'	=> 12,
 			'mobile_button_width'		=> 70,
 			//'mobile_button_size'		=> 'small',
@@ -906,7 +889,7 @@ class defConfig {
 	}
 
 	public function set_luxe_variable() {
-		global $luxe, $fchk, $wp_query, $wp_registered_widgets, $is_IE;
+		global $luxe, $fchk, $wp_query, $wp_registered_widgets;
 
 		$defs = $this->default_variables();
 		$customs = $this->custom_variables();
@@ -926,24 +909,22 @@ class defConfig {
 			$this->_is_singular = $is_singular_org;	// is_singular() の値を戻す
 		}
 
-		// admin_mods
-		if( $this->_is_admin === true ) {
-			$admin_variables = wp_parse_args( (array)get_theme_admin_mods(), $this->admin_variables() );
-			$customs += $admin_variables;
-			$mods += $admin_variables;
-			unset( $admin_variables );
-		}
+// admin_mods
+if( $this->_is_admin === true ) {
+    $admin_variables = wp_parse_args( (array)get_theme_admin_mods(), $this->admin_variables() );
+    $customs += $admin_variables;
+    $mods += $admin_variables;
+    unset( $admin_variables );
+}
 
-		foreach( $mods as $key => $val ) {
-			if( is_array( $val ) === false ) {
-				if( ctype_digit( (string)$val ) && $val == (int)$val && $key !== 'design_file' ) {
-					$mods[$key] = (int)apply_filters( 'theme_mod_' . $key, $val );
-				}
-				else {
-					$mods[$key] = apply_filters( 'theme_mod_' . $key, $val );
-				}
-			}
-		}
+foreach( $mods as $key => $val ) {
+    if( is_string($val) && ctype_digit($val) && $val == (int)$val && $key !== 'design_file' ) {
+        $mods[$key] = (int)apply_filters( 'theme_mod_' . $key, $val );
+    } else {
+        $mods[$key] = apply_filters( 'theme_mod_' . $key, $val );
+    }
+}
+
 
 		// global 変数に代入する前に不要な変数を削除
 		foreach( $mods as $key => $val ) {
@@ -1024,6 +1005,39 @@ class defConfig {
 					continue;
 				}
 
+				// Font Awesome で不要な変数削除
+				if( $key === 'awesome_load' ) {
+					if( $val === 'none' ) {
+						unset(
+							$mods['awesome_load'],
+							$mods['awesome_load_async'],
+							$mods['awesome_load_css_file'],
+							$mods['awesome_load_file'],
+							$mods['awesome_load_js_file']
+						);
+					}
+					else {
+						global $awesome;
+						// Font Awesome のバージョン
+						if( isset( $mods['awesome_version'] ) && $mods['awesome_version'] === 4 ) {
+							unset( $mods['awesome_load_js_file'] );
+						}
+						else {
+							if( $val === 'svg' ) {
+								unset(
+									$mods['awesome_load_async'],
+									$mods['awesome_load_css_file'],
+									$mods['awesome_load_file']
+								);
+							}
+							else {
+								unset( $mods['awesome_load_js_file'] );
+							}
+						}
+					}
+					continue;
+				}
+
 				// シンタックスハイライターで不要な変数削除
 /*
 				if( $this->_is_search === false && !isset( $mods['highlighter_enable'] ) ) {
@@ -1034,7 +1048,7 @@ class defConfig {
 				}
 */
 				// Widget の非表示（$luxe 変数に代入した後で処理する意味がないので、ここで直接 $wp_registered_widgets から unset しちゃう）
-				if( $this->_is_admin === false && (bool)$val === true && strpos( $key, 'widget_' ) !== false ) {
+				if( $this->_is_admin === false && $val === true && strpos( $key, 'widget_' ) !== false ) {
 					$widget_name = '';
 					$unset_widgets = array();
 
@@ -1105,63 +1119,9 @@ class defConfig {
 			}
 		}
 
-		// Material icons で不要な変数削除
-		if( $this->_is_admin === false && !isset( $mods['material_load'] ) ) {
-			unset(
-				$mods['material_add_rounded'],
-				$mods['material_add_sharp'],
-				$mods['material_add_two_tone'],
-				$mods['material_load_async']
-			);
-		}
-
-		// Font Awesome で不要な変数削除
-		if( $this->_is_admin === false && !isset( $mods['awesome_load'] ) ) {
-			unset(
-				$mods['awesome_version'],
-				$mods['awesome_4_support'],
-				$mods['awesome_load_async']
-			);
-		}
-
-		// IE で LazyLoad 無効化
-		if( $is_IE === true ) $mods['lazyload_type'] = 'none';
-
-		// LazyLoad で不要な変数削除
-		if( $this->_is_admin === false && isset( $mods['lazyload_type'] ) && $mods['lazyload_type'] !== 'intersection' ) {
-			unset(
-				$mods['lazyload_contents'],
-				$mods['lazyload_thumbs'],
-				$mods['lazyload_avatar'],
-				$mods['lazyload_sidebar'],
-				$mods['lazyload_footer'],
-				$mods['lazyload_noscript'],
-				$mods['lazyload_effect']
-			);
-		}
-
-		// コンテンツの LazyLoad が不要な場合は変数削除
-		if( isset( $mods['lazyload_type'] ) && $mods['lazyload_type'] === 'intersection' && isset( $mods['lazyload_contents'] ) ) {
-			if( $this->_is_admin === true || $this->_is_singular === true || ( isset( $mods['list_view'] ) && $mods['list_view'] === 'content' ) || ( isset( $mods['sticky_no_excerpt'] ) && $mods['sticky_no_excerpt'] && is_sticky() === true ) ) {
-			}
-			else {
-				unset( $mods['lazyload_contents'] );
-			}
-		}
-
 		// ヘッダー背景画像で不要な変数削除
 		if( $fchk === false && !isset( $mods['head_bg_img'] ) ) {
 			unset( $mods['head_img_width_max'], $mods['head_img_height_auto'] );
-		}
-
-		// サムネイル自動挿入で不要な変数削除
-		if( $fchk === false && !isset( $mods['thumb_auto_post'] ) && !isset( $mods['thumb_auto_page'] ) ) {
-			unset( 
-				$mods['thumb_auto_insert_position'],
-				$mods['thumb_auto_insert_width'],
-				$mods['thumb_auto_insert_limit_height'],
-				$mods['thumb_auto_insert_preload']
-			);
 		}
 
 		// CAPTCHA 関連で不要な変数削除
@@ -1325,23 +1285,8 @@ class defConfig {
 		}
 
 		// PWA
-		if( $this->_is_admin === false ) {
-			if( !isset( $mods['pwa_enable'] ) ) {
-				unset(
-					$mods['pwa_offline_enable'],
-					$mods['pwa_offline_page'],
-					$mods['pwa_install_button'],
-					$mods['pwa_install_widget'],
-					$mods['pwa_admin_cache_delete']
-				);
-			}
-			elseif( !isset( $mods['pwa_offline_enable'] ) ) {
-				unset(
-					$mods['pwa_offline_page'],
-					$mods['pwa_install_button'],
-					$mods['pwa_install_widget']
-				);
-			}
+		if( !isset( $mods['pwa_enable'] ) && isset( $mods['pwa_mobile'] ) ) {
+			unset( $mods['pwa_enable'] );
 		}
 
 		// モバイルナビゲーションボタンを表示するかどうかの変数
@@ -1403,24 +1348,8 @@ class defConfig {
 							require( INC . 'amp-func.php' );
 							add_filter( 'show' . '_admin_bar', '__return_false' );
 							add_filter( 'post_thumbnail_html', function( $contents ) {
-								$contents = preg_replace( '/<img([^>]+?)\/>/i', '<amp-img $1></amp-img>', $contents );
-								$contents = str_replace( ' loading="lazy"', '', $contents ); // WP 5.9 later
-								if( stripos( $contents, 'decoding=' ) !== false ) {
-									$contents = preg_replace( '/<amp-img ([^>]+?) decoding=[\"|\'][^>]+?[\"|\']([^>]+?)>/ism', '<amp-img $1$2>', $contents );
-								}
-								return $contents;
+								return preg_replace( '/<img([^>]+?)\/>/i', '<amp-img $1></amp-img>', $contents );
 							});
-
-							// AMP で Lazyload 用の 1x1px の画像を表示しないように Lazyload 関連のグローバル変数全削除
-							unset(
-								$mods['lazyload_contents'],
-								$mods['lazyload_thumbs'],
-								$mods['lazyload_avatar'],
-								$mods['lazyload_sidebar'],
-								$mods['lazyload_footer'],
-								$mods['lazyload_noscript'],
-								$mods['lazyload_effect']
-							);
 						}
 						else {
 							unset( $mods['amp_enable'] );
@@ -1443,7 +1372,7 @@ class defConfig {
 				// font check
 				if( $this->_is_user_logged_in === false ) {
 					if( file_exists( $chkfile ) === true ) {
-						@require_once( $chkfile );
+						require_once( $chkfile );
 						if( function_exists('thk_rcheck') === true ) $results = thk_rcheck();
 					}
 				}

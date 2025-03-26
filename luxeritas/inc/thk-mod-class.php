@@ -37,7 +37,7 @@ class thk_mod_class {
 	}
 
 	// thk_set_theme_mod
-	public static function thk_set_theme_mod( $target, $key = null, $value = null ) {
+	public static function thk_set_theme_mod( $target, $key = null, $value ) {
 		if( empty( $key ) ) return false;
 		$ret = false;
 		$admin_mods = self::thk_get_theme_mods( $target );
@@ -96,7 +96,7 @@ endif;
 
 // set_theme_admin_mod
 if( function_exists( 'set_theme_admin_mod' ) === false ):
-function set_theme_admin_mod( $key = null, $value = null ) {
+function set_theme_admin_mod( $key = null, $value ) {
 	return thk_mod_class::thk_set_theme_mod( 'admin', $key, $value );
 }
 endif;
@@ -134,7 +134,7 @@ endif;
 
 // set_theme_phrase_mod
 if( function_exists( 'set_theme_phrase_mod' ) === false ):
-function set_theme_phrase_mod( $key = null, $value = null ) {
+function set_theme_phrase_mod( $key = null, $value ) {
 	return thk_mod_class::thk_set_theme_mod( 'phrase', $key, $value );
 }
 endif;
@@ -154,26 +154,19 @@ function remove_theme_phrase_mods() {
 endif;
 
 /*---------------------------------------------------------------------------
- * get pattrn list ( block pattern / phrase / shortcode )
+ * get phrase list or shortcode list
  *---------------------------------------------------------------------------*/
-if( function_exists( 'get_pattern_list' ) === false ):
-function get_pattern_list( $patterns = 'pattern', $more_value = true, $shortcode_name_only = false ) {
+if( function_exists( 'get_phrase_list' ) === false ):
+function get_phrase_list( $phrase_or_shortcode = 'phrase', $more_value = true, $shortcode_name_only = false ) {
 	$mods = array();
 	$phrase_mods = get_theme_phrase_mods();
-	$prefix = '';
-
-	switch( $patterns ) {
-		case 'shortcode': $prefix = 'sc-'; break;
-		case 'phrase':    $prefix = 'fp-'; break;
-		case 'pattern':   $prefix = 'bp-'; break;
-		default: break;
-	}
+	$prefix = $phrase_or_shortcode === 'shortcode' ? 'sc-' : 'fp-';
 
 	foreach( (array)$phrase_mods as $key => $val ) {
 		if( strpos( $key, $prefix ) === 0 ) {
 			$key = substr( $key, 3, strlen( $key ) );
 
-			if( $patterns === 'shortcode' && $shortcode_name_only === true ) {
+			if( $phrase_or_shortcode === 'shortcode' && $shortcode_name_only === true ) {
 				$sp_pos = strpos( $key, ' ' );
 				if( $sp_pos !== false ) {
 					$key = substr( $key, 0, $sp_pos );

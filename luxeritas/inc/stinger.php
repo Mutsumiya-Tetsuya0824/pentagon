@@ -42,12 +42,10 @@ add_action( 'wp_unique_post_slug', function( $slug, $post_ID, $post_status, $pos
 // セルフピンバック禁止
 //---------------------------------------------------------------------------
 add_action( 'pre_ping', function( &$links ) {
-	global $luxe;
-	if( !isset( $luxe['allow_self_pingback'] ) ) {
-		foreach ( $links as $l => $link ) {
-			if ( 0 === strpos( $link, THK_HOME_URL ) ) {
-				unset( $links[$l] );
-			}
+	$home = home_url();
+	foreach ( $links as $l => $link ) {
+		if ( 0 === strpos( $link, $home ) ) {
+			unset( $links[$l] );
 		}
 	}
 } );

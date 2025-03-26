@@ -67,11 +67,12 @@ class luxe_batch {
 			}
 
 			if( isset( $_POST['del'] ) && (int)$_POST['del'] === 1 ) {
-				/*
-				thk_filesystem_init();
+/*
+				require_once( INC . 'optimize.php' );
 				global $wp_filesystem;
-				*/
-
+				$filesystem = new thk_filesystem();
+				if( $filesystem->init_filesystem( site_url() ) === false ) return false;
+*/
 				$origin_parts = pathinfo( $path );
 				$thumbs = glob( dirname( $path ) . '/' . $origin_parts['filename'] . '-*' );
 

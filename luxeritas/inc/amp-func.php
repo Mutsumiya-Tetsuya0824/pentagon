@@ -135,9 +135,8 @@ function thk_amp_not_allowed_tag_replace( $contents ) {
 	// イメージ ( thk_amp_tag_replace() の前処理 )
 	$contents = preg_replace( '/<img ([^>]+?)>/ism', '<amp-img $1></amp-img>', $contents );
 
-	if( stripos( $contents, 'decoding=' ) !== false ) {
-		$contents = preg_replace( '/<amp-img ([^>]+?) decoding=[\"|\'][^>]+?[\"|\']([^>]+?)>/ism', '<amp-img $1$2>', $contents );
-	}
+	// WP 5.5 で勝手につく loading="lazy" を削除
+	$contents = str_replace( ' loading="lazy"', '', $contents );
 
 	// スタイル
 	/*$contents = preg_replace( '/([\s|\xC2\xA0]*style=([\"|\']).+?\2)/i', '', $contents );*/

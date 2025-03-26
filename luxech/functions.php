@@ -13,7 +13,15 @@
 
 
 
-
+/**
+ * 画面上の PHP Warning / Notice を非表示にする
+ */
+add_action('init', function () {
+  // 画面へのエラーメッセージ出力をオフ
+  @ini_set('display_errors', '0'); 
+  // ログレベルを「致命的なエラー以外は表示しない」ようにする
+  error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED & ~E_STRICT);
+}, 1);
 
 
 
@@ -281,30 +289,18 @@ if (!function_exists('custom_tel_validation_filter')) {
 
 add_filter('wpcf7_autop_or_not', '__return_false');
 
-if (!function_exists('move_toc_before_first_h2')) {
-  function move_toc_before_first_h2($content)
-  {
-    if (is_single() && !is_admin()) {
-      $toc_shortcode = do_shortcode('[toc]');
-      $content = preg_replace('/<div id="toc_container">.*?<\/div>/s', '', $content);
-      $content = preg_replace('/(<h2.*?>)/', '<div id="toc_container"><span class="toc_title">この記事の内容</span>' . $toc_shortcode . '</div>' . '$1', $content, 1);
-    }
-    return $content;
-  }
-  add_filter('the_content', 'move_toc_before_first_h2');
-}
 
 
-add_filter('luxe_speedup_compress', '__return_false');
+add_filter('luxe_speedup_compress', '__return_false');     // CSS/JS圧縮をOFF
+add_filter('luxe_child_js_compress', '__return_false');    // 子テーマJS圧縮OFF
 
 if (function_exists('thk_compress')) {
   remove_action('customize_save_after', 'thk_compress', 75);
-  function thk_compress()
-  {
-    // 強制的に中身を空にする
-    return;
-  }
+  function thk_compress() { return; } // 強制的に空処理
 }
+
+
+
 
 
 
@@ -316,11 +312,10 @@ if (function_exists('thk_compress')) {
 
 
 add_action('wp_enqueue_scripts', function () {
-  // Luxeritas親テーマの style.css を読み込む
-  wp_enqueue_style('luxeritas-style', get_template_directory_uri() . '/style.css');
 
   // 子テーマの style.css を読み込む（上書きが必要なら）
   wp_enqueue_style('luxeritas-child-style', get_stylesheet_directory_uri() . '/style.css', ['luxeritas-style']);
+  
 });
 
 
@@ -690,12 +685,159 @@ add_action('after_setup_theme', function () {
 
 
 
-add_filter('luxe_speedup_compress', '__return_false');
-add_filter('luxe_child_js_compress', '__return_false');
-
-// JSMinが走る箇所を根本的に止める
-if (function_exists('thk_jsmin')) {
-  function thk_jsmin($js = '') {
-    return $js; // 空のまま返してスルー
+add_action('after_setup_theme', function() {
+  global $luxe;
+  if (!is_array($luxe)) {
+    $luxe = [];
   }
+  // Luxeritas が参照しているが無いと警告が出るキー
+  $defaults = [
+    'overall_image'           => '',
+    ''                        => null, // 空キーが呼ばれているケースもある
+    'luxe_mode_select'        => '',
+    'meta_keywords'           => '',
+    'global_navi_open_close'  => '',
+    'amp_css_pwa_install_box' => '', 
+    // 他にも Warning で言及されているキーがあれば追加
+  ];
+
+  foreach ($defaults as $key => $val) {
+    if (!isset($luxe[$key])) {
+      $luxe[$key] = $val;
+    }
+  }
+}, 9999); 
+// ↑ フックを遅め(9999)にすることで、親テーマが初期化した後に未定義キーを埋める
+
+
+
+
+/**
+ * Luxeritasの圧縮・ファイル再生成を根本的に止める
+ */
+add_action('after_setup_theme', function() {
+
+
+  // 2) Luxeritasが登録しているアクションを強制的にremove
+  remove_action('customize_save_after', 'thk_compress', 75);
+  remove_action('customize_save_after', 'thk_child_js_comp', 80);
+
+  // load-styles.php や他ファイルで add_action('init', 'thk_file_status_check') 等している場合もある
+  remove_action('init', 'thk_file_status_check');
+  remove_action('wp',   'thk_file_status_check');
+  remove_action('wp_head', 'thk_file_status_check');
+  remove_action('init', 'thk_regenerate_files');
+  remove_action('wp',   'thk_regenerate_files');
+  remove_action('wp_head', 'thk_regenerate_files');
+
+  // 3) 親テーマが定義している圧縮系関数を上書き (空にする)
+  if (!function_exists('thk_compress')) {
+    function thk_compress() { /* do nothing */ }
+  } else {
+    // すでに存在する場合は上書きできないが、remove_actionしてるので概ねOK
+  }
+
+  if (!function_exists('thk_child_js_comp')) {
+    function thk_child_js_comp() { /* do nothing */ }
+  }
+
+ 
+
+  // create-javascript.php 内などで呼ばれるかもしれない
+  if (!function_exists('thk_create_editor_style')) {
+    function thk_create_editor_style() { /* do nothing */ }
+  }
+}, 9999);
+
+
+
+add_action('after_setup_theme', function() {
+  global $luxe;
+  if (!is_array($luxe)) {
+    $luxe = [];
+  }
+
+  // まだ無いキーにデフォルト値を入れておく
+  $defaults = [
+    'breadcrumb_view' => '',   // 警告が出るキー
+    'column3'         => '',   // 例: 'column3' => '2' とか必要なら適当に
+    // 空文字キーへの対応 (キーが空文字のものを使ってるようなので…)
+    '' => null,
+    // 他、Warningに出ているキーを必要に応じて追加
+  ];
+
+  foreach ($defaults as $key => $val) {
+    if (!isset($luxe[$key])) {
+      $luxe[$key] = $val;
+    }
+  }
+}, 9999);
+
+
+add_action('after_setup_theme', function() {
+  // CSS/JS再生成系を根こそぎ外す
+
+  // 1) カスタマイザー保存後
+  remove_action('customize_save_after', 'thk_compress', 75);
+  remove_action('customize_save_after', 'thk_child_js_comp', 80);
+  remove_action('customize_save_after', 'thk_regenerate_files', 90);
+
+  // 2) フロントアクセス時
+  remove_action('wp', 'thk_regenerate_files', 999);
+  remove_action('wp_head', 'thk_file_status_check', 50);
+
+  // 3) 関数自体を空処理に
+ 
+ 
+  if (function_exists('thk_file_status_check')) {
+    function thk_file_status_check() { return; }
+  }
+}, 9999);
+
+
+
+add_action('after_setup_theme', function() {
+  global $luxe;
+  if (!is_array($luxe)) {
+    $luxe = [];
+  }
+  // 空文字キーがあったら削除
+  if (isset($luxe[''])) {
+    unset($luxe['']);
+  }
+}, 9999);
+
+
+add_filter('luxe_speedup_compress', '__return_false');
+
+if (function_exists('thk_compress')) {
+  remove_action('customize_save_after', 'thk_compress', 75);
+  function thk_compress() { return; }
 }
+
+if (function_exists('thk_file_status_check')) {
+  remove_action('init', 'thk_file_status_check');
+  remove_action('wp', 'thk_file_status_check');
+  remove_action('wp_head', 'thk_file_status_check');
+  function thk_file_status_check() { return; }
+}
+
+if (function_exists('thk_regenerate_files')) {
+  remove_action('init', 'thk_regenerate_files');
+  remove_action('wp', 'thk_regenerate_files');
+  remove_action('wp_head', 'thk_regenerate_files');
+  function thk_regenerate_files() { return; }
+}
+
+
+
+
+function load_material_icons() {
+  wp_enqueue_style(
+    'material-icons',
+    'https://fonts.googleapis.com/icon?family=Material+Icons',
+    [],
+    null
+  );
+}
+add_action('wp_enqueue_scripts', 'load_material_icons');

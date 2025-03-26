@@ -34,7 +34,7 @@ class thk_create_design {
 			return false;
 		}
 		else {
-			require_once( INC . 'thk-filesystem.php' );
+			require_once( INC . 'optimize.php' );
 
 			global $wp_filesystem;
 
@@ -44,6 +44,12 @@ class thk_create_design {
 
 			if( $wp_filesystem->mkdir( $tmp_dir ) === true ) {
 				if( $wp_filesystem->mkdir( $dst_dir ) === true ) {
+					/*
+					$license = TPATH . DSEP . 'license.txt';
+					if( file_exists( $license ) === true ) {
+						@copy( $license, $dst_dir . 'license.txt' );
+					}
+					*/
 					$wp_upload_dir = wp_upload_dir();
 					$json = '';
 
@@ -65,7 +71,7 @@ class thk_create_design {
 							if( isset( Appearance::$images[$key] ) ) {
 								$img = str_replace( $wp_upload_dir['baseurl'], $wp_upload_dir['basedir'], $val );
 								if( file_exists( $img ) === true ) {
-									$wp_filesystem->copy( $img, $img_dir . basename( $img ) );
+									@copy( $img, $img_dir . basename( $img ) );
 								}
 								unset( $mods[$key] );
 							}
@@ -128,7 +134,7 @@ class thk_create_design {
 								$mime = str_replace( 'jpeg', 'jpg', str_replace( 'image/', '', $img_info['mime'] ) );
 							}
 						}
-						$wp_filesystem->copy( $img, $dst_dir . 'screenshot.' . $mime );
+						@copy( $img, $dst_dir . 'screenshot.' . $mime );
 					}
 					thk_zip_file_download( $tmp_dir, $_POST['design_name'] . '.zip', true );
 				}

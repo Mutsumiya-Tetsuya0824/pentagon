@@ -17,12 +17,10 @@
 global $post, $widget_concat;
 
 $json = array();
-$sc_mods = get_pattern_list( 'shortcode', true, true );
+$sc_mods = get_phrase_list( 'shortcode', true, true );
 
 if( !empty( $sc_mods ) ) {
-	$contents = '';
-	if( isset( $post->post_content ) ) $contents .= $post->post_content;
-	if( isset( $widget_concat ) ) $contents .= $widget_concat;
+	$contents = $post->post_content . $widget_concat;
 
 	foreach( (array)$sc_mods as $key => $val ) {
 		// 投稿内に該当するショートコードが書かれてなければショートコードそのものを登録しない

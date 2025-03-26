@@ -33,14 +33,17 @@ if( typeof( document.getElementsByClassName ) === 'undefined' ){
 }
 
 function adbarPosition() {
-	var e, w = window
+	var b, c, e, w = window
 	,   d = document
-	,   a = d.getElementById('wpadminbar')
-	,   f = d.getElementById('wp-admin-bar-top-secondary')
-	,   b = null !== a ? a.offsetHeight : 0;
+	,   a = d.getElementById('wpadminbar');
 
-	if( f !== null && typeof w.getComputedStyle !== 'undefined' ) {
-		f.style.backgroundColor = w.getComputedStyle(a).backgroundColor;
+	b = a.offsetHeight;
+
+	if( typeof w.getComputedStyle !== 'undefined' ) {
+		if( d.getElementById('wp-admin-bar-top-secondary') !== null ) {
+			c = w.getComputedStyle(a).backgroundColor;
+			d.getElementById('wp-admin-bar-top-secondary').style.backgroundColor = c;
+		}
 	}
 
 	e = d.getElementsByClassName('band');

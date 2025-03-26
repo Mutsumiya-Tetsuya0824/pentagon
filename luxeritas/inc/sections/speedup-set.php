@@ -19,10 +19,9 @@ $admin_url = admin_url();
 <ul>
 <li>
 <p><?php echo __( '* Using cache plugin with Luxeritas may be rather slow.', 'luxeritas' ); ?></p>
-<p><?php echo __( '* Red letters set are not basically recommended.', 'luxeritas' ); ?></p>
-<button type="button" id="speed-recommend" class="button" disabled><?php echo __( 'Recommended settings', 'luxeritas' ); ?></span></button>
-<button type="button" id="speed-delay" class="button" disabled><?php echo __( 'Faster settings <span style="color:red">( But lags in rendering ! )</span>', 'luxeritas' ); ?></button>
-<button type="button" id="speed-extreme" class="button" disabled><?php echo __( 'Extreme settings', 'luxeritas' ); ?><span style="color:red"> ( <?php echo __( 'Caution', 'luxeritas' ); ?> ! )</span></button>
+<button type="button" id="speed-recommend" class="button" disabled><?php echo __( 'Recommended settings', 'luxeritas' ); ?></button>
+<button type="button" id="speed-delay" class="button" disabled><?php echo __( 'Faster settings (But lags in rendering)', 'luxeritas' ); ?></button>
+<button type="button" id="speed-extreme" class="button" disabled><?php echo __( 'Extreme settings', 'luxeritas' ); ?><span style="color:red"> ( <?php echo __( 'Caution', 'luxeritas' ); ?> )</span></button>
 <button type="button" id="speed-default" class="button" disabled><?php echo __( 'Initial settings', 'luxeritas' ); ?></button>
 <p id="speed-msg" style="display:none"><?php echo __( 'You selected the item.', 'luxeritas' ); ?><span style="color:#fff;border-radius:6px;padding:4px 10px 5px 10px"><?php echo __( 'Please press save button', 'luxeritas' ); ?></span></p>
 </li>

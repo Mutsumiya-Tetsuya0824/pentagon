@@ -19,7 +19,6 @@ global $luxe;
 wp_enqueue_style( 'wp-color-picker' );
 wp_enqueue_script( 'wp-color-picker' );
 ?>
-<div style="display:none">
 <script>
 jQuery(document).ready(function($) {
 	$('.thk-color-picker').wpColorPicker();
@@ -28,7 +27,6 @@ jQuery(document).ready(function($) {
 	});
 });
 </script>
-</div>
 <ul>
 <li>
 <p class="f09em"><?php echo __( '* Set the color of mobile browser.', 'luxeritas'); ?></p>

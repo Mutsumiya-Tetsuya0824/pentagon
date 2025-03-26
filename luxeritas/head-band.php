@@ -14,7 +14,7 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
-class THK_Description_Walker extends Walker_Nav_Menu {
+class description_walker extends Walker_Nav_Menu {
 	function start_el( &$output, $item, $depth = 1, $args = array(), $id = 0 ) {
 		$indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
 
@@ -28,16 +28,6 @@ class THK_Description_Walker extends Walker_Nav_Menu {
 		$output .= $indent . '<li id="menu-item-'. $item->ID . '"' . $value . $class_names .'>';
 
 		$attributes = !empty( $item->url ) ? ' href="' . esc_attr( $item->url ) .'"' : '';
-		$attributes .= !empty( $item->target ) ? ' target="_blank" rel="external noopener noreferrer"' : '';
-		if( !empty( $item->xfn ) ) {
-			if( strpos( $attributes, ' rel="' ) !== false ) {
-				$attributes = str_replace(  'rel="', 'rel="' . $item->xfn . ' ', $attributes );
-			}
-			else {
-				$attributes .= ' rel="' . $item->xfn . '"';
-			}
-		}
-
 		if( !empty( $item->attr_title ) ) {
 			$attributes .= ' title="'  . esc_attr( $item->attr_title ) . '"';
 		}
@@ -76,13 +66,13 @@ if( isset( $luxe['head_band_search'] ) && !isset( $luxe['amp'] ) ) {
 <meta itemprop="url" content="<?php echo THK_HOME_URL; ?>"/>
 <meta itemprop="target" content="<?php echo THK_HOME_URL; ?>?s={s}"/>
 <input itemprop="query-input" type="text" class="head-search-field" placeholder="Search ..." value="<?php echo get_search_query() ?>" name="s" title="<?php echo esc_attr( __( 'Search for', 'luxeritas' ) ); ?>" />
-<button id="head-search-button" type="submit" aria-label="<?php echo esc_attr( __( 'Search', 'luxeritas' ) ); ?>" class="head-search-submit" value="<?php echo esc_attr( __( 'Search', 'luxeritas' ) ); ?>"></button>
+<button id="head-search-button" type="submit" aria-hidden="true" class="head-search-submit" value="<?php echo esc_attr( __( 'Search', 'luxeritas' ) ); ?>"></button>
 </form>
 </div>
 <?php
 }
 // User Custom Menu
-$wp_nav_menu = wp_nav_menu( array ( 'theme_location' => 'head-band', 'echo' => false, 'container' => false, 'depth' => 1, 'fallback_cb' => false, 'items_wrap' => '<div><ul>%3$s', 'walker' => new THK_Description_Walker() ) );
+$wp_nav_menu = wp_nav_menu( array ( 'theme_location' => 'head-band', 'echo' => false, 'container' => false, 'depth' => 1, 'fallback_cb' => false, 'items_wrap' => '<div><ul>%3$s', 'walker' => new Description_Walker() ) );
 if( empty( $wp_nav_menu ) ) $wp_nav_menu = '<div><ul>';
 
 if(
@@ -125,27 +115,27 @@ else {
 // SNS Follow Button
 	if( isset( $luxe['head_band_twitter'] ) ) {
 		$follow_twitter_id = isset( $luxe['follow_twitter_id'] ) ? rawurlencode( rawurldecode( $luxe['follow_twitter_id'] ) ) : '';
-?><li><span class="snsf twitter"><a href="//twitter.com/<?php echo $follow_twitter_id; ?>" target="_blank" title="Twitter" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-x-twitter"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Twitter</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf twitter"><a href="//twitter.com/<?php echo $follow_twitter_id; ?>" target="_blank" title="Twitter" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-twitter"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Twitter</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_facebook'] ) ) {
 		$follow_facebook_id = isset( $luxe['follow_facebook_id'] ) ? rawurlencode( rawurldecode( $luxe['follow_facebook_id'] ) ) : '';
-?><li><span class="snsf facebook"><a href="//www.facebook.com/<?php echo $follow_facebook_id; ?>" target="_blank" title="Facebook" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-facebook"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Facebook</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf facebook"><a href="//www.facebook.com/<?php echo $follow_facebook_id; ?>" target="_blank" title="Facebook" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-facebook-f"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Facebook</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_instagram'] ) ) {
 		$follow_instagram_id = isset( $luxe['follow_instagram_id'] ) ? rawurlencode( rawurldecode( $luxe['follow_instagram_id'] ) ) : '';
-?><li><span class="snsf instagram"><a href="//www.instagram.com/<?php echo $follow_instagram_id; ?>?ref=badge" target="_blank" title="Instagram" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-instagram"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Instagram</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf instagram"><a href="//www.instagram.com/<?php echo $follow_instagram_id; ?>?ref=badge" target="_blank" title="Instagram" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-instagram"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Instagram</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_pinit'] ) ) {
 		$follow_pinit_id = isset( $luxe['follow_pinit_id'] ) ? rawurlencode( rawurldecode( $luxe['follow_pinit_id'] ) ) : '';
-?><li><span class="snsf pinit"><a href="//www.pinterest.com/<?php echo $follow_pinit_id; ?>" target="_blank" title="Pinterest" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-pinterest-p"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Pinterest</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf pinit"><a href="//www.pinterest.com/<?php echo $follow_pinit_id; ?>" target="_blank" title="Pinterest" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-pinterest-p"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Pinterest</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_hatena'] ) ) {
 		$follow_hatena_id = isset( $luxe['follow_hatena_id'] ) ? rawurlencode( rawurldecode( $luxe['follow_hatena_id'] ) ) : '';
-?><li><span class="snsf hatena"><a href="//b.hatena.ne.jp/<?php echo $follow_hatena_id; ?>" target="_blank" title="<?php echo __( 'Hatena Bookmark', 'luxeritas' ); ?>" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-hatena bold">B!</i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Hatena</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf hatena"><a href="//b.hatena.ne.jp/<?php echo $follow_hatena_id; ?>" target="_blank" title="<?php echo __( 'Hatena Bookmark', 'luxeritas' ); ?>" rel="nofollow noopener" itemprop="sameAs">&nbsp;B!&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">Hatena</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_youtube'] ) ) {
@@ -158,7 +148,7 @@ else {
 			$follow_youtube_id = rawurlencode( rawurldecode( $luxe['follow_youtube_id'] ) );
 			$youtube_type = 'user/';
 		}
-?><li><span class="snsf youtube"><a href="//www.youtube.com/<?php echo $youtube_type, $follow_youtube_id; ?>" class="nofloatbox" target="_blank" title="YouTube" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="ico-youtube-play"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">YouTube</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf youtube"><a href="//www.youtube.com/<?php echo $youtube_type, $follow_youtube_id; ?>" class="nofloatbox" target="_blank" title="YouTube" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fab']; ?>fa-youtube"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">YouTube</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_line'] ) ) {
@@ -167,7 +157,7 @@ else {
 <?php
 	}
 	if( isset( $luxe['head_band_rss'] ) ) {
-?><li><span class="snsf rss"><a href="<?php echo get_bloginfo('rss2_url'); ?>" target="_blank" title="RSS" rel="nofollow noopener" itemprop="sameAs">&nbsp;<?php echo $awesome['rss']; ?>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">RSS</span>&nbsp;'; ?></a></span></li>
+?><li><span class="snsf rss"><a href="<?php echo get_bloginfo('rss2_url'); ?>" target="_blank" title="RSS" rel="nofollow noopener" itemprop="sameAs">&nbsp;<i class="<?php echo $awesome['fas']; ?>fa-rss"></i>&nbsp;<?php if( $luxe['head_band_follow_icon'] === 'icon_name' ) echo '<span class="fname">RSS</span>&nbsp;'; ?></a></span></li>
 <?php
 	}
 	if( isset( $luxe['head_band_feedly'] ) ) {

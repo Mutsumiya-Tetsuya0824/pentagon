@@ -107,27 +107,13 @@ class THK_Blogcard {
 
 			$preg_pattern = '/<a [^>]*?href=[\'\"]+?' . preg_quote( $raw_url, '/' ) . '[\'\"]+?[^>]+?data-blogcard[^>]+?>[^<]*?<\/a>/im';
 
-			unset( $cat_obj ); // カテゴリオブジェクト初期化
 			$pid = url_to_postid( $url );
-
-			$rpu = rtrim( pdel( $url ), '/' );
-			$rpt = rtrim( pdel( THK_HOME_URL ), '/' );
-
-			if( $pid === 0 && stripos( $rpu, $rpt, 0 ) !== false ) {
-				// カテゴリの場合
+			$cat_name = get_cat_name( $pid );
+			if( !empty( $cat_name ) ) {
 				$cat_obj = get_category_by_path( $url, false );
-
-				// 内部リンクで固定ページのパーマリンクがぶっ壊れてる？場合の例外処理
-				if( !isset( $cat_obj ) ) {
-					$path = str_replace( THK_HOME_URL, '', $url );
-					$page = get_page_by_path( $path );
-					if( isset( $page->guid ) ) {
-						$pid = url_to_postid( $page->guid );
-					}
-				}
 			}
 
-			if( $pid === 0 && !isset( $cat_obj ) && $rpu !== $rpt ) {
+			if( $pid === 0 && !isset( $cat_obj ) && rtrim( pdel( $url ), '/' ) !== rtrim( pdel( THK_HOME_URL ), '/' ) ) {
 				$cache_file = $this->_cache_dir . $url_md5[0] . DSEP . $url_md5;
 
 				// キャッシュ有効期限のチェックと登録・削除
@@ -139,13 +125,12 @@ class THK_Blogcard {
 						$this->thk_create_blogcard_shutdown( $content );
 					}
 					else {
-						$luxe['bc_first'] = true;
 						$this->thk_regist_global( $url, $url_md5, $link );
 
 						// キャッシュがない初回は Javascript で置換して表示する（footer.php の最後）
 						add_action( 'thk_create_blogcard', array( &$this, 'thk_create_blogcard' ), 10, 2 );
 
-						$replace = '<div id="bc_' . $url_md5 . '" class="blogcard"><a href="' . esc_url( $url ) . '" class="blogcard-href nofloatbox"><p>' . __( 'Creating a cache ...', 'luxeritas' ) . '</p><div class="bc-progress"></div><p>' . $url_strimwidth . '</p></a></div>';
+						$replace = '<div id="bc_' . $url_md5 . '" class="blogcard"><a href="' . esc_url( $url ) . '" class="blogcard-href nofloatbox"><p>' . __( 'Creating a cache ...', 'luxeritas' ) . '</p><p>' . $url_strimwidth . '</p></a></div>';
 						$content = preg_replace( $preg_pattern, $replace, $content );
 						continue;
 					}
@@ -154,9 +139,9 @@ class THK_Blogcard {
 				if( $expire === true ) {
 					if( isset( $luxe['amp'] ) ) {
 						// AMP の時は、shutdown 時に再取得
-						//add_filter( 'shutdown', function() use( $content ) {
-						//	$this->thk_create_blogcard_shutdown( $content );
-						//}, 32767 );
+						add_filter( 'shutdown', function() use( $content ) {
+							$this->thk_create_blogcard_shutdown( $content );
+						}, 32767 );
 					}
 					else{
 						// AMP でなければ Javascript で置換（置換前は古いキャッシュをそのまま表示）
@@ -194,7 +179,7 @@ class THK_Blogcard {
 				$sep = ( $luxe['title_sep'] === 'hyphen' ) ? ' - ' : ' | ';
 
 				// 一覧型トップページの場合
-				if( $rpu === $rpt ) {
+				if( rtrim( pdel( $url ), '/' ) === rtrim( pdel( THK_HOME_URL ), '/' ) ) {
 					if( isset( $luxe['title_top_list'] ) && $luxe['title_top_list'] === 'site' ) {
 						$title = get_bloginfo('name');
 					}
@@ -231,17 +216,16 @@ class THK_Blogcard {
 					$title = get_the_title( $pid );
 					$title = mb_strimwidth( $title, 0, 80 );
 
-					//$desc = apply_filters( 'thk_create_description', $pid, 100, false );
-					$desc = apply_filters( 'thk_create_description', $pid, 100 );
+					$desc = apply_filters( 'thk_create_description', $pid );
 					$desc = mb_strimwidth( $desc, 0, 100, ' ...' );
 
 					$enc_url = puny_decode( thk_convert( esc_url( $url ) ) );
 
 					// アイキャッチ画像
-					$attachment_elements = get_the_post_thumbnail( $pid, 'thumb100' );
+					$attachment_elements = thk_get_the_post_thumbnail( $pid, 'thumb100' );
 
 					if( stripos( $attachment_elements, '-100x100.' ) === false ) {
-						$attachment_elements = get_the_post_thumbnail( $pid, 'thumbnail' );
+						$attachment_elements = thk_get_the_post_thumbnail( $pid, 'thumbnail' );
 					}
 
 					if( empty( $attachment_elements ) ) {
@@ -292,20 +276,20 @@ class THK_Blogcard {
 					$theme_url  = TURI;
 					$theme_path = TPATH;
 				}
-				$ico_file = $theme_path . DSEP . 'images' . DSEP . 'fav' . 'icon-min.png';
-				$ico_url = $theme_url . '/images/fav' . 'icon-min.png';
+				$ico_file = $theme_path . DSEP . 'images' . DSEP . 'favicon-min.png';
+				$ico_url = $theme_url . '/images/favicon-min.png';
 
 				if( file_exists( $ico_file ) === false ) {
 					thk_create_icon();
 
 					if( file_exists( $ico_file ) === false ) {
-						$ico_url = $theme_url . '/images/fav' . 'icon.ico';
+						$ico_url = $theme_url . '/images/favicon.ico';
 					}
 				}
 
 				$target = ( stripos( $link, 'target=' ) !== false && stripos( $link, 'blank' ) !== false ) ? ' target="_blank" rel="noopener external"' : '';
 
-				if( !isset( $luxe['amp'] ) && isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' && isset( $luxe['lazyload_thumbs'] ) ) {
+				if( !isset( $luxe['amp'] ) && isset( $luxe['lazyload_thumbs'] ) ) {
 					$replace = '<div id="bc_' . $url_md5 . '" class="blogcard"><a href="' . esc_url( $url ) . '"' . $target . ' class="blogcard-href nofloatbox"><img src="' . $luxe['trans_image'] . '" data-src="' . esc_url( $img_url ) . '" alt="' . $title . '" width="100" height="100" class="blogcard-img lazy" /><p class="blog-card-title">' . $title . '</p><p class="blog-card-desc">' . $desc . '</p><p class="blogcard-link"><img src="' . $ico_url . '" alt="" width="18" height="18" class="blogcard-icon" />&nbsp;' . $enc_url . '</p></a></div>';
 				}
 				else {
@@ -344,7 +328,7 @@ class THK_Blogcard {
 	}
 
 	// ブログカードのキャッシュ取得
-	public function thk_get_blogcard_cache( $cache_file, $link, $url_md5, $no_lazy = false ) {
+	public function thk_get_blogcard_cache( $cache_file, $link, $url_md5 ) {
 		global $luxe, $wp_filesystem;
 
 		$cache = '';
@@ -397,9 +381,9 @@ class THK_Blogcard {
 			// no-img の時はキャッシュの再取得を試みる(スクリーンショットすら取れてない場合)
 			if( isset( $luxe['amp'] ) ) {
 				// AMP の時は、shutdown 時に再取得
-				//add_filter( 'shutdown', function() {
-				//	$this->thk_create_blogcard_shutdown();
-				//}, 32767 );
+				add_filter( 'shutdown', function() {
+					$this->thk_create_blogcard_shutdown();
+				}, 32767 );
 			}
 			else{
 				// AMP でなければ jQuery で置換（置換前は古いキャッシュをそのまま表示）
@@ -408,7 +392,7 @@ class THK_Blogcard {
 			}
 		}
 
-		if( !isset( $luxe['amp'] ) && isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' && isset( $luxe['lazyload_thumbs'] ) && $no_lazy === false ) {
+		if( !isset( $luxe['amp'] ) && isset( $luxe['lazyload_thumbs'] ) ) {
 			$ret = array( $items[0], '<div id="bc_' . $url_md5 . '" class="blogcard"><a href="' . esc_url( $url ) . '"' . $target . ' class="blogcard-href nofloatbox"><img src="' . $luxe['trans_image'] . '" data-src="' . esc_url( $img_url ) . '" alt="' . $title . '" width="100" height="100" class="blogcard-img lazy" /><p class="blog-card-title">' . $title . '</p><p class="blog-card-desc">' . $desc . '</p><p class="blogcard-link"><img src="' . $ico_url . '" alt="" width="18" height="18" class="blogcard-icon" />&nbsp;' . $enc_url . '</p></a></div>' );
 		}
 		else {
@@ -420,17 +404,9 @@ class THK_Blogcard {
 	// キャッシュが無い・ステータスコードが200じゃない場合のグローバル変数登録 (footer.php の最後で jQuery 用として使う)
 	public function thk_regist_global( $url, $url_md5, $link ) {
 		global $luxe;
-		if( !isset( $luxe['bc_url'] ) || ( isset( $luxe['bc_url'] ) && in_array( $url, $luxe['bc_url'], true ) === false ) ) {
-
-			$url = puny_encode( thk_convert( esc_url( $url ) ) );
-
-			//if( filter_var( $url, FILTER_VALIDATE_URL ) !== false ) {
-			if( stripos( $url, 'https://' ) === 0 || stripos( $url, 'http://' ) === 0 ) {
-				$luxe['bc_url'][] = $url;
-				$luxe['bc_md5'][] = $url_md5;
-				$luxe['bc_lnk'][] = $link;
-			}
-		}
+		$luxe['bc_url'][] = $url;
+		$luxe['bc_md5'][] = $url_md5;
+		$luxe['bc_lnk'][] = $link;
 	}
 
 	// ブログカードのキャッシュ作成
@@ -728,20 +704,18 @@ class THK_Blogcard {
 				// 画像が無かったか、もしくは取得できた画像が小さすぎる場合はスクリーンショットを取得
 				$wp_filesystem->delete( $img_file );
 				$img = $this->thk_get_screenshot( $url );
-				if( isset( $img ) ) {
-					$img_file = $this->_cache_dir . $url_md5[0] . DSEP . $url_md5 . '.jpg';
-					if( $this->_filesystem->file_save( $img_file, $img ) === false ) return false;
+				$img_file = $this->_cache_dir . $url_md5[0] . DSEP . $url_md5 . '.jpg';
+				if( $this->_filesystem->file_save( $img_file, $img ) === false ) return false;
 
-					if( file_exists( $img_file ) === true && filesize( $img_file ) > 0 ) {
-						if( is_callable( 'exif_imagetype' ) === true ) {
-							$normal_img = exif_imagetype( $img_file );
-						}
-						else {
-							$normal_img = getimagesize( $img_file );
-						}
+				if( file_exists( $img_file ) === true && filesize( $img_file ) > 0 ) {
+					if( is_callable( 'exif_imagetype' ) === true ) {
+						$normal_img = exif_imagetype( $img_file );
 					}
-					$sshot_flag = true;
+					else {
+						$normal_img = getimagesize( $img_file );
+					}
 				}
+				$sshot_flag = true;
 			}
 		}
 		else {
@@ -777,8 +751,8 @@ class THK_Blogcard {
 
 		// アイコン取得
 		//$parse = parse_url( $url, PHP_URL_HOST );
-		//$icon = thk_remote_request( 'https://www.google.com/s2/fav' . 'icons?domain=' . $parse );
-		$icon = thk_remote_request( 'https://s2.googleusercontent.com/s2/fav' . 'icons?domain_url=' . $url );
+		//$icon = thk_remote_request( 'https://www.google.com/s2/favicons?domain=' . $parse );
+		$icon = thk_remote_request( 'https://s2.googleusercontent.com/s2/favicons?domain_url=' . $url );
 		$ico_file = $this->_cache_dir . $url_md5[0]. DSEP . $url_md5 . '-icon.png';
 
 		if( is_array( $icon ) === true || $icon === false ) {
@@ -857,30 +831,20 @@ class THK_Blogcard {
 
 	// Google API でスクリーンショットを生成
 	public function thk_get_screenshot( $url ) {
-		$ret = '';
 		if( stripos( $url, '.google.' ) !== false ) {
 			// デスクトップのスクリーンショット
-			$img_json = thk_remote_request( 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?screenshot=true&strategy=desktop&url=' . $url );
+			$img_json = thk_remote_request( 'https://www.googleapis.com/pagespeedonline/v2/runPagespeed?screenshot=true&strategy=desktop&url=' . $url );
 		}
 		else {
 			// モバイルのスクリーンショット
-			$img_json = thk_remote_request( 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?screenshot=true&strategy=mobile&url=' . $url );
+			$img_json = thk_remote_request( 'https://www.googleapis.com/pagespeedonline/v2/runPagespeed?screenshot=true&strategy=mobile&url=' . $url );
 		}
-		if( is_string( $img_json ) === true ) {
-			$screenshot = @json_decode( $img_json, true );
-			if( isset( $screenshot['lighthouseResult']['audits']['final-screenshot']['details']['data'] ) ) {
-				$b64_data = $screenshot['lighthouseResult']['audits']['final-screenshot']['details']['data'];
-				$b64_data = str_replace( 'data:image/jpeg;base64,', '', $b64_data );
-				/* v2 の場合
-				$b64_data = $screenshot['screenshot']['data'];
-				$b64_data = str_replace( '_', '/', $b64_data );
-				$b64_data = str_replace( '-', '+', $b64_data );
-				*/
-				$b64_func = 'base' . '64' . '_decode';
-				$ret = $b64_func( $b64_data );
-			}
-		}
-		return $ret;
+		$screenshot = @json_decode( $img_json, true );
+		$b64_data = $screenshot['screenshot']['data'];
+		$b64_data = str_replace( '_', '/', $b64_data );
+		$b64_data = str_replace( '-', '+', $b64_data );
+		$b64_func = 'base' . '64' . '_decode';
+		return $b64_func( $b64_data );
 	}
 
 	// 改行やスペースの置換用
@@ -893,7 +857,7 @@ class THK_Blogcard {
 
 	public function _filesystem() {
 		global $wp_filesystem;
-		require_once( INC . 'thk-filesystem.php' );
+		require_once( INC . 'optimize.php' );
 
 		if( $this->_mkdir( $this->_cache_dir ) === false ) {
 			return false;

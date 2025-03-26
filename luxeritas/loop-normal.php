@@ -111,7 +111,7 @@ if( have_posts() === true ) {
 		get_template_part('meta');
 
 		// ソースに無駄があるけど、速度的にこっちのが速いので if 分岐多段にした
-		if( isset( $luxe['list_view'] ) && $luxe['list_view'] === 'excerpt' ) {
+		if( $luxe['list_view'] === 'excerpt' ) {
 			if( !isset( $luxe['sticky_no_excerpt'] ) ) {		// sticky_post も含めて全部抜粋で表示する場合
 				get_template_part('list-excerpt');	// 抜粋表示
 			}

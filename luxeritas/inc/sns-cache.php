@@ -30,8 +30,11 @@ class sns_cache {
 				//use TrueBV\Punycode;
 			}
 		}
-		$this->_filesystem = thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
 		global $wp_filesystem;
+
+		$this->_filesystem = new thk_filesystem();
+		if( $this->_filesystem->init_filesystem( site_url() ) === false ) return false;
 
 		$this->_wp_upload_dir = wp_upload_dir();
 		$this->_cache_dir = $this->_wp_upload_dir['basedir'] . '/luxe-sns/';
@@ -256,7 +259,7 @@ class sns_real {
 				$sns_fb_appid    = isset( $luxe['sns_fb_appid'] )  ? $luxe['sns_fb_appid']    : '';
 				$sns_fb_appsec   = isset( $luxe['sns_fb_appsec'] ) ? $luxe['sns_fb_appsec']   : '';
 				$sns_fb_apptoken = isset( $luxe['sns_fb_apptoken'] )  ? $luxe['sns_fb_apptoken'] : '';
-				$cnt = $getcnt->facebookCount( $url, $sns_fb_appid, $sns_fb_appsec, $sns_fb_apptoken );
+				$cnt = $getcnt->facebookCount( $url, $luxe['sns_fb_appid'], $luxe['sns_fb_appsec'], $luxe['sns_fb_apptoken'] );
 				break;
 			case 't':
 				$cnt = $getcnt->pinterestCount( $url );

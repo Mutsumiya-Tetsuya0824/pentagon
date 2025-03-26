@@ -27,13 +27,15 @@ class thk_files extends thk_optimize {
 
 	//protected function styles() {
 	public function styles() {
+		global $awesome;
+
 		$ret = array(
 			'luxe-mode'		=> $this->_css_dir . 'luxe-mode.css',
 			'bootstrap'		=> $this->_css_dir . 'bootstrap3/bootstrap.min.css',
 			'bootstrap4'		=> $this->_css_dir . 'bootstrap4/bootstrap.min.css',
-			'bootstrap5'		=> $this->_css_dir . 'bootstrap5/bootstrap.min.css',
 			'bootstrap-clear'	=> $this->_css_dir . 'bootstrap-clear.css',
-			'material-icons'	=> $this->_css_dir . 'material-icons.css',
+			'awesome'		=> $this->_css_dir . 'fontawesome5.css',
+			//'awesome-minimum'	=> $this->_css_dir . 'fontawesome5.luxe.minimum.css',
 			'icomoon'		=> $this->_css_dir . 'icomoon.css',
 
 			'style_thk'	=> TPATH . DSEP . 'style.css',
@@ -48,7 +50,6 @@ class thk_files extends thk_optimize {
 			'blogcard'	=> $this->_tmpl_dir . 'blogcard.css',
 			'search'	=> $this->_tmpl_dir . 'widget-search.css',
 			'archive'	=> $this->_tmpl_dir . 'widget-archive.css',
-			'archive-drop'	=> $this->_tmpl_dir . 'widget-archive-dropdown.css',
 			'calendar'	=> $this->_tmpl_dir . 'widget-calendar.css',
 			'tagcloud'	=> $this->_tmpl_dir . 'widget-tagcloud.css',
 			'new-post'	=> $this->_tmpl_dir . 'widget-new-post.css',
@@ -57,10 +58,8 @@ class thk_files extends thk_optimize {
 			'follow-button'	=> $this->_tmpl_dir . 'widget-follow-button.css',
 			'rss-feedly'	=> $this->_tmpl_dir . 'widget-rss-feedly.css',
 			'qr-code'	=> $this->_tmpl_dir . 'widget-qr-code.css',
-			'pwa-install-box' => $this->_tmpl_dir . 'widget-pwa-install-box.css',
 
 			'head-search'	=> $this->_tmpl_dir . 'head-search.css',
-			'nav-wrap-menu'	=> $this->_tmpl_dir . 'nav-wrap-menu.css',
 			'mobile-common'	=> $this->_tmpl_dir . 'mobile-common.css',
 			//'mobile-menu'	=> $this->_tmpl_dir . 'mobile-menu.css',
 			'mobile-luxury'	=> $this->_tmpl_dir . 'mobile-luxury.css',
@@ -68,12 +67,20 @@ class thk_files extends thk_optimize {
 			'balloon'	=> $this->_tmpl_dir . 'balloon.css',
 		);
 
+		if( $awesome['ver'][0] === '4' ) {
+			$ret['awesome'] = str_replace( 5, 4, $ret['awesome'] );
+		}
+
 		return $ret;
 	}
 
 	protected function styles_async() {
+		global $awesome;
+
 		$ret = array(
-			//'icomoon'		=> $this->_css_dir . 'icomoon.css',
+			'awesome'		=> $this->_css_dir . 'fontawesome5.css',
+			'awesome-minimum'	=> $this->_css_dir . 'fontawesome5.luxe.minimum.css',
+			'icomoon'		=> $this->_css_dir . 'icomoon.css',
 			'block-library-style'	=> ABSPATH . WPINC . '/css/dist/block-library/style.min.css',
 			'block-library-theme'	=> ABSPATH . WPINC . '/css/dist/block-library/theme.min.css',
 			'spotlight'		=> $this->_css_dir . 'spotlight.css',
@@ -106,15 +113,19 @@ class thk_files extends thk_optimize {
 			}
 		}
 
+		if( $awesome['ver'][0] === '4' ) {
+			$ret['awesome'] = str_replace( 5, 4, $ret['awesome'] );
+			$ret['awesome-minimum'] = str_replace( 5, 4, $ret['awesome-minimum'] );
+		}
+
 		return $ret;
 	}
 
 	protected function styles_amp() {
 		return array(
-			'luxe-amp'	=> $this->_css_dir . 'luxe-amp.css',
+			'luxe-amp'		=> $this->_css_dir . 'luxe-amp.css',
 
-			'material-icons'=> $this->_css_dir . 'material-icons.css',
-			'icomoon'	=> $this->_css_dir . 'icomoon.css',
+			'icomoon'		=> $this->_css_dir . 'icomoon.css',
 
 			'style_amp'	=> TPATH . DSEP . 'style-amp.css',
 			'sns'		=> $this->_tmpl_dir . 'sns.css',
@@ -125,7 +136,6 @@ class thk_files extends thk_optimize {
 			//'blogcard'	=> $this->_tmpl_dir . 'blogcard.css',
 			'search'	=> $this->_tmpl_dir . 'widget-search.css',
 			'archive'	=> $this->_tmpl_dir . 'widget-archive.css',
-			'archive-drop'	=> $this->_tmpl_dir . 'widget-archive-dropdown.css',
 			'calendar'	=> $this->_tmpl_dir . 'widget-calendar.css',
 			'tagcloud'	=> $this->_tmpl_dir . 'widget-tagcloud.css',
 			'new-post'	=> $this->_tmpl_dir . 'widget-new-post.css',
@@ -134,8 +144,6 @@ class thk_files extends thk_optimize {
 			'follow-button'	=> $this->_tmpl_dir . 'widget-follow-button.css',
 			'rss-feedly'	=> $this->_tmpl_dir . 'widget-rss-feedly.css',
 			'qr-code'	=> $this->_tmpl_dir . 'widget-qr-code.css',
-
-			'nav-wrap-menu'	=> $this->_tmpl_dir . 'nav-wrap-menu-amp.css',
 
 			'balloon'	=> $this->_tmpl_dir . 'balloon.css',
 /*
@@ -158,7 +166,7 @@ class thk_files extends thk_optimize {
 
 	protected function scripts_jquery_depend() {
 		return array(
-			//'sscroll'	=> $this->_js_dir . 'smoothScroll.min.js',
+			'sscroll'	=> $this->_js_dir . 'smoothScroll.min.js',
 			'stickykit'	=> $this->_js_dir . 'jquery.sticky-kit.min.js',
 			'strip'		=> $this->_js_dir . 'strip.pkgd.min.js',
 			'tosrus'	=> $this->_js_dir . 'jquery.tosrus.all.min.js',
@@ -187,17 +195,31 @@ class thk_files extends thk_optimize {
 	}
 
 	protected function dir_replace() {
-		global $luxe;
+		global $luxe, $awesome;
 
 		$ret = array(
 			'bootstrap'		=> true,
+			'awesome'		=> $awesome['uri'],
+			'awesome-minimum'	=> $awesome['uri'],
 			'icomoon'		=> true,
 			//'strip'		=> true,	// ライブラリの CSS 直で書き換えた
 			//'tosrus'		=> true,	// 不要
 			'lightcase'		=> true,
 		);
 
+		if( isset( $luxe['awesome_load_file'] ) && $luxe['awesome_load_file'] === 'local' ) {
+			$ret['awesome']		= true;
+			$ret['awesome-minimum']	= true;
+		}
+
 		return $ret;
+	}
+
+	protected function quote_to_apos() {
+		return array(
+			'awesome'		=> true,
+			'awesome-minimum'	=> true,
+		);
 	}
 
 	protected function jquery() {

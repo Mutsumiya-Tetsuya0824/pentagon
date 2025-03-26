@@ -24,7 +24,7 @@ $_is['front_page']	= is_front_page();
 $_is['home']		= is_home();
 $_is['singular']	= is_singular();
 $_is['archive']		= is_archive();
-//$_is['search']	= is_search();
+$_is['search']		= is_search();
 $_is['feed']		= is_feed();
 $_is['404']		= is_404();
 

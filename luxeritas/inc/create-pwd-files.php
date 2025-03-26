@@ -25,7 +25,7 @@ class create_pwd_files {
 
 		require( INC . 'locale.php' );
 		$getlocale = new thk_locale();
-		$locale = str_replace( '_', '-', $getlocale->thk_locale_wp_2_ogp( get_locale() ) );
+		$locale = $getlocale->thk_locale_wp_2_ogp( get_locale() );
 
 		$start_url_id = 0;
 		$home_url = home_url('/');
@@ -58,7 +58,6 @@ class create_pwd_files {
 		$manifest['start_url']		= $start_url;
 		$manifest['scope']		= $scope;
 		$manifest['display']		= isset( $luxe['pwa_display'] ) ? $luxe['pwa_display'] : 'minimal-ui';
-		$manifest['prefer_related_applications'] = false;
 		$manifest['lang']		= $locale;
 		$manifest['dir']		= 'auto';
 		$manifest['orientation']	= isset( $luxe['pwa_orientation'] ) ? $luxe['pwa_orientation'] : 'any';
@@ -73,8 +72,7 @@ class create_pwd_files {
 			$manifest['icons'][] = array(
 				'src'	=> $icon_32,
 				'type'	=> $type,
-				'sizes'	=> '32x32',
-				'purpose' => 'any maskable'
+				'sizes'	=> '32x32'
 			);
 		}
 		$icon_150 = get_site_icon_url( 150 );
@@ -84,8 +82,7 @@ class create_pwd_files {
 			$manifest['icons'][] = array(
 				'src'	=> $icon_150,
 				'type'	=> $type,
-				'sizes'	=> '150x150',
-				"purpose" => 'any maskable'
+				'sizes'	=> '150x150'
 			);
 		}
 		$icon_192 = get_site_icon_url( 192 );
@@ -95,8 +92,7 @@ class create_pwd_files {
 			$manifest['icons'][] = array(
 				'src'	=> $icon_192,
 				'type'	=> $type,
-				'sizes'	=> '192x192',
-				'purpose' => 'any maskable'
+				'sizes'	=> '192x192'
 			);
 		}
 		else {
@@ -104,8 +100,7 @@ class create_pwd_files {
 				//'src'	=> TURI . '/images/icon-192x192.png',
 				'src'	=> 'https:' . TDEL . '/images/icon-192x192.png',
 				'type'	=> 'image/png',
-				'sizes'	=> '192x192',
-				'purpose' => 'any maskable'
+				'sizes'	=> '192x192'
 			);
 		}
 		$icon_270 = get_site_icon_url( 270 );
@@ -115,8 +110,7 @@ class create_pwd_files {
 			$manifest['icons'][] = array(
 				'src'	=> $icon_270,
 				'type'	=> $type,
-				'sizes'	=> '270x270',
-				'purpose' => 'any maskable'
+				'sizes'	=> '270x270'
 			);
 		}
 		$icon_512 = get_site_icon_url( 512 );
@@ -126,8 +120,7 @@ class create_pwd_files {
 			$manifest['icons'][] = array(
 				'src'	=> $icon_512,
 				'type'	=> $type,
-				'sizes'	=> '512x512',
-				'purpose' => 'any maskable'
+				'sizes'	=> '512x512'
 			);
 		}
 		else {
@@ -135,8 +128,7 @@ class create_pwd_files {
 				//'src'	=> TURI . '/images/icon-512x512.png',
 				'src'	=> 'https:' . TDEL . '/images/icon-512x512.png',
 				'type'	=> 'image/png',
-				'sizes'	=> '512x512',
-				'purpose' => 'any maskable'
+				'sizes'	=> '512x512'
 			);
 		}
 
@@ -204,7 +196,7 @@ class create_pwd_files {
 	,   o = "{$offline_url}"
 	,   i = "{$icon_192}"
 	,   f = [ s, o, i ]
-	,   n = [ "\/wp-admin", "\/wp-login", "preview=true", "\/wp-includes\/js\/dist" ];
+	,   n = [ /\/wp-admin/, /\/wp-login/, /preview=true/ ];
 
 	function r(e) {
 		return !this.match(e)
@@ -216,7 +208,7 @@ class create_pwd_files {
 			return console.log("PWA: service worker installation"), e.waitUntil(
 				caches.open(c).then(function(e) {
 					return console.log("PWA: service worker caching dependencies"), f.map(function(s) {
-						return e.addAll([s, o]).catch(function (r) {
+						return e.add(s).catch(function (r) {
 							return console.log('PWA: ' + String(r) + ' ' + s);
 						});
 					});
@@ -232,7 +224,7 @@ class create_pwd_files {
 		self.addEventListener("activate", function(e) {
 			return console.log("PWA: service worker activation"), e.waitUntil(
 				caches.keys().then(function(l) {
-					return Promise.all(l.map( function(k) {
+					return Promise.all(l.map(function(k) {
 						if (k !== c) return console.log("PWA: old cache removed", k), caches.delete(k)
 					}))
 				})
@@ -245,23 +237,21 @@ class create_pwd_files {
 	// Fetch
 	try {
 		self.addEventListener("fetch", function(e) {
-			n.every(r, e.request.url) ? e.request.url.match(/^(http|https):\/\//i) && new URL(e.request.url).origin === location.origin && ("GET" === e.request.method ? "navigate" === e.request.mode && navigator.onLine ? e.respondWith(fetch(e.request).then( function(t) {
-				return caches.open(c).then( function(a) {
+			n.every(r, e.request.url) ? e.request.url.match(/^(http|https):\/\//i) && new URL(e.request.url).origin === location.origin && ("GET" === e.request.method ? "navigate" === e.request.mode && navigator.onLine ? e.respondWith(fetch(e.request).then(function(t) {
+				return caches.open(c).then(function(a) {
 					return a.put(e.request, t.clone()), t
 				})
-			}).catch( function() {
-				return caches.match(o)
-			})) : e.respondWith(caches.match(e.request).then( function(t) {
-				return t || fetch(e.request).then( function(t) {
-					return caches.open(c).then( function(a) {
+			})) : e.respondWith(caches.match(e.request).then(function(t) {
+				return t || fetch(e.request).then(function(t) {
+					return caches.open(c).then(function(a) {
 						return a.put(e.request, t.clone()), t
 					})
 				})
-			}).catch( function() {
+			}).catch(function() {
 				return caches.match(o)
-			})) : e.respondWith(fetch(e.request).catch( function() {
+			})) : e.respondWith(fetch(e.request).catch(function() {
 				return caches.match(o)
-			}))) : false //console.log("PWA: Current request is excluded from cache.")
+			}))) : console.log("PWA: Current request is excluded from cache.")
 		});
 	} catch (e) {
 		console.error("pwa.fetch.error: " + e.message)
@@ -285,105 +275,18 @@ try {
 			console.log("PWA: service worker registered"), e.update()
 		}).catch(function(e) {
 			console.log("PWA: registration failed with " + e)
-		})//, window.addEventListener("beforeinstallprompt", function(e) {
+		}), window.addEventListener("beforeinstallprompt", function(e) {
 
-		var pwa_install_event = function(e) {
 SCRIPT;
 		if( isset( $luxe['pwa_install_button'] ) ) {
-			$ret .= <<< SCRIPT
-		var w = window
-		,   s = w.sessionStorage
-		,   d = document
-		,   g = d.getElementById("thk_pwa_install")
-		,   r = d.querySelectorAll(".thk_pwa_install")
-		,   p = d.querySelectorAll(".pwa_install");
-
-		null !== g && ( g.style.display = "block" );
-
-		console.log("PWA: beforeinstallprompt Event fired"), e.preventDefault();
-
-		var m = e;
-
-		function pwa_install(l) {
-			m.userChoice.then( function(c) {
-				if( c.outcome === "accepted" ) {
-					g.style.display = "none";
-					for( var v = 0; v < r.length; ++v ) null !== r[v] && ( r[v].style.display = "none" );
-					console.log("PWA: setup accepted");
-				} else {
-					if( null !== g ) {
-SCRIPT;
-		if( isset( $luxe['global_navi_mobile_type'] ) && ( $luxe['global_navi_mobile_type'] === 'luxury_head' || $luxe['global_navi_mobile_type'] === 'global_head' ) ) {
-			$ret .= <<< SCRIPT
-						g.style.display = "none";
-
-SCRIPT;
-		}
-		else {
-			$ret .= <<< SCRIPT
-						var l = g.clientWidth
-						,   a = performance.now();
-
-						w.requestAnimationFrame( function e(n) {
-							var t = (n - a) / 600
-							,   n = Math.floor( l - l * t );
-
-							(g.style.height = n + "px"), n > 0 ? w.requestAnimationFrame(e) : ((g.style.height = ""), (g.style.display = "none"));
-						});
-
-SCRIPT;
-		}
-			$ret .= <<< SCRIPT
-					}
-					//s.setItem(["luxe_pwa_install_button"],[1]);
-					console.log("PWA: setup rejected");
-				}
-				for( var v = 0; v < p.length; ++v ) p[v].disabled = !0;
-				w.removeEventListener("beforeinstallprompt", pwa_install_event, !1 );
-				m = null;
-			});
-
-			m.prompt();
-
-		};
-
-		null !== g && g.addEventListener("click", pwa_install, !1);
-
-		for( var o = 0; o < p.length; ++o ) {
-			if( null !== r[o] ) {
-				if( null !== r[o].id && r[o].id !== "thk_pwa_install" ) {
-					/*
-					if( s.getItem(["luxe_pwa_install_button"]) == 1 ) {
-						r[o].style.display = "none";
-					}
-					else {
-						r[o].style.display = "block";
-					}
-					*/
-					r[o].style.display = "block";
-				}
-				else {
-					if( s.getItem(["luxe_pwa_install_box"]) == 1 ) {
-						r[o].style.display = "none";
-					}
-					else {
-						r[o].style.display = "block";
-					}
-				}
-			}
-
-			null !== p[o] && p[o].addEventListener("click", pwa_install, !1);
-		}
-
-SCRIPT;
+			$ret .= 'console.log("PWA: beforeinstallprompt Event fired"), e.prompt()' . "\n";
 		}
 		else {
 			$ret .= 'console.log("PWA: beforeinstallprompt Event prevented"), e.preventDefault(), !1' . "\n";
 		}
 
 		$ret .= <<< SCRIPT
-		}
-		window.addEventListener("beforeinstallprompt", pwa_install_event, !1 );
+		})
 	})
 } catch(e) {}
 

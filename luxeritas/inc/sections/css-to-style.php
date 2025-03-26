@@ -34,13 +34,4 @@
 <option value="default"<?php thk_value_check( 'wp_block_library_load', 'select', 'default' ); ?>><?php echo __( 'Leave initial setting of WordPress', 'luxeritas' ); ?></option>
 </select>
 </li>
-<!--
-<li>
-<p class="control-title"><?php echo __( 'The WordPress duotone filters for image blocks in block editor', 'luxeritas' ); ?></p>
-<p class="checkbox">
-<input type="checkbox" value="" name="wp_disable_duotone"<?php thk_value_check( 'wp_disable_duotone', 'checkbox' ); ?> />
-<?php echo __( 'Disable duotone filters for image blocks in block editor.', 'luxeritas' ); ?><?php echo ' ( ', __( 'Accelerate', 'luxeritas' ), ' )'; ?>
-</p>
-</li>
--->
 </ul>

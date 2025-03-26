@@ -88,16 +88,7 @@ function thk_parent_css_bind() {
 		return thk_child_css_min( '' );
 	}
 
-	if( file_exists( $parent_css ) === true ) {
-		$parent = $wp_filesystem->get_contents( $parent_css );
-
-		if( !isset( $luxe['css_to_style'] ) ) {
-			// 親子 CSS 結合してて、且つ CSS を HTML に埋め込んでない場合の icomoon のパス変換処理
-			// ver 3.19.0 以降、子テーマでのアイコンフォント内蔵をやめたので必要
-			$parent_path = substr( TURI, 0 - ( strlen( TURI ) - strrpos( TURI, '/' ) ) );
-			$parent = str_replace( './fonts/icomoon/fonts/icomoon', '../' . $parent_path . '/fonts/icomoon/fonts/icomoon', $parent );
-		}
-	}
+	if( file_exists( $parent_css ) === true ) $parent = $wp_filesystem->get_contents( $parent_css );
 	if( file_exists( $child_css  ) === true ) $child  = $wp_filesystem->get_contents( $child_css  );
 
 	// ハッシュ haval256,5
@@ -225,9 +216,7 @@ function thk_create_inline_style() {
 		if( isset( $luxe['css_to_style'] ) ) {
 			$conf = new defConfig();
 			$save = '';
-			if( file_exists( $in ) === true ) {
-				$save = $wp_filesystem->get_contents( $in );
-			}
+			$save = $wp_filesystem->get_contents( $in );
 
 			if( stripos( $in, TPATH . DSEP ) !== false ) {
 				$save = thk_path_to_root( $save, TDEL );
@@ -264,6 +253,13 @@ function thk_create_amp_style() {
 	foreach( (array)$contents as $key => $val ) {
 		$save .= $val;
 	}
+
+	// create web fonts stylesheet
+	/*
+	$webfont = new Create_Web_Font();
+	$font_arr = $webfont->create_web_font_stylesheet();
+	$save .= $font_arr['font_family'] . "\n";
+	*/
 
 	// design file css
 	$save .= thk_read_design_style( 'style-amp.css' );
@@ -333,9 +329,6 @@ function thk_create_editor_style() {
 		elseif( $luxe['luxe_mode_select'] === 'bootstrap4' ) {
 			$mode_css_file = $files['bootstrap4'];
 		}
-		elseif( $luxe['luxe_mode_select'] === 'bootstrap5' ) {
-			$mode_css_file = $files['bootstrap5'];
-		}
 		else {
 			$mode_css_file = $files['luxe-mode'];
 		}
@@ -396,9 +389,6 @@ EDITOR;
 
 	$save = preg_replace( '/input,[^\{]+\{margin\:0/', 'input{', $save );
 
-	// WP 5.6 からブロックエディタ内に .post クラスが無くなったので .editor-styles-wrapper に置換
-	$save = str_replace( '.post ', '.editor-styles-wrapper ', $save );
-
 	$path = TPATH === SPATH ? TPATH : SPATH;
 	if( $filesystem->file_save( $path . DSEP . 'editor-style.min.css', $save ) === false ) return false;
 
@@ -437,19 +427,6 @@ EDITOR;
 		$max_width .= 'px';
 	}
 
-	$line_height = isset( $luxe['p_line_height'] ) ? $luxe['p_line_height'] : '1.9';
-	/*
-	$font_size_post = isset( $luxe['font_size_post'] ) ? $luxe['font_size_post'] : '16';
-	$font_size_post_h2 = isset( $luxe['font_size_post_h2'] ) ? $luxe['font_size_post_h2'] : '24';
-	$font_size_post_h3 = isset( $luxe['font_size_post_h3'] ) ? $luxe['font_size_post_h3'] : '22';
-	$font_size_post_h4 = isset( $luxe['font_size_post_h4'] ) ? $luxe['font_size_post_h4'] : '18';
-	$font_size_post_h5 = isset( $luxe['font_size_post_h5'] ) ? $luxe['font_size_post_h5'] : '16';
-	$font_size_post_h6 = isset( $luxe['font_size_post_h6'] ) ? $luxe['font_size_post_h6'] : '16';
-	$font_size_post_li = isset( $luxe['font_size_post_li'] ) ? $luxe['font_size_post_li'] : '14';
-	$font_size_post_pre = isset( $luxe['font_size_post_pre'] ) ? $luxe['font_size_post_pre'] : '14';
-	$font_size_post_blockquote = isset( $luxe['font_size_post_blockquote'] ) ? $luxe['font_size_post_blockquote'] : '14';
-	*/
-
 	$save .= <<<EDITOR
 body {
 	margin: 0;
@@ -479,7 +456,6 @@ body .editor-styles-wrapper .editor-block-list__block-edit,
 body .editor-styles-wrapper .editor-post-title__block,
 body .editor-styles-wrapper .editor-post-title__input {
 	{$font_family}
-	line-height: {$line_height};
 }
 .editor-post-title__block .editor-post-title__input {
 	font-size: 2.4rem;
@@ -759,13 +735,6 @@ function thk_path_to_root( $css, $theme_path ) {
 	// css 内で ../ の形式以外の相対パスをルートから始まるURIに変換する
 	$css = preg_replace( "/(url\([\"|']?)((?:[^\/][A-z0-9]|\.\/).+?)([\"|']*\))/i", '${1}' . $path . '/' . '${2}${3}', $css );
 
-	// icomoon を子のパスから親のパスに変換する
-	if( TPATH !== SPATH ) {
-		$curent = substr( SURI, 0 - ( strlen( SURI ) - strrpos( SURI, '/' ) ) );
-		$parent = substr( TURI, 0 - ( strlen( TURI ) - strrpos( TURI, '/' ) ) );
-		$css = str_replace( $curent . '/fonts/icomoon/fonts/icomoon', $parent . '/fonts/icomoon/fonts/icomoon', $css );
-	}
-
 	// url(data:～); url(http://～); url(https://～);  の形を元に戻す
 	foreach( array_unique( $data_array[0] ) as $data ) {
 		$css = str_replace( strlen( $data ) . md5( $data ), $data, $css );
@@ -854,7 +823,8 @@ function thk_cssmin( $css, $copyright = false ) {
 
 	if( !empty( $css ) && $copyright === true ) {
 		$copyright_text = <<< COPYRIGHT
-/*! Luxeritas WordPress Theme {$ver} - (C) 2015 Thought is free. */
+/*! Luxeritas WordPress Theme {$ver} - free/libre wordpress platform
+ * @copyright Copyright (C) 2015 Thought is free. */
 COPYRIGHT;
 	}
 
@@ -975,11 +945,6 @@ function thk_cleanup( $file_only = false ) {
 		}
 
 		if( isset( $_POST['all_clear'] ) ) {
-			// block patterns
-			foreach( (array)glob( SPATH . DSEP . 'block-patterns' . DSEP . '*.txt' ) as $del_file ) {
-				$wp_filesystem->delete( $del_file );
-			}
-
 			// phrases
 			foreach( (array)glob( SPATH . DSEP . 'phrases' . DSEP . '*.txt' ) as $del_file ) {
 				$wp_filesystem->delete( $del_file );

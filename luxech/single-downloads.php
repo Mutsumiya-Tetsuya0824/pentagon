@@ -243,59 +243,7 @@ if (!empty($categories) && isset($categories[0])) {
         <?php
         $dl_url = get_field('dl_url') ? get_field('dl_url') : '';
         ?>
-       <?php /*?><?php
-			$post_id = $post->ID;
-			if ($post_id == 3576) {
-				echo <<<EOT
-				<script id="_bownow_cs_sid_ee29c6d3b6be2c8d8399">
-				var _bownow_cs_sid_ee29c6d3b6be2c8d8399 = document.createElement('script');
-				_bownow_cs_sid_ee29c6d3b6be2c8d8399.charset = 'utf-8';
-				_bownow_cs_sid_ee29c6d3b6be2c8d8399.src = 'https://contents.bownow.jp/forms/sid_ee29c6d3b6be2c8d8399/trace.js';
-				document.getElementsByTagName('head')[0].appendChild(_bownow_cs_sid_ee29c6d3b6be2c8d8399);
-				</script>
-				EOT;
-			}
-			if ($post_id == 5625) {
-				echo <<<EOT
-				<script id="_bownow_cs_sid_65da43fb8fb44eb4d6e0">
-				var _bownow_cs_sid_65da43fb8fb44eb4d6e0 = document.createElement('script');
-				_bownow_cs_sid_65da43fb8fb44eb4d6e0.charset = 'utf-8';
-				_bownow_cs_sid_65da43fb8fb44eb4d6e0.src = 'https://contents.bownow.jp/forms/sid_65da43fb8fb44eb4d6e0/trace.js';
-				document.getElementsByTagName('head')[0].appendChild(_bownow_cs_sid_65da43fb8fb44eb4d6e0);
-				</script>
-				EOT;
-			}
-			if ($post_id == 3539) {
-				echo <<<EOT
-				<script id="_bownow_cs_sid_e478b00d053c44714943">
-				var _bownow_cs_sid_e478b00d053c44714943 = document.createElement('script');
-				_bownow_cs_sid_e478b00d053c44714943.charset = 'utf-8';
-				_bownow_cs_sid_e478b00d053c44714943.src = 'https://contents.bownow.jp/forms/sid_e478b00d053c44714943/trace.js';
-				document.getElementsByTagName('head')[0].appendChild(_bownow_cs_sid_e478b00d053c44714943);
-				</script>
-				EOT;
-			}
-			if ($post_id == 3573) {
-				echo <<<EOT
-				<script id="_bownow_cs_sid_88fb40c683af91567e11">
-				var _bownow_cs_sid_88fb40c683af91567e11 = document.createElement('script');
-				_bownow_cs_sid_88fb40c683af91567e11.charset = 'utf-8';
-				_bownow_cs_sid_88fb40c683af91567e11.src = 'https://contents.bownow.jp/forms/sid_88fb40c683af91567e11/trace.js';
-				document.getElementsByTagName('head')[0].appendChild(_bownow_cs_sid_88fb40c683af91567e11);
-				</script>
-				EOT;
-			}
-			if ($post_id == 4463) {
-				echo <<<EOT
-				<script id="_bownow_cs_sid_0af7a7bf9851a8f636ec">
-				var _bownow_cs_sid_0af7a7bf9851a8f636ec = document.createElement('script');
-				_bownow_cs_sid_0af7a7bf9851a8f636ec.charset = 'utf-8';
-				_bownow_cs_sid_0af7a7bf9851a8f636ec.src = 'https://contents.bownow.jp/forms/sid_0af7a7bf9851a8f636ec/trace.js';
-				document.getElementsByTagName('head')[0].appendChild(_bownow_cs_sid_0af7a7bf9851a8f636ec);
-				</script>
-				EOT;
-			}
-		?><?php */?>
+       
         <?php echo do_shortcode('[contact-form-7 id="3536" title="資料ダウンロード" dl_url="' . esc_url($dl_url) . '" ]'); ?>
     </aside>
 </div>

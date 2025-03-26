@@ -11,10 +11,8 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html GPL v2 or later
  * @author LunaNuko
  * @link https://thk.kanzae.net/
- * @translators rakeem( https://rakeem.jp/ ) # en-Us
+ * @translators rakeem( http://rakeem.jp/ ) # en-Us
  * @translators boite de douze( https://boitededouze.com/ ) # fr_FR
- * @translators Alex Brito # pt_BR
- * @translators cheshirex( https://www.cheshirex.com/ ) # zh_CN
  */
 
 /*---------------------------------------------------------------------------
@@ -52,23 +50,22 @@ call_user_func( function() {
 	global $luxe, $_is, $fchk;
 
 	if( function_exists( 'wp_raise_memory_limit' ) === true ) {
-		if( $_is['admin'] === true || $_is['customize_preview'] === true ) {
-			$mem_int = wp_convert_hr_to_bytes( WP_MAX_MEMORY_LIMIT );
+		$wp_int = wp_convert_hr_to_bytes( WP_MEMORY_LIMIT );
+		$wp_max = wp_convert_hr_to_bytes( WP_MAX_MEMORY_LIMIT );
+		if( $wp_max > $wp_int ) {
+			wp_raise_memory_limit( 'admin' );
 		}
 		else {
-			$mem_int = wp_convert_hr_to_bytes( WP_MEMORY_LIMIT );
-		}
-		if( $mem_int < MIN_MEM_INT ) {
-			add_filter( 'wp_memory_limit', function() { return MIN_MEM; });
+			add_filter( 'wp_memory_limit', function() {
+				return WP_MEMORY_LIMIT;
+			});
+			wp_raise_memory_limit( 'wp' );
 		}
 	}
 
 	// textdomain
-	if( ( $_is['admin'] === true && $_is['edit_posts'] === true ) || $_is['widget_preview'] === true ) {
+	if( $_is['admin'] === true && $_is['edit_posts'] === true ) {
 		load_theme_textdomain( 'luxeritas', TPATH . DSEP . 'languages' . DSEP . 'admin' );
-		if( TPATH !== SPATH ) {
-			load_child_theme_textdomain( 'luxech', TPATH . DSEP . 'languages' . DSEP . 'child' );
-		}
 	}
 	else {
 		load_theme_textdomain( 'luxeritas', TPATH . DSEP . 'languages' . DSEP . 'site' );
@@ -88,10 +85,9 @@ call_user_func( function() {
 		require( INC . 'compress.php' );
 		require( INC . 'admin-common-func.php' );
 	}
-	elseif( $_is['admin'] === true || $_is['widget_preview'] === true ) {
-		if( $_is['admin'] === true ) $fchk = true;
+	elseif( $_is['admin'] === true ) {
+		$fchk = true;
 		require( INC . 'admin-common-func.php' );
-
 		if( $_is['edit_theme_options'] === true ) {
 			require( INC . 'admin-func.php' );
 		}
@@ -100,29 +96,10 @@ call_user_func( function() {
 				add_editor_style( 'editor-style.css' );
 				require( INC . 'admin-post-func.php' );
 			}
-			// ajax
-			if( isset( $_POST ) ) {
-				if( stripos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax.php' ) !== false ) {
-					require( INC . 'admin-ajax.php' );
-				}
-			}
 		}
-		if( $_is['admin'] === true && $_is['user_logged_in'] === true ) {
-			require( INC . 'admin-comments.php' );
-		}
-
-		// add block pattern category
-		if( stripos( $_SERVER['REQUEST_URI'], 'wp-admin/post-new.php' ) !== false || stripos( $_SERVER['REQUEST_URI'], 'wp-admin/post.php' ) !== false ) {
-			if( function_exists( 'register_block_pattern_category' ) === true ) {
-				register_block_pattern_category(
-					'luxeritas-block-patterns',
-					array( 'label' => 'Luxeritas Block Patterns' )
-				);
-			}
-		}
+		require( INC . 'admin-comments.php' );
 	}
 
-	// add amp endpoint
 	if( isset( $luxe['amp_enable'] ) ) {
 		if( $_is['admin'] === true && $_is['edit_theme_options'] === true ) {
 			if( function_exists( 'thk_amp_mu_plugin_copy' ) === true ) thk_amp_mu_plugin_copy();
@@ -154,13 +131,6 @@ call_user_func( function() {
 		}
 		add_filter( 'lazyload_is_enabled', '__return_false', 99 );
 	}
-
-	// WP 5.7 のサイトヘルスチェックで引っかかるので、filters.php からこっちに移動。
-	// ( サイトヘルスチェックが動く前に remove_action しないと has_action が true になっちゃうのが原因 )
-	// 参考： wp-includes/https-detection.php: wp_is_local_html_output()
-	remove_action( 'wp_head', 'rsd'.'_link' );
-	remove_action( 'wp_head', 'wlwmanifest_link' );
-	remove_action( 'wp_head', 'rest_output'.'_link_wp_head' ); // こいつに限り oEmbed が ON の場合は filters.php で復活させる
 });
 
 /*---------------------------------------------------------------------------
@@ -177,40 +147,19 @@ add_action( 'init', function() use( $luxe ) {
 	add_theme_support( 'align-wide' );
 	add_theme_support( 'responsive-embeds' );
 	add_theme_support( 'html5', array( 'caption', 'gallery', 'search-form' ) );
-
-	if( !isset( $luxe['block_based_widgets_enable'] ) ) {
-		remove_theme_support( 'widgets-block-editor' );
-		//add_filter( 'use_widgets_block_editor', '__return_false' );
-	}
-
 	register_nav_menus( array(
 		'global-nav' => __( 'Header Nav (Global Nav)', 'luxeritas' ),
 		'head-band'  => __( 'Header Band Menu', 'luxeritas' ),
 		'footer-nav' => __( 'Footer Nav ', 'luxeritas' )
 	));
 
-	// register block patterns
-	if(
-		stripos( $_SERVER['REQUEST_URI'], 'block-patterns' ) !== false ||		// WP 6.0 later
-		stripos( $_SERVER['REQUEST_URI'], 'wp-admin/post-new.php' ) !== false ||	// WP 5.9 or less
-		stripos( $_SERVER['REQUEST_URI'], 'wp-admin/post.php' ) !== false
-	) {
-		if( function_exists( 'register_block_pattern' ) ) {
-			require( INC . 'admin-post-register-block-patterns.php' );
-		}
-	}
-
-	// get sns count & create blogcard cache
+	// get sns count
 	if( stripos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax.php' ) !== false ) {
 		if( $_is['customize_preview'] === false ) {
 			if( isset( $luxe['sns_tops_count'] ) || isset( $luxe['sns_bottoms_count'] ) ) {
 				add_action( 'wp_ajax_thk_sns_real', 'thk_sns_real' );
 				add_action( 'wp_ajax_nopriv_thk_sns_real', 'thk_sns_real' );
 			}
-
-			require( INC . 'blogcard-func.php' );
-			add_action( 'wp_ajax_thk_blogcard_cache', 'thk_blogcard_cache' );
-			add_action( 'wp_ajax_nopriv_thk_blogcard_cache', 'thk_blogcard_cache' );
 		}
 	}
 
@@ -280,20 +229,14 @@ add_action( 'parse_request', function( $q ) {
  * pre get posts
  *---------------------------------------------------------------------------*/
 add_action( 'pre_get_posts', function( $q ) {
-	global $_is;
-
-	if( is_search() === true ) {
-		$_is['search'] = true;
-		get_template_part( 'inc/search-func' );
-	}
-
 	if( $q->is_admin === false && $q->is_main_query() === true ) {
-		global $luxe;
+		global $luxe, $_is;
 
 		if( $q->is_search === true ) {
 			if( isset( $luxe['items_search'] ) && isset( $luxe['items_search_num'] ) ) {
 				$q->set( 'posts_per_page', $luxe['items_search_num'] );
 			}
+			get_template_part( 'inc/search-func' );
 			thk_search_extend();
 		}
 		elseif( $q->is_home === true || $q->is_category === true || $q->is_archive === true ) {
@@ -416,52 +359,40 @@ add_action( 'wp', function() {
 
 	require_once( INC . 'global-is-template.php' );
 
-	if( $_is['admin'] === false ) {
-		thk_default_set();
-		thk_widget_concat();
-	}
+	if( $_is['admin'] === false ) thk_default_set();
 	if( $_is['singular'] === true ) wp_enqueue_script( 'comment-reply' );
+
+	thk_widget_concat();
 
 	if( isset( $luxe['amp'] ) ) {
 		// AMP for front_page
 		$url = '//' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$uri = trim( str_replace( pdel( THK_HOME_URL ), '',  $url ), '/' );
-
 		if( $uri === 'amp' ) {
 			set_fake_root_endpoint_for_amp();
 		}
-
-		// disable lazy loading for AMP
-		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 	}
 	else {
-		if( isset( $luxe['lazyload_type'] ) && ( $luxe['lazyload_type'] === 'intersection' || $luxe['lazyload_type'] === 'none' ) ) {
-			add_filter( 'wp_lazy_loading_enabled', '__return_false' );
+		global $widget_concat;
 
-			if( $luxe['lazyload_type'] === 'intersection' ) {
-				global $widget_concat;
-
-				if( $_is['customize_preview'] === false && strpos( $widget_concat, 'wp-block-luxe-blocks-aos' ) === false ) {
-					if( isset( $luxe['lazyload_contents'] ) ) {
-						add_filter( 'thk_content', 'thk_intersection_observer_replace_all', 99 );
-					}
-					if( isset( $luxe['lazyload_sidebar'] ) ) {
-						add_filter( 'thk_sidebar', 'thk_intersection_observer_replace_all', 99 );
-					}
-					if( isset( $luxe['lazyload_footer'] ) ) {
-						add_filter( 'thk_footer', 'thk_intersection_observer_replace_all', 99 );
-					}
-					if( isset( $luxe['lazyload_thumbs'] ) ) {
-						add_filter( 'post_thumbnail_html', 'thk_intersection_observer_replace', 99 );
-					}
-					if( isset( $luxe['lazyload_avatar'] ) ) {
-						add_filter( 'get_avatar', 'thk_intersection_observer_replace', 99 );
-					}
-				}
+		if( $_is['customize_preview'] === false && strpos( $widget_concat, 'wp-block-luxe-blocks-aos' ) === false ) {
+			if( ( $_is['singular'] === true || ( isset( $luxe['list_view'] ) && $luxe['list_view'] === 'content' ) || ( isset( $luxe['sticky_no_excerpt'] ) && $luxe['sticky_no_excerpt'] && is_sticky() === true ) ) && isset( $luxe['lazyload_contents'] ) ) {
+				add_filter( 'thk_content', 'thk_intersection_observer_replace_all', 99 );
+			}
+			if( isset( $luxe['lazyload_sidebar'] ) ) {
+				add_filter( 'thk_sidebar', 'thk_intersection_observer_replace_all', 99 );
+			}
+			if( isset( $luxe['lazyload_footer'] ) ) {
+				add_filter( 'thk_footer', 'thk_intersection_observer_replace_all', 99 );
+			}
+			if( isset( $luxe['lazyload_thumbs'] ) ) {
+				add_filter( 'post_thumbnail_html', 'thk_intersection_observer_replace', 99 );
+			}
+			if( isset( $luxe['lazyload_avatar'] ) ) {
+				add_filter( 'get_avatar', 'thk_intersection_observer_replace', 99 );
 			}
 		}
 	}
-	require( INC . 'icons.php' );
 });
 
 /*---------------------------------------------------------------------------
@@ -482,6 +413,7 @@ add_action( 'template_redirect', function() {
 		}
 	}
 
+	//if( $_is['singular'] === true ) require( INC . 'add-shortcode.php' );
 	require( INC . 'add-shortcode.php' );
 
 	if(
@@ -495,11 +427,9 @@ add_action( 'template_redirect', function() {
 		require( INC . 'load-styles.php' );
 		require( INC . 'description.php' );
 		require( INC . 'load-header.php' );
-
 		if( isset( $luxe['blogcard_enable'] ) && $_is['singular'] === true ) {
-			require_once( INC . 'blogcard-func.php' );
+			require( INC . 'blogcard-func.php' );
 		}
-
 		if( isset( $luxe['amp'] ) ) {
 			require( INC . 'amp-extensions.php' );
 		}

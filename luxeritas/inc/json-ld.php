@@ -114,40 +114,38 @@ add_filter( 'thk_json_ld', function() {
 			$thumb_w = 696;
 			$thumb_h = 696;
 
-			if( isset( $luxe['thumbnail_visible'] ) ) {
+			if ( isset( $luxe['thumbnail_visible'] ) ) {
 				$thumb_id  = get_post_thumbnail_id( $thk_org_id );
 				$thumb_url = wp_get_attachment_image_src( $thumb_id, true );
-				$thumb = isset( $thumb_url[0] ) ? $thumb_url[0] : '';
+			
+				// $thumb_url が配列として返らない場合があるため、三項演算子＋null合体演算子を使って安全に値を取得
+				$thumb = ( is_array( $thumb_url ) && isset( $thumb_url[0] ) ) ? $thumb_url[0] : '';
 			}
-			if( empty( $thumb ) ) {
+			
+			// $thumb が空の場合は「no-img.png」を設定し、$thumb_info 変数を初期化
+			if ( empty( $thumb ) ) {
 				$no_img_png = 'no-img.png';
-				$thumb = TURI . '/images/no-img.png';
-			}
-			else {
+				$thumb      = TURI . '/images/no-img.png';
+				$thumb_info = false; // ここで明示的に false や空配列などを代入しておく
+			} else {
+				// $thumb に画像がある場合のみサイズ情報を取得
 				$thumb_info = thk_get_image_size( $thumb );
 			}
-
-			if( is_array( $thumb_info ) === true ) {
+			
+			// $thumb_info が配列の場合のみ、幅と高さを計算
+			if ( is_array( $thumb_info ) ) {
 				$thumb_w = $thumb_info[0];
 				$thumb_h = $thumb_info[1];
-
-				if( $thumb_info[0] < 696 ) {
+			
+				if ( $thumb_info[0] < 696 ) {
 					$thumb_w = 696;
 					$thumb_h = round( $thumb_w * $thumb_info[1] / $thumb_info[0] );
 				}
 			}
+			
 
 			$headline = get_the_title( $thk_org_id );
 			if( empty( $headline ) ) $headline = 'No title';
-
-			$profile_url = THK_HOME_URL;
-
-			if( $luxe['author_page_type'] === 'auth' ) {
-				$profile_url = get_author_posts_url( get_the_author_meta( 'ID' ) );
-			}
-			elseif( $luxe['author_page_type'] !== 'auth' && isset( $luxe['thk_author_url'] ) ) {
-				$profile_url = $luxe['thk_author_url'];
-			}
 
 			$article = [
 				"@context"		=> "https://schema.org",
@@ -168,7 +166,6 @@ add_filter( 'thk_json_ld', function() {
 				"author"		=> array(
 					"@type"			=> "Person",
 					"name"			=> $author_name,
-					"url"			=> $profile_url,
 				),
 				"publisher"			=> array(
 					"@type"			=> $publisher,

@@ -13,13 +13,15 @@
  *
  */
 
-/* Categories & Archive */
-.widget_categories a, .widget_archive a, .widget_nav_menu a {
-	display: block;
-	padding: 3px 0;
+/* Categories & Archive DropDown */
+.widget_categories, .widget_archive {
+	margin-bottom: 5px;
 }
-@media print, (max-width: 991px) {
-	.widget_categories a, .widget_archive a, .widget_nav_menu a {
-		padding: 7px 0;
-	}
+.widget_categories select, .widget_archive select {
+	padding: 15px 13px;
+	width: 100%;
+	height: 32px;
+	margin: 0;
+	padding: 4px 6px;
+	border: 1px solid #bbb;
 }

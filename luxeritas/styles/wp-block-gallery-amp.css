@@ -18,11 +18,11 @@
  * wp-block-gallery for AMP
  * ----------------------------------------------------------------------------
  */
-.post .wp-block-gallery ul {
+.post ul.wp-block-gallery{
 	margin:0;
 	padding:0
 }
-.wp-block-gallery ul {
+.wp-block-gallery {
 	display:flex;
 	flex-wrap:wrap;
 	list-style-type:none;

@@ -167,15 +167,9 @@ else {
 					el.find('button').on('click', function() {
 						toolbarOpen = true;
 						var code      = $(this).val()
-						,   has_space
-						,   insert
+						,   has_space = code
+						,   insert    = '[' + code + ']'
 						,   closing   = $(this).attr( 'data-shortcode-closing' );
-
-						code = code.replaceAll(String.fromCodePoint(8220), '"').replaceAll(String.fromCodePoint(8221), '"').replaceAll(String.fromCodePoint(8243), '"');
-						code = code.replaceAll(String.fromCodePoint(8216), "'").replaceAll(String.fromCodePoint(8217), "'").replaceAll(String.fromCodePoint(8242), "'");
-
-						has_space = code
-						insert    = '[' + code + ']'
 
 						if( closing == 1 ) {
 							if( code.indexOf(' ') != -1 ) {
@@ -249,7 +243,7 @@ if( _is_block_editor() === false ) {
 	});
 
 	$('#shortcode-group').find('button').on('click', function() {
-		var code    = $(this).val().replaceAll( "″", '"' )
+		var code    = $(this).val()
 		,   has_space = code
 		,   insert  = '[' + code + ']'
 		,   closing = $(this).attr( 'data-shortcode-closing' );

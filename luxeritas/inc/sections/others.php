@@ -120,29 +120,6 @@ if( isset( $luxe['fucking_jetpack'] ) ) {
 </li>
 
 <li>
-<p class="control-title"><?php echo __( 'Pingback settings', 'luxeritas' ); ?></p>
-<p class="checkbox">
-<input type="checkbox" value="" name="allow_self_pingback"<?php thk_value_check( 'allow_self_pingback', 'checkbox' ); ?> />
-<?php echo __( 'Allow self-pingback', 'luxeritas' ), ' (', __( 'Not recommended', 'luxeritas' ), ')'; ?>
-</p>
-</li>
-
-<li>
-<p class="control-title"><?php echo __( 'Smooth scroll settings', 'luxeritas' ); ?></p>
-<p class="checkbox">
-<input type="checkbox" value="" name="smooth_scroll_off"<?php thk_value_check( 'smooth_scroll_off', 'checkbox' ); ?> />
-<?php echo __( 'Turn off the smooth scroll of the anchor link.', 'luxeritas' ); ?>
-</p>
-</li>
-
-<li>
-<p class="checkbox">
-<input type="checkbox" value="" name="smooth_scroll_hash"<?php thk_value_check( 'smooth_scroll_hash', 'checkbox' ); ?> />
-<?php echo __( 'Leave the URL hash / fragment after scrolling.', 'luxeritas' ); ?>
-</p>
-</li>
-
-<li>
 <p class="control-title"><?php printf( __( 'Setting of %s', 'luxeritas' ), 'user-scalable ' ); ?></p>
 <p class="radio">
 <input type="radio" value="yes" name="user_scalable"<?php thk_value_check( 'user_scalable', 'radio', 'yes' ); ?> />
@@ -160,12 +137,6 @@ no
 <input type="checkbox" value="" name="hide_luxe_adminbar"<?php thk_value_check( 'hide_luxe_adminbar', 'checkbox' ); ?> />
 <?php echo __( 'Hide Admin bar at the bottom left', 'luxeritas' ); ?>
 </p>
-</li>
-
-<li>
-<p class="control-title"><?php echo __( 'Block-based Widgets Editor', 'luxeritas' ); ?></p>
-<input type="checkbox" value="" name="block_based_widgets_enable"<?php thk_value_check( 'block_based_widgets_enable', 'checkbox' ); ?> />
-<?php echo __( 'Enable Block-based Widgets Editor', 'luxeritas' ); ?> ( WP 5.8 or later )
 </li>
 
 <li>

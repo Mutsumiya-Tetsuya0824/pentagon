@@ -71,9 +71,5 @@
 <input type="radio" value="title_site" name="title_other"<?php thk_value_check( 'title_other', 'radio', 'title_site' ); ?> />
 <?php echo __( 'Page title', 'luxeritas' ) . ' | ' . __( 'Site name', 'luxeritas' ); ?>
 </p>
-<p class="radio">
-<input type="radio" value="title_catch" name="title_other"<?php thk_value_check( 'title_other', 'radio', 'title_catch' ); ?> />
-<?php echo __( 'Page title', 'luxeritas' ) . ' | ' . __( 'Tagline', 'luxeritas' ); ?>
-</p>
 </li>
 </ul>

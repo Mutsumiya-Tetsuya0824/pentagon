@@ -118,7 +118,6 @@ foreach( $colors as $key => $val ) {
 <?php echo __( 'Line color', 'luxeritas' ); ?>
 </li>
 </ul>
-<div style="display:none">
 <script>
 jQuery(function($){
 	ctcol = $('select[name="secimg_color"]');
@@ -170,4 +169,3 @@ jQuery(function($){
 	});
 });
 </script>
-</div>

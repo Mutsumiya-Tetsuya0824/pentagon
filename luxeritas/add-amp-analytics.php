@@ -16,19 +16,19 @@ $analytics .= <<<AMP_ANALYTICS
 <amp-analytics type="googleanalytics" id="analytics1">
 <script type="application/json">
 {
-	"vars": {
-		"account": "{$ua[1]}"
-	},
-	"triggers": {
-		"trackPageviewWithAmpdocUrl": {
-			"on": "visible",
-			"request": "pageview",
-			"vars": {
-				"title": "{$amptitle}",
-				"ampdocUrl": "{$amplink}"
-			}
-		}
-	}
+  "vars": {
+    "account": "{$ua[1]}"
+  },
+  "triggers": {
+    "trackPageviewWithAmpdocUrl": {
+      "on": "visible",
+      "request": "pageview",
+      "vars": {
+        "title": "{$amptitle}",
+        "ampdocUrl": "{$amplink}"
+      }
+    }
+  }
 }
 </script>
 </amp-analytics>

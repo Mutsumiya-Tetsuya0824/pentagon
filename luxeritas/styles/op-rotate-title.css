@@ -16,6 +16,7 @@
 /* Opening - Rotate title */
 
 #sitename {
+	-webkit-animation: rotateTitle 1s forwards;
 	animation: rotateTitle 1s forwards;
 }
 @keyframes rotateTitle {

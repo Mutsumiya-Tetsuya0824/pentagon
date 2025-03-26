@@ -16,12 +16,7 @@
 
 /**
  * Template Name: Sitemap
- *
- * @package WordPress
  */
-
-__( 'Sitemap', 'luxeritas' );
-__( 'Sitemap', 'luxech' );
 
 global $luxe, $wpdb;
 

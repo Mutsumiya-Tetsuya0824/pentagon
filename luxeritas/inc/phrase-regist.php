@@ -19,8 +19,10 @@
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_phrase_regist' ) === false ):
 function thk_phrase_regist( $regist_name, $code_text, $code_close = false, $code_text_close = '', $new_or_edit = 'new' ) {
-	$filesystem = thk_filesystem_init();
 	global $wp_filesystem;
+
+	$filesystem = new thk_filesystem();
+	if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 	$ret = false;
 	$phrases_dir = SPATH . DSEP . 'phrases' . DSEP;
@@ -91,11 +93,13 @@ endif;
  *---------------------------------------------------------------------------*/
 $_POST = stripslashes_deep( $_POST );
 
-thk_filesystem_init();
-global $wp_filesystem;
+require_once( INC . 'optimize.php' );
+global $wp_filesystem, $filesystem;
+
+$filesystem = new thk_filesystem();
+if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 if( isset( $_FILES['add-file-phrase']['name'] ) && isset( $_FILES['add-file-phrase']['tmp_name'] ) ) {
-	/*** インポート ***/
 	$json_file = $_FILES['add-file-phrase']['tmp_name'];
 	$json = $wp_filesystem->get_contents( $json_file );
 	$a = (array)@json_decode( $json );
@@ -117,9 +121,9 @@ if( isset( $_FILES['add-file-phrase']['name'] ) && isset( $_FILES['add-file-phra
 	}
 }
 elseif( isset( $_POST['code_save'] ) && isset( $_POST['code_save_item'] ) ) {
-	/*** エクスポート ***/
 	$save = trim( esc_attr( stripslashes( $_POST['code_save_item'] ) ) );
-	$save_file = strlen( $save ) . '-' . md5( $save );
+	$save_file = substr( $save, strpos( $save, '-' ), strlen( $save ) );
+	$save_file = strlen( $save_file ) . '-' . md5( $save_file );
 
 	$contents = '';
 
@@ -140,9 +144,9 @@ elseif( isset( $_POST['code_save'] ) && isset( $_POST['code_save_item'] ) ) {
 	exit;
 }
 elseif( isset( $_POST['code_delete'] ) && isset( $_POST['code_delete_item'] ) ) {
-	/*** 削除 ***/
 	$del = trim( esc_attr( stripslashes( $_POST['code_delete_item'] ) ) );
-	$file_del = strlen( $del ) . '-' . md5( $del );
+	$file_del = substr( $del, strpos( $del, '-' ), strlen( $del ) );
+	$file_del = strlen( $file_del ) . '-' . md5( $file_del );
 
 	remove_theme_phrase_mod( 'fp-' . $del );
 
@@ -151,7 +155,6 @@ elseif( isset( $_POST['code_delete'] ) && isset( $_POST['code_delete_item'] ) ) 
 	}
 }
 else {
-	/*** 新規追加 ***/
 	if( isset( $_POST['code_name'] ) ) {
 		$regist_name = trim( esc_attr( $_POST['code_name'] ) );
 		$code_text = isset( $_POST['code_text'] ) ? $_POST['code_text'] : '';

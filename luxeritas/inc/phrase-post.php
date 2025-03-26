@@ -20,7 +20,7 @@
 /*
 if( isset( $luxe['add_phrase_button_1'] ) ) {
 	add_action( 'media_buttons', function() {
-		$label = __( 'HTML pattern', 'luxeritas' );
+		$label = __( 'Fixed phrase', 'luxeritas' );
 ?>
 <a href="#" id="thk-phrase-action" class="button" title="<?php echo $label; ?>"><span class="thk-phrase-icon"></span><?php echo $label; ?></a>
 <?php
@@ -54,7 +54,7 @@ add_action( 'admin_print_footer_scripts', function() {
 	global $luxe;
 ?>
 <!-- #dialog-form  -->
-<div id="thk-phrase-form" title="<?php echo __( 'Insert HTML pattern', 'luxeritas' ); ?>">
+<div id="thk-phrase-form" title="<?php echo __( 'Insert fixed phrase', 'luxeritas' ); ?>">
 	<form>
 	<div id="phrase-group">
 <?php
@@ -72,7 +72,7 @@ unset( $admin_mods );
 
 if( empty( $fp_mods ) ) {
 ?>
-<p style="color:red;padding:15px"><?php echo __( 'There is no HTML pattern registered.', 'luxeritas' ); ?></p>
+<p style="color:red;padding:15px"><?php echo __( 'There is no fixed phrase registered.', 'luxeritas' ); ?></p>
 <?php
 }
 else {
@@ -126,7 +126,7 @@ if( get_user_option( 'rich_editing' ) === 'true' ) {
 <?php
 if( empty( $fp_mods ) ) {
 ?>
-					html += '<p style="color:red;text-align:center;padding:20px"><?php echo __( 'There is no HTML pattern registered.', 'luxeritas' ); ?></p>';
+					html += '<p style="color:red;text-align:center;padding:20px"><?php echo __( 'There is no fixed phrase registered.', 'luxeritas' ); ?></p>';
 <?php
 }
 else {
@@ -162,20 +162,22 @@ else {
 							dataType: 'text',
 							async: true,
 							cache: false,
-							timeout: 10000
-						}).then( function( response ) {
-							if( closing == 1 ) {
-								var selected = tinymce.activeEditor.selection.getContent();
-								if( selected === '' || selected === null || typeof selected === "undefined" ) {
-									selected = "<?php echo __( 'Text not selected.', 'luxeritas' ) ?>";
+							timeout: 10000,
+							success: function( response ) {
+								if( closing == 1 ) {
+									var selected = tinymce.activeEditor.selection.getContent();
+									if( selected === '' || selected === null || typeof selected === "undefined" ) {
+										selected = "<?php echo __( 'Text not selected.', 'luxeritas' ) ?>";
+									}
+									editor.execCommand( 'mceInsertContent', false, response.replace( "\n<!--" + sep + "-->\n", selected ) );
+								} else {
+									editor.execCommand( 'mceInsertContent', false, response );
 								}
-								editor.execCommand( 'mceInsertContent', false, response.replace( "\n<!--" + sep + "-->\n", selected ) );
-							} else {
-								editor.execCommand( 'mceInsertContent', false, response );
+								document.activeElement.blur();
+							},
+							error: function() {
+								document.activeElement.blur();
 							}
-							document.activeElement.blur();
-						}, function() {
-							document.activeElement.blur();
 						});
 					});
 				},
@@ -195,7 +197,7 @@ else {
 
 			editor.addButton( 'thk-phrase-button', {
 				icon: 'thk-phrase-button',
-				title: '<?php echo __( "HTML pattern", "luxeritas" ); ?>',
+				title: '<?php echo __( "Fixed phrase", "luxeritas" ); ?>',
 				cmd: 'thk-phrase-button',
 				stateSelector: '',
 			});
@@ -259,15 +261,17 @@ if( _is_block_editor() === false ) {
 			dataType: 'text',
 			async: true,
 			cache: false,
-			timeout: 10000
-		}).then( function( response ) {
-			if( closing == 1 ) {
-				thk_mce_insert( code, response.replace( "\n<!--" + sep + "-->\n", THK_SELECTED_RANGE) );
-			} else {
-				thk_mce_insert( code, response );
+			timeout: 10000,
+			success: function( response ) {
+				if( closing == 1 ) {
+					thk_mce_insert( code, response.replace( "\n<!--" + sep + "-->\n", THK_SELECTED_RANGE) );
+				} else {
+					thk_mce_insert( code, response );
+				}
+			},
+			error: function() {
+				thk_mce_insert( code, '<?php echo __( "Failed to read.", "luxeritas" ); ?>' );
 			}
-		}, function() {
-			thk_mce_insert( code, '<?php echo __( "Failed to read.", "luxeritas" ); ?>' );
 		});
 
 		// フォーカスを移す
@@ -281,7 +285,7 @@ if( _is_block_editor() === false ) {
 			THK_GET_SELECTED_RANGE();
 			fpfm.dialog('open');
 		}
-		QTags.addButton( 'thk-phrase', '<?php echo __( "HTML pattern", "luxeritas" ); ?>', thk_phrase_dialog_open, '', '', '', 120 );
+		QTags.addButton( 'thk-phrase', '<?php echo __( "Fixed phrase", "luxeritas" ); ?>', thk_phrase_dialog_open, '', '', '', 120 );
 	}
 
 	// 定型文ボタンがクリックされたらダイアログを表示

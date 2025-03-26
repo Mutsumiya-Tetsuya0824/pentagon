@@ -62,10 +62,15 @@
 	width: 30px;
 }
 #head-search button[type="submit"]:before {
-	font-family: "icomoon";
+	font-family: 'Font Awesome 5 Free';
 	content: "\f002";
+	font-weight: 900;
 }
-.head-search-field:placeholder { color: #888; opacity: 1; }
+.head-search-field::-webkit-input-placeholder { color: #888; }
+.head-search-field::-moz-placeholder { color: #888; }
+.head-search-field:-moz-placeholder { color: #888; }
+.head-search-field:-ms-input-placeholder { color: #888; }
+.head-search-field:placeholder-shown { color: #888; }
 
 .band-menu ul {
 	right: 150px;

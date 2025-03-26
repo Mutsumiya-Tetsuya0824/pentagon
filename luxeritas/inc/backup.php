@@ -45,14 +45,11 @@ if( $_POST['option_page'] === 'backup' ) {
 		$json .= "\n" . json_encode( $phrase_mods );
 
 		if( is_dir( SPATH . DSEP . 'shortcodes' . DSEP ) ) {
-			thk_filesystem_init();
+			require_once( INC . 'optimize.php' );
 			global $wp_filesystem;
 
-			$phrase_dirs = glob( SPATH . DSEP . 'block-patterns' . DSEP . '*.txt' );
-			foreach( (array)$phrase_dirs as $val ) {
-				$file_name = basename( $val );
-				$contents['block-patterns'][$file_name] = serialize( $wp_filesystem->get_contents( $val ) );
-			}
+			$filesystem = new thk_filesystem();
+			if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 			$phrase_dirs = glob( SPATH . DSEP . 'phrases' . DSEP . '*.txt' );
 			foreach( (array)$phrase_dirs as $val ) {
@@ -66,7 +63,7 @@ if( $_POST['option_page'] === 'backup' ) {
 				$contents['shortcodes'][$file_name] = serialize( preg_replace( "/\r\n|\r|\n/", "\n", $wp_filesystem->get_contents( $val ) ) );
 			}
 
-			if( !empty( $contents['block-patterns'] ) || !empty( $contents['phrases'] ) || !empty( $contents['shortcodes'] ) ) {
+			if( !empty( $contents['phrases'] ) && !empty( $contents['shortcodes'] ) ) {
 				$json .= "\n" . json_encode( $contents );
 			}
 			else {

@@ -15,28 +15,6 @@
  */
 
 /*---------------------------------------------------------------------------
- * File system initialization
- *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_filesystem_init' ) === false ):
-function thk_filesystem_init() {
-	global $wp_filesystem, $_is;
-
-	if( class_exists( 'thk_filesystem' ) === false ) {
-		require( INC . 'thk-filesystem.php' );
-	}
-
-	$filesystem = new thk_filesystem();
-
-	if( $_is['fsinit'] === false ) {
-		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
-		$_is['fsinit'] = true;
-	}
-
-	return $filesystem;
-}
-endif;
-
-/*---------------------------------------------------------------------------
  * default set
  *---------------------------------------------------------------------------*/
 if( function_exists('thk_default_set') === false ):
@@ -148,11 +126,6 @@ add_filter( 'document_title_parts', function( $title ) {
 					$ret = array( 'site' => THK_SITENAME, 'title' => get_the_title() );
 					if( isset( $title['page'] ) ) $ret['page'] = $title['page'];
 				}
-				elseif( $luxe['title_other'] === 'title_catch' ) {
-					$tagline = isset( $title['tagline'] ) ? $title['tagline'] : THK_DESCRIPTION;
-					$ret = array( 'title' => get_the_title(), 'tagline' => $tagline );
-					if( isset( $title['page'] ) ) $ret['page'] = $title['page'];
-				}
 			}
 			break;
 		default:
@@ -165,15 +138,26 @@ add_filter( 'document_title_parts', function( $title ) {
 					$ret = array( 'site' => THK_SITENAME, 'title' => current( $title ) );
 					if( isset( $title['page'] ) ) $ret['page'] = $title['page'];
 				}
-				elseif( $luxe['title_other'] === 'title_catch' ) {
-					$tagline = isset( $title['tagline'] ) ? $title['tagline'] : THK_DESCRIPTION;
-					$ret = array( 'title' => current( $title ), 'tagline' => $tagline );
-					if( isset( $title['page'] ) ) $ret['page'] = $title['page'];
-				}
 			}
 			break;
 	}
 	return $ret;
+} );
+
+/*---------------------------------------------------------------------------
+ * グローバルナビにホームへのリンク追加
+ *---------------------------------------------------------------------------*/
+add_filter( 'wp_page_menu_args', function( $args ) {
+	global $luxe;
+
+	if( isset( $luxe['home_text'] ) ) {
+		$args['show_home'] = $luxe['home_text'];
+	}
+	elseif( !isset( $args['show_home'] ) ) {
+		$args['show_home'] = true;
+	}
+
+	return $args;
 } );
 
 /*---------------------------------------------------------------------------
@@ -315,8 +299,8 @@ function thk_rel_next_prev() {
 		$pages = count( explode('<!--nextpage-->', $post->post_content) );
 
 		if( $pages > 1 ) {
-			$prev = singular_nextpage_link( $pages, 'prev' );
-			$next = singular_nextpage_link( $pages, 'next' );
+			$prev = singular_nextpage_link( 'prev', $pages );
+			$next = singular_nextpage_link( 'next', $pages );
 
 			if( !empty( $prev ) ) {
 ?>
@@ -337,7 +321,7 @@ endif;
  * 投稿・固定ページを <!--nextpage--> で分割した場合の next / prev 追加関数
  *---------------------------------------------------------------------------*/
 if( function_exists( 'singular_nextpage_link' ) === false ):
-function singular_nextpage_link( $pages, $rel = 'prev' ) {
+function singular_nextpage_link( $rel = 'prev', $pages ) {
 	global $post, $page;
 	$url = '';
 
@@ -379,9 +363,9 @@ function thk_call_sidebar() {
 	}
 
 	// 1カラムの時はサイドバー表示しない
-	if( isset($luxe['column_style']) && $luxe['column_style'] === '1column' ) return true;
+	if( $luxe['column_style'] === '1column' ) return true;
 
-	if( isset($luxe['column_style']) && $luxe['column_style'] === '3column' && !isset( $luxe['amp'] ) ) {
+	if( $luxe['column_style'] === '3column' && !isset( $luxe['amp'] ) ) {
 		if( isset( $luxe['column3_reverse'] ) ) {
 			echo apply_filters( 'thk_sidebar', '' );
 		}
@@ -514,12 +498,10 @@ add_filter( 'script_loader_tag', function( $ret ) {
 			elseif( stripos( $ret, '/recaptcha/api.js?render=' ) !== false ) {
 				// reCAPTCHA v3 は非同期にすると動かないのでスルー
 			}
-			elseif(
-				stripos( $ret, '/js/luxe.min.js' ) !== false		||
-				stripos( $ret, '/js/spotlight.bundle.js' ) !== false	||
-				stripos( $ret, '/js/highslide.min.js' ) !== false	||
-				stripos( $ret, '/js/floatbox/floatbox.js' ) !== false
-			) {
+			elseif( stripos( $ret, '/js/jquery.bind.min.js' ) !== false ) {
+				$ret = str_replace( '><', ' async defer><', $ret );
+			}
+			elseif( stripos( $ret, '/js/luxe.min.js' ) !== false ) {
 				$ret = str_replace( '><', ' async defer><', $ret );
 			}
 			else {
@@ -540,7 +522,7 @@ add_filter( 'script_loader_tag', function( $ret ) {
 	$ret = str_replace( array( 'src="http:', 'src="https:' ), 'src="', $ret );
 
 	return str_replace( '  ', ' ', $ret );
-});
+} );
 
 /*---------------------------------------------------------------------------
  * スタイルシート書き換え
@@ -559,11 +541,11 @@ add_filter( 'style_loader_tag', function( $ret ) {
 	$ret = str_replace( array( 'http:', 'https:' ), '', $ret );
 	$ret = str_replace( "'", '"', $ret );
 
-	if( strpos( $ret, 'id="material' ) !== false || strpos( $ret, 'id="awesome' ) !== false ) {
+	if( strpos( $ret, 'id="awesome' ) !== false ) {
 		$ret = str_replace( 'media="all"', 'media="all" crossorigin="anonymous"', $ret );
 	}
 
-	foreach( array( 'async', 'nav', 'material', 'awesome' ) as $noscript ) {
+	foreach( array( 'async', 'nav', 'awesome' ) as $noscript ) {
 		if( strpos( $ret, 'id="' . $noscript . '-css"' ) !== false ) {
 			$ret = '<noscript>' . trim( $ret ) . '</noscript>' . "\n";
 		}
@@ -579,24 +561,24 @@ add_filter( 'style_loader_tag', function( $ret ) {
 			$ret = null;
 		}
 	}
-	/*
 	if( isset( $luxe['css_to_plugin_style'] ) ) {
 		if( stripos( $ret, 'id="plugin-styles-css"' ) !== false ) {
 			$ret = null;
 		}
 	}
-	*/
-	if( isset( $ret ) ) {
-		if( strpos( $ret, 'id="luxe1-css"' ) !== false || strpos( $ret, 'id="luxe2-css"' ) !== false || strpos( $ret, 'id="luxe3-css"' ) !== false ) {
-			$ret = null;
-		}
-	}
-	else {
-		return null;
-	}
 
-	return str_replace( '  ', ' ', $ret );
-});
+	if( !empty($ret) && ( 
+    strpos( $ret, 'id="luxe1-css"' ) !== false || 
+    strpos( $ret, 'id="luxe2-css"' ) !== false || 
+    strpos( $ret, 'id="luxe3-css"' ) !== false 
+) ) {
+    $ret = null;
+}
+
+
+return str_replace( '  ', ' ', $ret ?? '' );
+} );
+
 
 /*---------------------------------------------------------------------------
  * Intersection Observer 用の img タグ置換
@@ -609,7 +591,7 @@ function thk_intersection_observer_replace_all( $content ) {
 
 	$rs = array();
 
-	preg_match_all( '#<(img)([^>]+?)(>(.*?)<\/\1>|[\/]?>)#is', $content, $m );
+	preg_match_all( '#<(img)([^>]+?)(>(.*?)</\\1>|[\/]?>)#is', $content, $m );
 	$i = 0;
 
 	if( isset( $m[0] ) ) {
@@ -653,14 +635,10 @@ function thk_intersection_observer_replace( $content, $script = false ) {
 		$content = str_replace( 'sizes=', 'srcset="' . $luxe['trans_image'] . ' 100w" sizes=', $content );
 
 		if( $script === true ) {
-			if( stripos( $content, '<script>thklazy()</script>' ) === false ) {
-				$content .= '<script>thklazy()</script>';
-			}
+			$content .= '<script>thklazy()</script>';
 		}
 		if( isset( $luxe['lazyload_noscript'] ) ) {
-			if( stripos( $content, '<noscript>' ) === false ) {
-				$content .= '<noscript>' . $org . '</noscript>';
-			}
+			$content .= '<noscript>' . $org . '</noscript>';
 		}
 	}
 	return $content;
@@ -830,6 +808,8 @@ endif;
  *---------------------------------------------------------------------------*/
 if( function_exists( 'read_more_title_add' ) === false ):
 function read_more_title_add( $word = '', $length = 16 ) {
+	global $awesome;
+
 	$more_title = the_title_attribute('echo=0');
 
 	if( is_int( $length ) === false ) {
@@ -838,7 +818,7 @@ function read_more_title_add( $word = '', $length = 16 ) {
 	if( mb_strlen( $more_title ) > $length ) {
 		$more_title = mb_strimwidth( $more_title, 0, $length ) . ' ...';
 	}
-	return $word . ' <i class="ico-angle-double-right"></i>&nbsp; ' . $more_title;
+	return $word . ' <i class="' . $awesome['fas'] . 'fa-angle-double-right"></i>&nbsp; ' . $more_title;
 }
 endif;
 
@@ -850,27 +830,6 @@ add_filter( 'the_content_more_link', function( $more ) {
 } );
 
 /*---------------------------------------------------------------------------
- * a タグに rel や class 等の属性を付与する汎用関数
- *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_add_a_tag_attributes' ) === false ):
-function thk_add_a_tag_attributes( $html, $attribute_name, $add_attributes ) {
-	$attributes = preg_replace( '/<a .*?' . $attribute_name . '=["\']([^"\']+)["\'].*/im', '$1', $html );
-	$attribute_array = preg_split( '/ /i', $attributes );
-	if( $attribute_array !== false ) {
-		$attribute_array = array_filter( $attribute_array, 'strlen' );
-	}
-
-	foreach( (array)$add_attributes as $value ) {
-		$attribute_array[] = $value;
-	}
-	$attribute_array = array_unique( (array)$attribute_array );
-	$attributes = implode( ' ', (array)$attribute_array );
-
-	return preg_replace( '/(<a .*?)' . $attribute_name . '=["\'][^"\']+["\'](.*)/im', '$1' . $attribute_name . '="' . $attributes . '"$2', $html );
-}
-endif;
-
-/*---------------------------------------------------------------------------
  * インラインフレーム (Youtube とか Google Map 等) の responsive 対応
  * 外部リンクに external や icon 追加
  * AMP 用の置換
@@ -879,78 +838,58 @@ if( function_exists( 'thk_the_content' ) === false ):
 function thk_the_content( $contents ) {
 	global $luxe, $_is, $post;
 
-	$skip = false;	// 目次挿入とH2 タグ上のウィジェット挿入をスキップするかどうかの判別
-
 	if( !empty( $contents ) ) {
-		$dbg = debug_backtrace();
-		foreach( $dbg as $trace ) {
-			if( isset( $trace['file'] ) ) {
-				// 再利用ブロックウィジェットとカスタムグローバルメニューはスキップ
-				if(
-					stripos( $trace['file'], 'navi-menu-walker.php' ) !== false ||
-					stripos( $trace['file'], 'navi-page-walker.php' ) !== false ||
-					stripos( $trace['file'], 'widget.php' ) !== false
-				) {
-					$skip = true;
-					break;
+	 	/***
+		 * 目次挿入
+		 ***/
+
+		// ページ単位で目次を非表示にするかどうかの meta data 取得
+		$thk_hide_toc = isset( $post->ID ) ? get_post_meta( $post->ID, 'thk_hide_toc', true ) : '';
+
+		// 目次の自動挿入か目次ウィジェットが有効な場合のみ処理
+		if( $thk_hide_toc !== 'disable' && ( isset( $luxe['toc_auto_insert'] ) || is_active_widget( false, false, 'thk_toc_widget' ) !== false ) ) {
+			if( ( $_is['single'] === true && isset( $luxe['toc_single_enable'] ) ) || ( $_is['page'] === true && isset( $luxe['toc_page_enable'] ) ) ) {
+				if( !isset( $luxe['amp'] ) || ( isset( $luxe['amp'] ) && isset( $luxe['toc_amp'] ) ) ) {
+					$toc_array = thk_create_toc( $contents, true );
+
+					if( isset( $luxe['toc_auto_insert'] ) && !empty( $toc_array[1] ) ) {
+						// 目次の自動挿入が有効な場合
+						$toc_title = isset( $luxe['toc_title'] ) ? $luxe['toc_title'] : __( 'Table of Contents', 'luxeritas' );
+
+						// 目次本体
+						$toc_body = '<div id="toc_container"><span class="toc_title">' . $toc_title . '</span>';
+						if( !isset( $luxe['amp'] ) ) {
+							$toc_body .= '<input id="toc_toggle" type="checkbox" checked="checked"><label class="toc_toggle" for="toc_toggle"></label>';
+						}
+						$toc_body .= $toc_array[1] . '</div><!--/#toc_container-->' . "\n";
+
+						// 目次挿入
+						$contents = substr( $toc_array[0], 0, $toc_array[2] ) . $toc_body . substr( $toc_array[0], $toc_array[2] );
+					}
+					else {
+						// 目次の自動挿入が無効だけど目次ウィジェットが使われてる場合
+						$contents = $toc_array[0];
+					}
+					unset( $toc_array );
 				}
 			}
 		}
-		unset( $dbg, $trace );
 
-		if( $skip === false ) {
-		 	/***
-			 * 目次挿入
-			 ***/
-
-			// ページ単位で目次を非表示にするかどうかの meta data 取得
-			$thk_hide_toc = isset( $post->ID ) ? get_post_meta( $post->ID, 'thk_hide_toc', true ) : '';
-
-			// 目次の自動挿入か目次ウィジェットが有効な場合のみ処理
-			if( $thk_hide_toc !== 'disable' && ( isset( $luxe['toc_auto_insert'] ) || is_active_widget( false, false, 'thk_toc_widget' ) !== false ) ) {
-				if( ( $_is['single'] === true && isset( $luxe['toc_single_enable'] ) ) || ( $_is['page'] === true && isset( $luxe['toc_page_enable'] ) ) ) {
-					if( !isset( $luxe['amp'] ) || ( isset( $luxe['amp'] ) && isset( $luxe['toc_amp'] ) ) ) {
-						$toc_array = thk_create_toc( $contents, true );
-
-						if( isset( $luxe['toc_auto_insert'] ) && !empty( $toc_array[1] ) ) {
-							// 目次の自動挿入が有効な場合
-							$toc_title = isset( $luxe['toc_title'] ) ? $luxe['toc_title'] : __( 'Table of Contents', 'luxeritas' );
-
-							// 目次本体
-							$toc_body = '<div id="toc_container"><span class="toc_title">' . $toc_title . '</span>';
-							if( !isset( $luxe['amp'] ) ) {
-								$toc_body .= '<input id="toc_toggle" type="checkbox" checked="checked"><label class="toc_toggle" for="toc_toggle"></label>';
-							}
-							$toc_body .= $toc_array[1] . '</div><!--/#toc_container-->' . "\n";
-
-							// 目次挿入
-							$contents = substr( $toc_array[0], 0, $toc_array[2] ) . $toc_body . substr( $toc_array[0], $toc_array[2] );
-						}
-						else {
-							// 目次の自動挿入が無効だけど目次ウィジェットが使われてる場合
-							$contents = $toc_array[0];
-						}
-						unset( $toc_array );
-					}
+	 	/***
+		 * H2 タグ上のウィジェット挿入
+		 ***/
+		if( function_exists('dynamic_sidebar') === true && is_active_sidebar('post-h2-upper') === true ) {
+			if( stripos( $contents, '<h2>' ) !== false || stripos( $contents, '<h2 ' ) !== false ) {
+				ob_start();
+				if( !isset( $luxe['amp'] ) ) {
+					dynamic_sidebar( 'post-h2-upper' );
 				}
-			}
-
-		 	/***
-			 * H2 タグ上のウィジェット挿入
-			 ***/
-			if( function_exists('dynamic_sidebar') === true && is_active_sidebar('post-h2-upper') === true ) {
-				if( stripos( $contents, '<h2>' ) !== false || stripos( $contents, '<h2 ' ) !== false ) {
-					ob_start();
-					if( !isset( $luxe['amp'] ) ) {
-						dynamic_sidebar( 'post-h2-upper' );
-					}
-					else {
-						dynamic_sidebar( 'post-h2-upper-amp' );
-					}
-					$widget = ob_get_clean();
-					$widget = str_replace( "\t", '', $widget );
-					$contents = preg_replace( '/(<h2.*?>)/i', $widget . "\n$1", $contents, 1 );
+				else {
+					dynamic_sidebar( 'post-h2-upper-amp' );
 				}
+				$widget = ob_get_clean();
+				$widget = str_replace( "\t", '', $widget );
+				$contents = preg_replace( '/(<h2.*?>)/i', $widget . "\n$1", $contents, 1 );
 			}
 		}
 
@@ -968,43 +907,44 @@ function thk_the_content( $contents ) {
 		$i_frame = 'i' . 'frame';
 
 		// ブロックエディタで埋め込まれてる場合は何もせずにスルー
-		if( stripos( $contents, "wp-block-embed" ) === false ) {
-			if( stripos( $contents, $i_frame ) !== false && stripos( $contents, 'embed' ) !== false ) {
-				preg_match_all( "/<\s*{$i_frame}[^>]+?embed[^>]+?>[^<]*?<\/{$i_frame}>/i", $contents, $matches );
+if( stripos( $contents, "wp-block-embed" ) === false ) {
+    if( stripos( $contents, $i_frame ) !== false && stripos( $contents, 'embed' ) !== false ) {
+        preg_match_all( "/<\s*{$i_frame}[^>]+?embed[^>]+?>[^<]*?<\/{$i_frame}>/i", $contents, $matches );
 
-				// 置換する
-				foreach( array_unique( $matches[0] ) as $value ) {
-					$replaced = '';
+        // 置換する
+        foreach( array_unique( $matches[0] ) as $value ) {
+            $replaced = '';
 
-					// WordPress だと、ほぼ自動で p で囲まれるため、div でなく、あえて span (display:block) を使う
-					if( stripos( $value, 'youtube.com' ) !== false || stripos( $value, '.google.com/maps' ) !== false ) {
-						$replaced = str_replace( "<$i_frame", "<span class=\"i-video\"><$i_frame", $value );
-						$replaced = str_replace( "</$i_frame>", "</$i_frame></span>", $replaced );
-					}
-					else {
-						$replaced = str_replace( "<$i_frame", "<span class=\"i-embed\"><$i_frame", $value );
-						$replaced = str_replace( "</$i_frame>", "</$i_frame></span>", $replaced );
-					}
-					$contents = str_replace( $value, $replaced, $contents );
-				}
-			}
-			// インラインフレームで、且つ player.vimeo.com/ を含むものを探す
-			if( stripos( $contents, $i_frame ) !== false && stripos( $contents, 'player.vimeo.com/' ) !== false ) {
-				preg_match_all( "/<\s*{$i_frame}[^>]+?player.vimeo.com[^>]+?>[^<]*?<\/{$i_frame}>/i", $contents, $matches );
+            // WordPress だと、ほぼ自動で p で囲まれるため、div でなく、あえて span (display:block) を使う
+            if( stripos( $value, 'youtube.com' ) !== false || stripos( $value, '.google.com/maps' ) !== false ) {
+                $replaced = str_replace( "<$i_frame", "<span class=\"i-video\"><$i_frame", $value );
+                $replaced = str_replace( "</$i_frame>", "</$i_frame></span>", $replaced );
+            } else {
+                $replaced = str_replace( "<$i_frame", "<span class=\"i-embed\"><$i_frame", $value );
+                $replaced = str_replace( "</$i_frame>", "</$i_frame></span>", $replaced );
+            }
+            $contents = str_replace( $value, $replaced, $contents );
+        }
+    }
 
-				// 置換する
-				foreach( array_unique( $matches[0] ) as $value ) {
-					$replaced = '';
+    // インラインフレームで、且つ player.vimeo.com/ を含むものを探す
+    if( stripos( $contents, $i_frame ) !== false && stripos( $contents, 'player.vimeo.com/' ) !== false ) {
+        preg_match_all( "/<\s*{$i_frame}[^>]+?player.vimeo.com[^>]+?>[^<]*?<\/{$i_frame}>/i", $contents, $matches );
 
-					// WordPress だと、ほぼ自動で p で囲まれるため、div でなく、あえて span (display:block) を使う
-					if( stripos( $value, '.vimeo.com/' ) !== false ) {
-						$replaced = str_replace( "<$i_frame", "<span class=\"i-video\"><$i_frame", $value );
-						$replaced = str_replace( "</$i_frame>", "</$i_frame></span>", $replaced );
-					}
-					$contents = str_replace( $value, $replaced, $contents );
-				}
-			}
-		}
+        // 置換する
+        foreach( array_unique( $matches[0] ) as $value ) {
+            $replaced = '';
+
+            // WordPress だと、ほぼ自動で p で囲まれるため、div でなく、あえて span (display:block) を使う
+            if( stripos( $value, '.vimeo.com/' ) !== false ) {
+                $replaced = str_replace( "<$i_frame", "<span class=\"i-video\"><$i_frame", $value );
+                $replaced = str_replace( "</$i_frame>", "</$i_frame></span>", $replaced );
+            }
+            $contents = str_replace( $value, $replaced, $contents );
+        }
+    }
+}
+
 		elseif( stripos( $contents, '.google.com/maps' ) !== false ) {
 			// ブロックエディタが使われてて Google マップが埋め込まれてる場合
 			$contents = preg_replace( '/(<' . $i_frame . '[^>]+?\.google\.com\/maps[^>]+?><\/' . $i_frame . '>)/im', '<span class="i-video">$1</span>', $contents );
@@ -1026,90 +966,107 @@ function thk_the_content( $contents ) {
 			isset( $luxe['add_class_external'] ) ||
 			isset( $luxe['add_external_icon'] )
 		) {
-			/*preg_match_all( '/<a[^>]+?href[^>]+?>.+?<\/a>/i', $contents, $matches );*/
-			preg_match_all( '/(<a[^>]+?href[^>]+?>).+?<\/a>/i', $contents, $matches );
+			preg_match_all( '/<a[^>]+?href[^>]+?>.+?<\/a>/i', $contents, $matches );
+			//$my_url = preg_quote( rtrim( THK_HOME_URL, '/' ) . '/', '/' );
 
-			foreach( array_unique( $matches[0] ) as $key => $link ) {
-				if( isset( $matches[1][$key] ) ) {
-					$compare = str_replace( array( "'", '"', ' ' ), '', $matches[1][$key] );
-
-					if( stripos( $compare, 'href=' . THK_HOME_URL ) !== false || stripos( $compare, 'href=' . pdel( THK_HOME_URL ) ) !== false ) continue;
-					if( stripos( $compare, '://' ) === false && stripos( $compare, 'href=//' ) === false && ( stripos( $compare, 'href=/' ) === false || stripos( $compare, 'href=.' ) === false ) ) continue;
-					if( stripos( $compare, '\\' ) !== false ) continue;
-					if( stripos( $compare, 'data-blogcard' ) !== false || stripos( $compare, 'blogcard-href' ) !== false ) continue;
-				}
-				else {
-					continue;
-				}
-
-				$atag = preg_split( '/>/i', $link );
-				$atag = (array)array_filter( $atag, 'strlen' );
-
+			foreach( array_unique( $matches[0] ) as $link ) {
 				$replaced = '';
 				$last = '';
 
+				$compare = str_replace( array( "'", '"', ' ' ), '', $link );
 
-				// Add target="_blank"
-				if( isset( $luxe['add_target_blank'] ) && stripos( $atag[0], 'target=' ) === false ) {
-					$atag[0] .= ' target="_blank"';
-				}
+				if( stripos( $compare, '://' ) === false && stripos( $compare, 'href=//' ) === false ) continue;
+				if( stripos( $compare, '\\' ) !== false ) continue;
+				if( stripos( $compare, 'data-blogcard' ) !== false || stripos( $compare, 'blogcard-href' ) !== false ) continue;
 
-				// Add rel="noopener external"
-				if( stripos( $atag[0], ' rel=' ) !== false ) {
-					$rels = ['noopener', 'external'];
-					if( isset( $luxe['add_rel_nofollow'] ) ) $rels[] = 'nofollow';
+				//if( !preg_match( '/href=[\'|\"]?\s?' . $my_url . '[^>]+?[\'|\"]/i', $link ) ) {
+				if( stripos( $compare, 'href=' . THK_HOME_URL ) === false && stripos( $compare, 'href=mailto:' ) === false) {
+					$atag = preg_split( '/>/i', $link );
+					$atag = array_filter( $atag );
 
-					$atag[0] = thk_add_a_tag_attributes( $atag[0], 'rel', $rels );
-				}
-				else {
-					if( isset( $luxe['add_rel_nofollow'] ) ) {
-						$atag[0] .= ' rel="noopener nofollow external"';
+					if( stripos( $atag[0], ' rel=' ) !== false ) {
+						// target="_blank"
+						if( isset( $luxe['add_target_blank'] ) && stripos( $atag[0], 'target=' ) === false ) {
+							$atag[0] .= ' target="_blank"';
+							// rel="noopener external"
+							if( stripos( $atag[0], 'noopener' ) === false ) {
+								$atag[0] = preg_replace( '/(<a [^>]*?)rel=["\']([^"\']+)["\']([^>]*)/im', '$1rel="$2 noopener external"$3', $atag[0] );
+							}
+						}
+						// rel="external"
+						if( stripos( $atag[0], 'external' ) === false && stripos( $atag[0], 'target="_blank"' ) !== false ) {
+							$atag[0] = preg_replace( '/(<a [^>]*?)rel=["\']([^"\']+)["\']([^>]*)/im', '$1rel="$2 external"$3', $atag[0] );
+						}
+						// rel="nofollow"
+						if( isset( $luxe['add_rel_nofollow'] ) && stripos( $atag[0], 'nofollow' ) === false ) {
+							$atag[0] = preg_replace( '/(<a [^>]*?)rel=["\']([^"\']+)["\']([^>]*)/im', '$1rel="$2 nofollow"$3', $atag[0] );
+						}
 					}
 					else {
-						$atag[0] .= ' rel="noopener external"';
+						// target="_blank"
+						if( isset( $luxe['add_target_blank'] ) && stripos( $atag[0], 'target=' ) === false ) {
+							$atag[0] .= ' target="_blank"';
+						}
+						if( stripos( $atag[0], 'target=' ) !== false && stripos( $atag[0], 'blank' ) !== false ) {
+							// rel="noopener external nofollow"
+							if( isset( $luxe['add_rel_nofollow'] ) && stripos( $atag[0], 'nofollow' ) === false ) {
+								$atag[0] .= ' rel="noopener external nofollow"';
+							}
+							// rel="noopener"
+							else {
+								$atag[0] .= ' rel="noopener external"';
+							}
+						}
 					}
-				}
-
-				// Add class="external"
-				if( isset( $luxe['add_class_external'] ) ) {
-					if( stripos( $atag[0], ' class=' ) !== false ) {
-						$atag[0] = thk_add_a_tag_attributes( $atag[0], 'class', ['external'] );
-					}
-					else {
+					// class="external"
+					if( isset( $luxe['add_class_external'] ) ) {
 						$atag[0] .= ' class="external"';
 					}
-				}
 
-				foreach( $atag as $k => $value ) $atag[$k] = $value . '>';
+					foreach( $atag as $key => $value ) $atag[$key] = $value . '>';
 
-				// external icon
-				if( isset( $luxe['add_external_icon'] ) && !isset( $luxe['amp'] ) ) {
-					$last = end( $atag );
-					$last .= '<span class="ext_icon"></span>';
-					array_pop( $atag );
-				}
+					// external icon
+					if( isset( $luxe['add_external_icon'] ) && !isset( $luxe['amp'] ) ) {
+						$last = end( $atag );
+						$last .= '<span class="ext_icon"></span>';
+						array_pop( $atag );
 
-				foreach( $atag as $value ) $replaced .= $value;
-
-				$replaced = str_replace( '  ', ' ', $replaced );
-				$replaced .= $last;
-
-				if( isset( $luxe['add_external_icon'] ) ) {
-					// img の時はアイコン消す（class="external" は残す）
-					if( stripos( $replaced, "<img " ) !== false ) {
-						$replaced = preg_replace( '/(<a[^>]+?href[^>]+?>.*?<img [^>]+?src.+?>.*?<\/a>)<span class=\"ext_icon\"><\/span>/ism', '$1', $replaced );
 					}
-					// SVG の時もアイコン消す
-					if( stripos( $replaced, "<svg " ) !== false && stripos( $replaced, "</svg>" ) !== false ) {
-						$replaced = preg_replace( '/(<a[^>]+?href[^>]+?>.*?<svg [^>]+?>.*?<\/a>)<span class=\"ext_icon\"><\/span>/ism', '$1', $replaced );
-					}
-					// アイコンフォントの時もアイコン消す
-					if( stripos( $replaced, "<i " ) !== false && stripos( $replaced, "</i>" ) !== false ) {
-						$replaced = preg_replace( '/(<a[^>]+?href[^>]+?>.*?<i [^>]+?>.*?<\/a>)<span class=\"ext_icon\"><\/span>/ism', '$1', $replaced );
-					}
-				}
 
-				$contents = str_replace( $link, $replaced, $contents );
+					foreach( $atag as $value ) $replaced .= $value;
+
+					// external 付与によって class が重複した場合は1つにまとめる(元から class が重複しちゃってた場合は無理)
+					if( isset( $luxe['add_class_external'] ) ) {
+						if( preg_match( '/<a [^>]*class[\s]*=[^>]+?class[\s]*=[^>]*?>/', $replaced ) === 1 ) {
+							$replaced = str_replace( ' class="external"', '', $replaced );
+							$replaced = preg_replace( '/(<a [^>]*?)class[\s]*=["\']+([^"\']+)["\']+([^>]*)>(.+)/im', '$1class="$2 external"$3>$4', $replaced );
+
+							if( stripos( $replaced, 'class="' ) === false && stripos( $replaced, "class='" ) === false ) {
+								$replaced = preg_replace( '/(<a [^>]*?)class[\s]*=([^\s]+)\s([^>]*)>(.+)/im', '$1class="$2 external" $3>$4', $replaced );
+							}
+						}
+					}
+
+					$replaced = str_replace( '  ', ' ', $replaced );
+					$replaced .= $last;
+
+					if( isset( $luxe['add_external_icon'] ) ) {
+						// img の時はアイコン消す（class="external" は残す）
+						if( stripos( $replaced, "<img " ) !== false ) {
+							$replaced = preg_replace( '/(<a[^>]+?href[^>]+?>.*?<img [^>]+?src.+?>.*?<\/a>)<span class=\"ext_icon\"><\/span>/ism', '$1', $replaced );
+						}
+						// SVG の時もアイコン消す
+						if( stripos( $replaced, "<svg " ) !== false && stripos( $replaced, "</svg>" ) !== false ) {
+							$replaced = preg_replace( '/(<a[^>]+?href[^>]+?>.*?<svg [^>]+?>.*?<\/a>)<span class=\"ext_icon\"><\/span>/ism', '$1', $replaced );
+						}
+						// アイコンフォントの時もアイコン消す
+						if( stripos( $replaced, "<i " ) !== false && stripos( $replaced, "</i>" ) !== false ) {
+							$replaced = preg_replace( '/(<a[^>]+?href[^>]+?>.*?<i [^>]+?>.*?<\/a>)<span class=\"ext_icon\"><\/span>/ism', '$1', $replaced );
+						}
+					}
+
+					$contents = str_replace( $link, $replaced, $contents );
+				}
 			}
 		}
 
@@ -1221,18 +1178,8 @@ function thk_create_toc( $contents, $contents_replace = false ) {
 
 		$h = isset( $luxe['toc_hierarchy'] ) ? $luxe['toc_hierarchy'] : '3';
 
-		// 改ページしてても動作するよう検索対象を $contents から $post->post_content に一部拡大
-		$preg_result = 0;
-		$matches = array();
-
-		if( $paging === true ) {
-			$preg_result = preg_match_all( '/<h([2-' . $h . ']{1})[^>]*?>(.*?)<\/h\1>/ism', wptexturize( $post->post_content ), $matches, PREG_SET_ORDER );
-		}
-		else {
-			$preg_result = preg_match_all( '/<h([2-' . $h . ']{1})[^>]*?>(.*?)<\/h\1>/ism', wptexturize( $contents ), $matches, PREG_SET_ORDER );
-		}
-
-		if( $preg_result > 0 ) {
+		// 改ページしてても動作するよう検索対象を $contents から $post->post_content に拡大
+		if( preg_match_all( '/<h([2-' . $h . ']{1})[^>]*?>(.*?)<\/h\1>/ism', wptexturize( $post->post_content), $matches, PREG_SET_ORDER ) ) {
 			if( empty( $matches ) ) return $contents;
 			$pos = strpos( $contents, $matches[0][0] );
 
@@ -1462,6 +1409,27 @@ function thk_direct_style( $require_file ) {
 endif;
 
 /*---------------------------------------------------------------------------
+ * Web フォントの preload
+ *---------------------------------------------------------------------------*/
+if( function_exists( 'thk_preload_web_font' ) === false ):
+function thk_preload_web_font( $font_name = null ) {
+	if( !empty( $font_name ) ) {
+		if( file_exists( TPATH . DSEP . 'webfonts' . DSEP . 'd' . DSEP . $font_name ) ) {
+			ob_start();
+			require( TPATH . DSEP . 'webfonts' . DSEP . 'd' . DSEP . $font_name );
+			$href = trim( ob_get_clean() );
+			$type = substr( $href, strripos( $href, '.' ) + 1 );
+			if( stripos( $href, '//' ) !== false && !empty( $type ) ) {
+?>
+<link rel="preload" as="font" type="font/<?php echo $type; ?>" href="<?php echo $href; ?>" crossorigin />
+<?php
+			}
+		}
+	}
+}
+endif;
+
+/*---------------------------------------------------------------------------
  * 管理者のみ閲覧できるコメントの表示
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_admin_comments' ) === false ):
@@ -1501,33 +1469,6 @@ function thk_admin_comment_post( $comment_id ) {
 }
 endif;
 
-/*---------------------------------------------------------------------------
- * ブログカードのキャッシュを Ajax 経由で作成する場合の処理 
- *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_blogcard_cache' ) === false ):
-function thk_blogcard_cache(){
-	if( wp_verify_nonce( $_POST['blogcard_cache_nonce'], 'blogcard_cache' ) ) {
-		$blogcard = new THK_Blogcard();
-
-		$bc_url = $_POST['bc_url'];
-		$bc_md5 = $_POST['bc_md5'];
-		$bc_lnk = $_POST['bc_lnk'];
-
-		$wp_upload_dir = wp_upload_dir();
-		$cache_dir = $wp_upload_dir['basedir'] . DSEP . 'luxe-blogcard' . DSEP;
-
-		$cache_file = $cache_dir . $bc_md5[0] . DSEP . $bc_md5;
-		$blogcard->thk_create_blogcard( $bc_url, $bc_md5 );
-		$caches = $blogcard->thk_get_blogcard_cache( $cache_file, $bc_lnk, $bc_md5, true );
-
-		if( isset( $caches[1] ) ) {
-			echo json_encode( [ $bc_md5, $caches[1] ] );
-		}
-
-		exit;
-	}
-}
-endif;
 
 /*---------------------------------------------------------------------------
  * ブログカードキャッシュ削除処理
@@ -1538,7 +1479,10 @@ function blogcard_cache_cleanup( $rm_dir = false, $del_transient_only = false ) 
 	global $_is, $wp_filesystem, $wpdb;
 
 	if( $del_transient_only === false ) {
-		thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
+
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 		$wp_upload_dir = wp_upload_dir();
 		$cache_dir = $wp_upload_dir['basedir'] . '/luxe-blogcard/';
@@ -1596,7 +1540,7 @@ endif;
 /* 削除処理 */
 if( function_exists( 'sns_count_cache_cleanup' ) === false ):
 function sns_count_cache_cleanup( $rm_dir = false, $del_transient = false, $weekly = true ) {
-	thk_filesystem_init();
+	require_once( INC . 'optimize.php' );
 	global $wp_filesystem;
 
 	$target = $weekly === true ? get_theme_mod( 'sns_count_weekly_cleanup', 'dust' ) : 'all';
@@ -1655,7 +1599,7 @@ endif;
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_get_sns_count_cache' ) === false ):
 function thk_get_sns_count_cache( $spin = true ) {
-	global $_is;
+	global $_is, $awesome;
 
 	$id_cnt = array( 'f' => '', 't' => '', 'h' => '', 'p' => '' );
 
@@ -1664,7 +1608,7 @@ function thk_get_sns_count_cache( $spin = true ) {
 	}
 	else {
 		foreach( $id_cnt as $key => $val ) {
-			$id_cnt[$key] = '<i class="ico-spinner ico-spin"></i>';
+			$id_cnt[$key] = '<i class="' . $awesome['fas'] . 'fa-spinner fa-spin"></i>';
 		}
 	}
 
@@ -1675,10 +1619,16 @@ function thk_get_sns_count_cache( $spin = true ) {
 	$sns_count_cache = $cache_dir . md5( $url );
 
 	if( file_exists( $sns_count_cache ) === true ) {
-		thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
 		global $wp_filesystem;
 
-		$cache = $wp_filesystem->get_contents( $sns_count_cache );
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
+
+		$cache = '';
+		if( method_exists( $wp_filesystem, 'get_contents' ) === true ) {
+			$cache = $wp_filesystem->get_contents( $sns_count_cache );
+		}
 
 		if( !empty( $cache ) && strpos( $cache, $url ) !== false ) {
 			$ids = explode( "\n", $cache );
@@ -1704,7 +1654,9 @@ endif;
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_get_feedly_count_cache' ) === false ):
 function thk_get_feedly_count_cache( $spin = true ) {
-	$feedly_count = '<i class="ico-spinner ico-spin"></i>';
+	global $awesome;
+
+	$feedly_count = '<i class="' . $awesome['fas'] . 'fa-spinner fa-spin"></i>';
 	if( $spin === false ) {
 		$feedly_count = 0;
 	}
@@ -1716,10 +1668,12 @@ function thk_get_feedly_count_cache( $spin = true ) {
 	$feedly_count_cache = $cache_dir . md5( $url );
 
 	if( file_exists( $feedly_count_cache ) === true ) {
-		thk_filesystem_init();
 		global $wp_filesystem;
 
-		$cache = $wp_filesystem->get_contents( $feedly_count_cache );
+		$cache = '';
+		if( method_exists( $wp_filesystem, 'get_contents' ) === true ) {
+			$cache = $wp_filesystem->get_contents( $feedly_count_cache );
+		}
 
 		if( !empty( $cache ) && strpos( $cache, $url ) !== false ) {
 			$cnt = explode( "\nr:", $cache );
@@ -1959,7 +1913,6 @@ function thk_create_srcset_img_tag( $url, $alt = null, $cls = null, $prop_img = 
 			$ret = preg_replace( '/<img ([^>]+?)\s*\/*>/', '<amp-img layout="responsive" $1></amp-img>', $ret );
 		}
 	}
-
 	return $ret;
 }
 endif;
@@ -2133,13 +2086,30 @@ function thk_regenerate_thumbnails( $attachment_id ) {
 endif;
 
 /*---------------------------------------------------------------------------
+ * WP 5.5 以降で get_the_post_thumbnail でサムネイル取ると AMP で loading="lazy" が付いてエラーが出る対策
+ *---------------------------------------------------------------------------*/
+if( function_exists('thk_get_the_post_thumbnail') === false ):
+function thk_get_the_post_thumbnail( $post_id, $size = 'post-thumbnail', $attr = array() ) {
+	global $luxe;
+
+	$ret = get_the_post_thumbnail( $post_id, $size, $attr );
+
+	if( isset( $luxe['amp'] ) ) {
+		$ret = str_replace( ' loading="lazy"', '', $ret );
+	}
+
+	return $ret;
+}
+endif;
+
+/*---------------------------------------------------------------------------
  * ちっちゃいアイコン作成
  *---------------------------------------------------------------------------*/
 if( function_exists('thk_create_icon') === false ):
 function thk_create_icon() {
 	$theme_path = TPATH === SPATH ? TPATH : SPATH;
 
-	$ico_file = $theme_path . DSEP . 'images' . DSEP . 'fav' . 'icon-min.png';
+	$ico_file = $theme_path . DSEP . 'images' . DSEP . 'favicon-min.png';
 	$icon_url = has_site_icon() === true ? get_site_icon_url() : '';
 
 	if( !empty( $icon_url ) ) {
@@ -2157,28 +2127,9 @@ add_action( 'customize_save_after', function() {
 	// 外観カスタマイズに変更があった場合
 	$theme_path = TPATH === SPATH ? TPATH : SPATH;
 	$del_func = 'un' . 'link';
-	@$del_func( $theme_path . DSEP . 'images' . DSEP . 'fav' . 'icon-min.png' );
+	@$del_func( $theme_path . DSEP . 'images' . DSEP . 'favicon-min.png' );
 	thk_create_icon();
 }, 70 );
-endif;
-
-/*---------------------------------------------------------------------------
- * メニューの説明文で HTML 使えるようにするための関数
- *---------------------------------------------------------------------------*/
-if( function_exists('thk_nav_menu_description_usable_html') === false ):
-function thk_nav_menu_description_usable_html( $menu_item ) {
-	// post_type が nav_menu_item の時だけ処理しないと説明文に投稿本文が全部入っちゃうので必須の分岐（結構悩んだけど解決）
-	if( isset( $menu_item->post_type ) && 'nav_menu_item' === $menu_item->post_type ) {
-		if( stripos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax.php' ) === false ) {
-			$menu_item->description = apply_filters( 'nav_menu_description',  $menu_item->post_content );
-		}
-		else {
-			$menu_item->description = '';
-		}
-	}
-	$menu_item->description = trim( $menu_item->description ); // 冒頭に空白が入ってきちゃうので trim する
-	return $menu_item;
-}
 endif;
 
 /*---------------------------------------------------------------------------
@@ -2187,7 +2138,6 @@ endif;
 if( function_exists( 'thk_syntax_highlighter_list' ) === false ):
 function thk_syntax_highlighter_list() {
 	return array(
-		'highlight_batch'	=> 'Batch',
 		'highlight_markup'	=> 'HTML / XHTML',
 		'highlight_apacheconf'	=> 'Apache Config',
 		'highlight_aspnet'	=> 'ASP.NET',
@@ -2421,192 +2371,44 @@ function thk_simple_css_minify( $css ){
 		while( $cnt !== 0 ) {
 			$css = str_replace( '  ', ' ', $css, $cnt );
 		}
-		$css = str_replace( '{ ', '{', str_replace( ' {', '{', str_replace( '} ', '}', str_replace( ' }', '}', str_replace( '; ', ';', str_replace( ';}', '}', str_replace( ': ', ':', str_replace( ', ', ',', $css ) ) ) ) ) ) ) );
+		$css = str_replace( '{ ', '{', str_replace( ' {', '{', str_replace( '} ', '}', str_replace( ' }', '}', str_replace( '; ', ';', str_replace( ';}', '}', $css ) ) ) ) ) );
 	}
-	return trim( $css );
+	return $css;
 }
 endif;
 
 /*---------------------------------------------------------------------------
- * random aria-label
- *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_random_alt_or_aria_label' ) === false ):
-function thk_random_alt_or_aria_label( $imgs = array('Image'), $num = true ){
-	if( is_array( $imgs ) === true ) {
-		$key = array_rand( $imgs, 1 );
-		$img_item = $imgs[$key];
-	}
-	else {
-		$img_item = $imgs;
-	}
-
-	$num_item = '';
-
-	if( $num === true ) $num_item = ' ' . sprintf( '%03d', rand( 0, 200 ) );
-
-	return $img_item . $num_item;
-}
-endif;
-
-/*---------------------------------------------------------------------------
- * add alt to img tag
- *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_alt_attribute' ) === false ):
-function thk_alt_attribute( $tag, $alt ){
-		if( stripos( $tag, 'alt=""' ) !== false ) {
-			$tag = str_replace( 'alt=""', 'alt="' . thk_random_alt_or_aria_label( $alt ) . '"', $tag );
-		}
-		elseif( stripos( $tag, 'alt="' ) === false ) {
-			$tag = str_replace( '<img ', '<img alt="' . thk_random_alt_or_aria_label( $alt ) . '" ', $tag );
-		}
-
-	return $tag;
-}
-endif;
-
-/*---------------------------------------------------------------------------
- * カスタムグローバルナビが使われてるかどうかの判別
- *---------------------------------------------------------------------------*/
-if( function_exists( 'thk_wrap_menu_used' ) === false ):
-function thk_wrap_menu_used(){
-	$_wrap_menu_used = false;
-
-	if( has_nav_menu( 'global-nav' ) === false ) {
-		$page_list = get_posts( array( 'posts_per_page' => -1, 'post_type' => 'page' ) );
-
-		foreach( (array)$page_list as $key => $val ) {
-			if( $val->post_parent == 0 ) {
-				$page_template = get_post_meta( $val->ID, '_wp_page_template', true );
-				if( !empty( $page_template ) && stripos( $page_template, 'pages/wrapper-menu.php' ) !== false ) {
-					$_wrap_menu_used = true;
-					break;
-				}
-			}
-		}
-	}
-	else {
-		$locations = get_nav_menu_locations();
-		$menu  = wp_get_nav_menu_object( $locations[ 'global-nav' ] );
-		$items = wp_get_nav_menu_items( $menu->term_id, array() );
-
-		foreach( $items as $key => $val ) {
-			if( $val->menu_item_parent == 0 ) {
-				$page_template = get_post_meta( $val->object_id, '_wp_page_template', true );
-				if( !empty( $page_template ) && stripos( $page_template, 'pages/wrapper-menu.php' ) !== false ) {
-					$_wrap_menu_used = true;
-					break;
-				}
-			}
-		}
-	}
-	return $_wrap_menu_used;
-}
-endif;
-
-/*---------------------------------------------------------------------------
- * Widget 内のコンテンツ(再利用ブロック、アドセンス、カスタムHTML)を連結してグローバル変数に格納
- *  ver3.13.0 から、カスタムグローバルナビで表示される固定ページのコンテンツも追加
+ * Widget 内のコンテンツを全て連結してグローバル変数に格納
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_widget_concat' ) === false ):
 function thk_widget_concat(){
-	global $_is, $luxe, $widget_concat;
+	global $luxe, $sidebars_widgets, $widget_concat;
 
-	$all_widgets = wp_get_sidebars_widgets();
+	$widget_areas = array();
 	$contents = '';
 
-	foreach( (array)$all_widgets as $key => $val ) {
+	foreach( (array)$sidebars_widgets as $key => $val ) {
 		if( isset( $luxe['amp'] ) ) {
 			if( $key === 'wp_inactive_widgets' || strrpos( $key, '-amp') !== strlen( $key ) - 4 ) continue;
 		}
 		else {
-			if(
-				$key === 'wp_inactive_widgets' || strrpos( $key, '-amp') === strlen( $key ) - 4 ||
-				( $_is['home'] === false && $_is['front_page'] === false && strpos( $key, 'side-top-' ) === 0 ) ||
-				( ( $_is['home'] === true || $_is['front_page'] === true ) && strpos( $key, 'side-no-top-' ) === 0 )
-			) {
-				continue;
-			}
+			if( $key === 'wp_inactive_widgets' || strrpos( $key, '-amp') === strlen( $key ) - 4 ) continue;
 		}
-
 		if( !empty( $val ) ) {
 			foreach( (array)$val as $k => $v ) {
-				// 再利用ブロックウィジェット
 				if( stripos( $v, 'thk_reusable_blocks_widget' ) === 0 ) {
-					$opt = get_option( 'widget_thk_reusable_blocks_widget' );
-					$num = (int)str_replace( 'thk_reusable_blocks_widget-', '', $v );
-					if( isset( $opt[$num]['block_id'] ) ) {
-						$post_data = get_post( $opt[$num]['block_id'] );
-						if( !empty( $post_data->post_content ) ) {
-							$contents .= $post_data->post_content;
-						}
-					}
-				}
-				// アドセンスウィジェット
-				elseif( stripos( $v, 'thk_adsense_widget' ) === 0 ) {
-					$opt = get_option( 'widget_thk_adsense_widget' );
-					$num = (int)str_replace( 'thk_adsense_widget-', '', $v );
-					if( !empty( $opt[$num]['text'] ) ) {
-						$contents .= $opt[$num]['text'];
-					}
-				}
-				// カスタム HTML ウィジェット
-				elseif( stripos( $v, 'custom_html' ) === 0 ) {
-					$opt = get_option( 'widget_custom_html' );
-					$num = (int)str_replace( 'custom_html-', '', $v );
-					if( !empty( $opt[$num]['content'] ) ) {
-						$contents .= $opt[$num]['content'];
-					}
-				}
-
-				/* 以下、$widget_concat に代入しないもの */
-
-				// 新着記事ウィジェットで横長サムネイルが使用されてる場合にAMP で style を挿入する用
-				elseif( stripos( $v, 'thk_recent_posts' ) === 0 ) {
-					if( isset( $luxe['amp'] ) ) {
-						$opt = get_option( 'widget_thk_recent_posts' );
-						$num = (int)str_replace( 'thk_recent_posts-', '', $v );
-
-						if( isset( $opt[$num]['thumb_type'] ) && $opt[$num]['thumb_type'] === 'wide' ) {
-							if( !isset( $luxe['thk_recent_posts_wide_thumb'] ) ) {
-								$luxe['thk_recent_posts_wide_thumb'] = '';
-							}
-							$luxe['thk_recent_posts_wide_thumb'] .= '#' . $v . ' .term {' . thk_recent_posts::term_style() . '}';
-							$luxe['thk_recent_posts_wide_thumb'] .= '#' . $v . ' .term amp-img {' . thk_recent_posts::img_style() . '}';
-						}
-					}
-				}
-				// swiper の CSS を preload するかどうかの判定用
-				elseif( stripos( $v, 'thk_swiper' ) === 0 ) {
-					if( !isset( $luxe['thk_swiper_preload'] ) ) {
-						$opt = get_option( 'widget_thk_swiper_widget' );
-						$num = (int)str_replace( 'thk_swiper_widget-', '', $v );
-
-						if(
-							( ( $_is['home'] === true || $_is['front_page'] === true ) && isset( $opt[$num]['top'] ) ) ||
-							( $_is['category'] === true && isset( $opt[$num]['category'] ) ) ||
-							( $_is['archive'] === true && isset( $opt[$num]['archive'] ) ) ||
-							( $_is['single'] === true && isset( $opt[$num]['single'] ) ) ||
-							( $_is['page'] === true && isset( $opt[$num]['page'] ) )
-						) {
-							$luxe['thk_swiper_preload'] = true;
-						}
-					}
+					$widget_areas[] = $key;
+					break;
 				}
 			}
 		}
 	}
 
-	// カスタムグローバルナビで表示される固定ページのコンテンツ (ver3.13.0 で追加)
-	$pages = get_pages( array(
-		//'parent' => 0,
-		//'hierarchical' => 0,
-		'post_type' => 'page',
-		'post_status' => 'publish',
-	));
-	foreach( (array)$pages as $value ) {
-		$page_template = get_post_meta( $value->ID, '_wp_page_template', true );
-		if( !empty( $page_template ) && stripos( $page_template, 'pages/wrapper-menu.php' ) !== false ) {
-			$contents .= $value->post_content;
+	if( !empty( $widget_areas ) ) {
+		foreach( (array)$widget_areas as $val ) {
+			ob_start();
+			dynamic_sidebar( $val );
+			$contents .= ob_get_clean();
 		}
 	}
 
@@ -2646,10 +2448,13 @@ function thk_remote_request( $url, $sslverify = false, $agent = null ){
 
 	/* この処理に来ることは、ほぼあり得ないけど、一応 $wp_filesystem->get_contents での取得も入れておく*/
 	if( $ret === false ) {
-		thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
 		global $wp_filesystem;
 
-		$ret = $wp_filesystem->get_contents( $url );
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) !== false ) {
+			$ret = $wp_filesystem->get_contents( $url );
+		}
 	}
 
 	return $ret;
@@ -2814,7 +2619,7 @@ endif;
  * mb_substr_replace
  *---------------------------------------------------------------------------*/
 if( function_exists( 'mb_substr_replace' ) === false ):
-function mb_substr_replace( $str, $replace, $start, $length ) {
+function mb_substr_replace( $str, $replace, $start, $length ){
 	return mb_substr( $str, 0, $start ) . $replace . mb_substr( $str, $start + $length );
 }
 endif;
@@ -2824,11 +2629,4 @@ endif;
  *---------------------------------------------------------------------------*/
 if( function_exists( 'http_build_url' ) === false || function_exists( 'http_build_str') === false ) {
 	require( INC . 'http-build-url.php' );
-}
-
-/*---------------------------------------------------------------------------
- * ブロックエディタが存在しない WP 5.0 未満のバージョン用
- *---------------------------------------------------------------------------*/
-if( function_exists('has_blocks') === false ) {
-	function has_blocks( $arg ) { return false; }
 }

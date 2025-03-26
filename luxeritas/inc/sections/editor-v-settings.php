@@ -271,12 +271,14 @@ jQuery(function($) {
 			dataType: 'text',
 			async: true,
 			cache: false,
-			timeout: 10000
-		}).then( function( response ) {
-			$('#v_editor_save_msg').fadeIn(1000).delay(2000).fadeOut(1500);
-		}, function() {
-			alert("Processing ajax failed.");
-		})
+			timeout: 10000,
+			success: function( response ) {
+				$('#v_editor_save_msg').fadeIn(1000).delay(2000).fadeOut(1500);
+			},
+			error: function() {
+				alert("Processing ajax failed.");
+			}
+		});
 	});
 
 	$('#v_editor_default').on('click', function() {
@@ -287,12 +289,14 @@ jQuery(function($) {
 			dataType: 'text',
 			async: true,
 			cache: false,
-			timeout: 10000
-		}).then( function( response ) {
-			location.reload(false);
-		}, function() {
-			alert("Processing ajax failed.");
-		})
+			timeout: 10000,
+			success: function( response ) {
+				location.reload(false);
+			},
+			error: function() {
+				alert("Processing ajax failed.");
+			}
+		});
 	});
 });
 </script>

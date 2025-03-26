@@ -19,19 +19,17 @@ settings_fields( 'thumbnail' );
 <p class="f09em m10-b"><?php echo __( '* For checked size, thumbnails will be created when uploading images on the Media Library.', 'luxeritas' ); ?></p>
 <p class="f09em m10-b"><?php echo __( '* Crop = When the aspect ratio does not match, the protruding part is cut away.', 'luxeritas' ); ?></p>
 <p class="f09em m10-b"><?php echo __( '* Selectable = On post, you can select &quot;ATTACHMENT DISPLAY SETTINGS&quot; in the Media Library.', 'luxeritas' ); ?></p>
-<div class="table-nowrap">
-<table id="amp-plugins" class="wp-list-table widefat striped" style="max-width:1000px">
+<table id="amp-plugins">
 <thead>
 <tr>
 <th class="amp-cbox"><?php echo __( 'Generate', 'luxeritas' ); ?></th>
 <th><?php echo __( 'Max size', 'luxeritas' ); ?></th>
 <th><?php echo __( 'Name', 'luxeritas' ); ?></th>
-<th><?php echo __( 'Slug', 'luxeritas' ); ?></th>
 <th>Crop</th>
 <th>Selectable</th>
 </tr>
 </thead>
-<tbody id="the-list">
+<tbody>
 <?php
 require_once( INC . 'thumbnail-images.php' );
 $wp_default_thumbs = array( 'thumbnail', 'medium', 'medium_large', 'large' );
@@ -95,7 +93,6 @@ else {
 ?>
 <td><?php echo $val['size']; ?></td>
 <td><?php echo $val['name']; ?></td>
-<td><?php echo $key; ?></td>
 <td style="text-align:center"><?php echo $val['crop']; ?></td>
 <td style="text-align:center"><?php echo $val['selectable']; ?></td>
 </tr>
@@ -104,29 +101,25 @@ else {
 ?>
 <tr>
 <td class="amp-cbox"><input type="checkbox" name="thumb_u1_a" value=""<?php thk_value_check( 'thumb_u1_a', 'checkbox' ); ?> /></td>
-<td><input style="width:80px" type="number" name="thumb_u1_w" value="<?php thk_value_check( 'thumb_u1_w', 'number' ); ?>" /> x <input style="width:80px" type="number" name="thumb_u1_h" value="<?php thk_value_check( 'thumb_u1_h', 'number' ); ?>" /> px</td>
+<td><input type="number" name="thumb_u1_w" value="<?php thk_value_check( 'thumb_u1_w', 'number' ); ?>" /> x <input type="number" name="thumb_u1_h" value="<?php thk_value_check( 'thumb_u1_h', 'number' ); ?>" /> px</td>
 <td><input type="text" name="thumb_u1" value="<?php thk_value_check( 'thumb_u1', 'text' ); ?>" /></td>
-<td>user_thumb_1</td>
 <td style="text-align:center"><input type="checkbox" name="thumb_u1_c" value=""<?php thk_value_check( 'thumb_u1_c', 'checkbox' ); ?> /></td>
 <td style="text-align:center"><input type="checkbox" name="thumb_u1_s" value=""<?php thk_value_check( 'thumb_u1_s', 'checkbox' ); ?> /></td>
 </tr>
 <tr>
 <td class="amp-cbox"><input type="checkbox" name="thumb_u2_a" value=""<?php thk_value_check( 'thumb_u2_a', 'checkbox' ); ?> /></td>
-<td><input style="width:80px" type="number" name="thumb_u2_w" value="<?php thk_value_check( 'thumb_u2_w', 'number' ); ?>" /> x <input style="width:80px" type="number" name="thumb_u2_h" value="<?php thk_value_check( 'thumb_u2_h', 'number' ); ?>" /> px</td>
+<td><input type="number" name="thumb_u2_w" value="<?php thk_value_check( 'thumb_u2_w', 'number' ); ?>" /> x <input type="number" name="thumb_u2_h" value="<?php thk_value_check( 'thumb_u2_h', 'number' ); ?>" /> px</td>
 <td><input type="text" name="thumb_u2" value="<?php thk_value_check( 'thumb_u2', 'text' ); ?>" /></td>
-<td>user_thumb_2</td>
 <td style="text-align:center"><input type="checkbox" name="thumb_u2_c" value=""<?php thk_value_check( 'thumb_u2_c', 'checkbox' ); ?> /></td>
 <td style="text-align:center"><input type="checkbox" name="thumb_u2_s" value=""<?php thk_value_check( 'thumb_u2_s', 'checkbox' ); ?> /></td>
 </tr>
 <tr>
 <td class="amp-cbox"><input type="checkbox" name="thumb_u3_a" value=""<?php thk_value_check( 'thumb_u3_a', 'checkbox' ); ?> /></td>
-<td><input style="width:80px" type="number" name="thumb_u3_w" value="<?php thk_value_check( 'thumb_u3_w', 'number' ); ?>" /> x <input style="width:80px" type="number" name="thumb_u3_h" value="<?php thk_value_check( 'thumb_u3_h', 'number' ); ?>" /> px</td>
+<td><input type="number" name="thumb_u3_w" value="<?php thk_value_check( 'thumb_u3_w', 'number' ); ?>" /> x <input type="number" name="thumb_u3_h" value="<?php thk_value_check( 'thumb_u3_h', 'number' ); ?>" /> px</td>
 <td><input type="text" name="thumb_u3" value="<?php thk_value_check( 'thumb_u3', 'text' ); ?>" /></td>
-<td>user_thumb_3</td>
 <td style="text-align:center"><input type="checkbox" name="thumb_u3_c" value=""<?php thk_value_check( 'thumb_u3_c', 'checkbox' ); ?> /></td>
 <td style="text-align:center"><input type="checkbox" name="thumb_u3_s" value=""<?php thk_value_check( 'thumb_u3_s', 'checkbox' ); ?> /></td>
 </tr>
 </tbody>
 </table>
-</div>
 <p class="f09em m10-b"><?php echo __( '* To use user thumbnails with existing images, you need to regenerate thumbnails.', 'luxeritas' ); ?></p>

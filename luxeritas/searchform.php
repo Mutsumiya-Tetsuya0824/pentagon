@@ -21,7 +21,7 @@ global $luxe;
 <form itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction" method="get" class="search-form" action="<?php echo THK_HOME_URL; ?>"<?php if( isset( $luxe['add_role_attribute'] ) ) echo ' role="search"'; ?>>
 <meta itemprop="target" content="<?php echo THK_HOME_URL; ?>?s={s}" />
 <label>
-<input itemprop="query-input" type="search" class="search-field" placeholder="<?php echo ' &#xf002; ', __( 'Search for', 'luxeritas' ); ?>" value="<?php echo get_search_query() ?>" name="s" title="<?php echo esc_attr( __( 'Search for', 'luxeritas' ) ); ?>" required />
+<input itemprop="query-input" type="search" class="search-field" placeholder="<?php echo __( 'Search for', 'luxeritas' ); ?>" value="<?php echo get_search_query() ?>" name="s" title="<?php echo esc_attr( __( 'Search for', 'luxeritas' ) ); ?>" required />
 </label>
 <input type="submit" class="search-submit" value="<?php echo esc_attr( __( 'Search', 'luxeritas' ) ); ?>" />
 </form>

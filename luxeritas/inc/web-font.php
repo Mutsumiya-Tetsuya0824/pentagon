@@ -30,8 +30,6 @@ class Web_Font {
 		'vollkorn'		=> true,
 		'sortsmillgoudy'	=> true,
 		'notosansjapanese'	=> true,
-		'kosugi'		=> true,
-		'kosugimaru'		=> true,
 		'mplus1p'		=> true,
 		'roundedmplus1c'	=> true,
 		'sawarabigothic'	=> true,
@@ -41,39 +39,39 @@ class Web_Font {
 	public static $alphabet = array(
 		'roboto'		=> array(
 			'Roboto',
-			'https://fonts.googleapis.com/css?family=Roboto&display=swap',
+			'https://fonts.googleapis.com/css?family=Roboto',
 		),
 		'robotoslab'		=> array(
 			'Roboto Slab',
-			'https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap',
+			'https://fonts.googleapis.com/css?family=Roboto+Slab',
 		),
 		'opensans'		=> array(
 			'Open Sans',
-			'https://fonts.googleapis.com/css?family=Open+Sans&display=swap',
+			'https://fonts.googleapis.com/css?family=Open+Sans',
 		),
 		'sourcesanspro'		=> array(
 			'Source Sans Pro',
-			'https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap',
+			'https://fonts.googleapis.com/css?family=Source+Sans+Pro',
 		),
 		'notosans'		=> array(
 			'Noto Sans',
-			'https://fonts.googleapis.com/css?family=Noto+Sans&display=swap',
+			'https://fonts.googleapis.com/css?family=Noto+Sans',
 		),
 		'nunito'		=> array(
 			'Nunito',
-			'https://fonts.googleapis.com/css?family=Nunito&display=swap',
+			'https://fonts.googleapis.com/css?family=Nunito',
 		),
 		'merriweather'		=> array(
 			'Merriweather',
-			'https://fonts.googleapis.com/css?family=Merriweather&display=swap',
+			'https://fonts.googleapis.com/css?family=Merriweather',
 		),
 		'vollkorn'		=> array(
 			'Vollkorn',
-			'https://fonts.googleapis.com/css?family=Vollkorn&display=swap',
+			'https://fonts.googleapis.com/css?family=Vollkorn',
 		),
 		'sortsmillgoudy'	=> array(
 			'Sorts Mill Goudy',
-			'https://fonts.googleapis.com/css?family=Sorts+Mill+Goudy&display=swap',
+			'https://fonts.googleapis.com/css?family=Sorts+Mill+Goudy',
 		),
 		'segoe-helvetica'	=> array(
 			"Segoe UI', 'Verdana', 'Helvetica', 'Arial",
@@ -96,35 +94,35 @@ class Web_Font {
 	public static $japanese = array(
 		'notosansjapanese'	=> array(
 			'Noto Sans JP',
-			'https://fonts.googleapis.com/css?family=Noto+Sans+JP&display=swap',
+			'https://fonts.googleapis.com/css?family=Noto+Sans+JP',
 		),
 		'notoserifjapanese'	=> array(
 			'Noto Serif JP',
-			'https://fonts.googleapis.com/css?family=Noto+Serif+JP&display=swap',
+			'https://fonts.googleapis.com/css?family=Noto+Serif+JP',
 		),
 		'kosugi'		=> array(
 			'Kosugi',
-			'https://fonts.googleapis.com/css?family=Kosugi&display=swap',
+			'https://fonts.googleapis.com/css?family=Kosugi',
 		),
 		'kosugimaru'		=> array(
 			'Kosugi Maru',
-			'https://fonts.googleapis.com/css?family=Kosugi+Maru&display=swap',
+			'https://fonts.googleapis.com/css?family=Kosugi+Maru',
 		),
 		'mplus1p'		=> array(
 			'M PLUS 1p',
-			'https://fonts.googleapis.com/css?family=M+PLUS+1p&display=swap',
+			'https://fonts.googleapis.com/css?family=M+PLUS+1p',
 		),
 		'roundedmplus1c'	=> array(
 			'M PLUS Rounded 1c',
-			'https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c&display=swap',
+			'https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c',
 		),
 		'sawarabigothic'	=> array(
 			'Sawarabi Gothic',
-			'https://fonts.googleapis.com/css?family=Sawarabi+Gothic&display=swap',
+			'https://fonts.googleapis.com/css?family=Sawarabi+Gothic',
 		),
 		'sawarabimincho'	=> array(
 			'Sawarabi Mincho',
-			'https://fonts.googleapis.com/css?family=Sawarabi+Mincho&display=swap',
+			'https://fonts.googleapis.com/css?family=Sawarabi+Mincho',
 		),
 		'yu-sanfrancisco'	=> array(
 			"Yu Gothic', -apple-system, BlinkMacSystemFont, '.SFNSDisplay-Regular', 'Hiragino Kaku Gothic Pro', Meiryo, 'MS PGothic",
@@ -182,7 +180,12 @@ class Create_Web_Font {
 			$this->_font_weight = '200';
 		}
 
-		$this->_filesystem = thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
+		$this->_thk_files = new thk_files();
+
+		// filesystem initialization
+		$this->_filesystem = new thk_filesystem();
+		if( $this->_filesystem->init_filesystem() === false ) return false;
 	}
 
 	/*

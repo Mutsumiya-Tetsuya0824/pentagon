@@ -15,24 +15,19 @@
  */
 
 ?>
-<ul style="display:flex;flex-wrap:wrap">
-<li style="white-space:nowrap;margin-right:14px">
 <form enctype="multipart/form-data" id="add-form" method="post" action="">
 <?php
-settings_fields( 'phrase' );	// インポートで必要
+settings_fields( 'phrase' );
 ?>
+<ul>
+<li>
 <input type="button" class="button secondary add-phrase" value="<?php echo __( 'Add New', 'luxeritas' ); ?>" name="" onclick="thkEditBtn(this)" />
 <label class="button secondary"><?php echo __( 'Import', 'luxeritas' ); ?>
 <input type="file" id="add-file-phrase" name="add-file-phrase" style="display:none" />
 </label>
-</form>
-</li>
-<li>
-<input type="button" id="thkSampleBtn" class="button secondary" value="<?php echo __( 'Sample registration', 'luxeritas' ); ?>" name="" />
 </li>
 </ul>
-
-<div style="display:none;">
+</form>
 <script>
 var cname = ''
 ,   close = ''
@@ -43,20 +38,20 @@ function thkEditBtn( b ) {
 	close = b.getAttribute('data-phrase-close');
 	sep = b.getAttribute('data-phrase-sep');
 }
-function thkDeleteBtn( b ) {
-	cname = b.getAttribute('name');
+function thkDeleteBtn(button) {
+	cname = button.getAttribute('name');
 }
-function thkFileSaveBtn( b ) {
-	cname = b.getAttribute('name');
+function thkFileSaveBtn(button) {
+	cname = button.getAttribute('name');
 }
 </script>
-</div>
 
+<p class="f09em m10-b"><?php printf( __( '* %s names with the same name can not be registered.', 'luxeritas' ), __( 'Label', 'luxeritas' ) ); ?></p>
 <?php
 $values = array( 'close' => false );
 $yes = '<i class="dashicons dashicons-yes"></i>';
 $no  = '-';
-$fp_mods = get_pattern_list( 'phrase' );
+$fp_mods = get_phrase_list( 'phrase' );
 
 if( !empty( $fp_mods ) ) {
 	ksort( $fp_mods );
@@ -103,7 +98,7 @@ add_action( 'admin_footer', function() {
 	$popup_nonce = wp_create_nonce( 'phrase_popup' );
 ?>
 <!-- #dialog-form  -->
-<div id="thk-code-form" title="<?php echo __( 'HTML pattern Edit', 'luxeritas' ); ?>">
+<div id="thk-code-form" title="<?php echo __( 'Fixed phrase Edit', 'luxeritas' ); ?>">
 	<form id="dialog-form">
 		<p id="code-regist-err" style="color:red"></p>
 		<?php settings_fields( 'phrase' ); ?>
@@ -113,7 +108,7 @@ add_action( 'admin_footer', function() {
 				<td><input type="text" id="thk-code-name" name="code_name" value="" size="30" /></td>
 			</tr>
 			<tr>
-		                <td colspan="2"><?php echo __( 'HTML pattern', 'luxeritas' ); ?></td>
+		                <td colspan="2"><?php echo __( 'Fixed phrase', 'luxeritas' ); ?></td>
 			</tr>
 			<tr>
 				<td colspan="2"><textarea id="thk-code-text" name="code_text" rows="12" cols="80"></textarea></td>
@@ -142,63 +137,6 @@ add_action( 'admin_footer', function() {
 </form>
 </div>
 
-<form id="luxe-customize" style="display:none" method="post" action>
-<style>
-#phrase-sample-wrap {
-	padding: 0 24px;
-	min-width: 380px;
-}
-#phrase-sample-title {
-	padding:.4em 1em;
-}
-#phrase-overlay {
-	position: fixed;
-	margin: auto;
-	top: 0;
-	width:100vw;
-	height: 100vh;
-	background: #000;
-	opacity: .7;
-	z-index: 9999;
-}
-#phrase-sample {
-	overflow: auto;
-	position: fixed;
-	margin: auto;
-	top: 60px;
-	left: 0;
-	right: 0;
-	padding: .2em;
-	width: 80vw;
-	height: 86vh;
-	border-radius: 4px;
-	background: #f1f1f1;
-	z-index: 9999;
-}
-.ui-icon-closethick:after {
-	position: absolute;
-	top: 0;
-}
-</style>
-<div id="phrase-overlay"></div>
-<div id="phrase-sample" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front ui-dialog-buttons ui-draggable ui-resizable">
-<div style="position:relative">
-<div id="phrase-sample-title" class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">
-<span class="ui-dialog-title"><?php echo __( 'Sample registration', 'luxeritas' ); ?></span>
-<button type="button" id="phrase-sample-close" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close">
-<span class="ui-button-icon ui-icon ui-icon-closethick">Close</span>
-</button>
-</div>
-<div id="phrase-sample-wrap">
-<?php require( 'phrase-sample.php' ); ?>
-<?php require( 'phrase-luxeritas.php' ); ?>
-<?php submit_button( '', 'primary', 'save', true ); ?>
-</div>
-</div>
-</div>
-</form>
-
-<div style="display:none">
 <script>
 jQuery(function($) {
 	var fp = '#thk-code-'
@@ -275,12 +213,7 @@ jQuery(function($) {
 
 		fm.dialog('open');
 		fm.find(fp + 'name').val(cname);
-		if( action === 'edit' ) {
-			fm.find(fp + 'text').val('<?php echo __( "Loding...", "luxeritas" ), "\\n", __( "Please wait a little while.", "luxeritas" ); ?>');
-		}
-		else {
-			fm.find(fp + 'text').val('');
-		}
+		fm.find(fp + 'text').val('');
 		err.text('');
 
 		if( action === 'add' ) {
@@ -290,7 +223,7 @@ jQuery(function($) {
 			fm.find(fp + 'text').attr( 'rows', 12 );
 			fm.find(fp + 'close-area').css( 'display', 'none' );
 			fm.find(fp + 'close').prop('checked', false)
-			$('.ui-dialog-buttonset .ui-button:first').button('enable');
+			$('.ui-button').button('enable');
 		}
 		else {
 			$('.ui-dialog-buttonset .ui-button:first').button('disable');
@@ -313,14 +246,16 @@ jQuery(function($) {
 				dataType: 'text',
 				async: true,
 				cache: false,
-				timeout: 10000
-			}).then( function( response ) {
-				strs = response.split(sep);
-				$(fp + 'text').val( strs[0] );
-				$(fp + 'text-close').val( strs[1] );
-				save_enable = true;
-			}, function() {
-				$(fp + 'text').val( '<?php echo __( "Failed to read.", "luxeritas" ); ?>' );
+				timeout: 10000,
+				success: function( response ) {
+					strs = response.split(sep);
+					$(fp + 'text').val( strs[0] );
+					$(fp + 'text-close').val( strs[1] );
+					save_enable = true;
+				},
+				error: function() {
+					$(fp + 'text').val( '<?php echo __( "Failed to read.", "luxeritas" ); ?>' );
+				}
 			});
 		}
 		return false;
@@ -329,28 +264,16 @@ jQuery(function($) {
 	// 値が変更されたら保存ボタン活性化
 	$('form').on( "keyup change", function() {
 		if( save_enable === true ) {
-			$('.ui-dialog-buttonset .ui-button:first').button('enable');
+			$('.ui-button').button('enable');
 		}
 	});
 
-	// ダイアログ用のオーバーレイがクリックされたらダイアログを閉じる
+	// オーバーレイがクリックされたらダイアログを閉じる
 	$(document).on( 'click', '.ui-widget-overlay', function() {
 		fm.dialog('close');
 		setTimeout( function(){ $('iframe').eq(0).focus(); }, 0 );
 		setTimeout( function(){ $('textarea').eq(0).focus(); }, 0 );
-	});
-
-	// サンプル登録が押されたらサンプル登録画面表示
-	$('#thkSampleBtn').on( 'click', function() {
-		var o = document.getElementById("luxe-customize");
-		o.style.display = 'block';
-	});
-
-	// サンプル登録用のオーバーレイがクリックされたら登録画面を閉じる
-	$(document).on( 'click', '#phrase-overlay, #phrase-sample-close', function() {
-		var o = document.getElementById("luxe-customize");
-		o.style.display = 'none';
-	});
+	}); 
 });
 
 // タブの入力ができるようにする
@@ -367,6 +290,5 @@ for( var i = 0; i < count; i++ ) {
 	}
 }
 </script>
-</div>
 <?php
 });

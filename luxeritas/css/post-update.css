@@ -12,35 +12,6 @@
  * (at your option) any later version.
 */
 
-/* input */
-body.wp-admin label.thk-block-label {
-	display:block;
-}
-/*
-body.wp-admin .block-editor input.thk-block-input {
-	appearance: auto;
-}
-*/
-body.wp-admin .block-editor input.thk-block-input[type=radio] {
-	height: 14px;
-	width: 14px;
-}
-body.wp-admin .block-editor input.thk-block-input[type=checkbox] {
-	height: 16px;
-	width: 16px;
-	vertical-align: middle;
-	margin-top: 0;
-}
-body.wp-admin .block-editor input.thk-block-input[type=radio]::before {
-	width: .8rem;
-	height: .8rem;
-}
-body.wp-admin .block-editor input.thk-block-input[type=checkbox]::before {
-	width: 2rem;
-	height: 2rem;
-}
-
-/* post update */
 .modtime {
 	display: inline !important;
 	padding: 2px 0 1px 0;

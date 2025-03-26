@@ -53,14 +53,7 @@ add_action( 'admin_init', function() {
 /*---------------------------------------------------------------------------
  * block categories
  *---------------------------------------------------------------------------*/
-// WP 5.8 以上
-$hook = 'block_categories_all';
-// WP 5.8 未満
-if( version_compare( $GLOBALS['wp_version'], '5.8', '<' ) === true ) {
-	$hook = 'block_categories';
-}
-
-add_filter( $hook, function( $categories, $post ) {
+add_filter( 'block_categories', function( $categories, $post ) {
 	return array_merge( $categories,
 		[
 			[
@@ -110,12 +103,12 @@ add_action( 'enqueue_block_editor_assets', function() {
 				wp_set_script_translations( $handle, 'luxeritas', get_template_directory() . '/languages/admin' );
 			}
 
-			wp_localize_script( $handle, 'themeName', array( strtolower( $theme ) ) );
+			wp_localize_script( $handle, 'themeName', strtolower( $theme ) );
 		}
 
 		if( !isset( $luxe['luxe_block_toolbar_off'] ) ) {
 			/* 登録されてるショートコードの一覧を blocks.js に渡す */
-			$registed = get_pattern_list( 'shortcode', true, false );
+			$registed = get_phrase_list( 'shortcode', true, false );
 			foreach( (array)$registed as $key => $value ) {
 				$dec = htmlspecialchars_decode($key);
 				if( !isset( $registed[$dec] ) ) {
@@ -148,7 +141,7 @@ add_action( 'enqueue_block_editor_assets', function() {
 			/* ショートコードが全く登録されてない場合 */
 			if( empty( $registed ) ) {
 				$registed = ['empty'=>
-					['label'=>__('There is no active shortcode','luxeritas'),'php'=>false,'close'=>false,'hide'=>false,'active'=>false]
+					['label'=>__('There is no active shortcode.','luxeritas'),'php'=>false,'close'=>false,'hide'=>false,'active'=>false]
 				];
 			}
 
@@ -156,7 +149,7 @@ add_action( 'enqueue_block_editor_assets', function() {
 			wp_localize_script( 'luxe-block-toolbar', 'luxeShortcodeList', $registed );
 
 			/* 定型文の一覧を blocks.js に渡す */
-			$registed = get_pattern_list( 'phrase', true, false );
+			$registed = get_phrase_list( 'phrase', true, false );
 			foreach( (array)$registed as $key => $value ) {
 				$dec = htmlspecialchars_decode($key);
 				if( !isset( $registed[$dec] ) ) {
@@ -183,16 +176,16 @@ add_action( 'enqueue_block_editor_assets', function() {
 			wp_localize_script( 'luxe-block-toolbar', 'luxePhraseList', $registed );
 
 			/* Nonce */
-			wp_localize_script( 'luxe-block-toolbar', 'luxePhraseNonce', array( wp_create_nonce( 'phrase_popup' ) ) );
+			wp_localize_script( 'luxe-block-toolbar', 'luxePhraseNonce', wp_create_nonce( 'phrase_popup' ) );
 
 			/* 親テーマの URL を block.js に渡す(絵文字の表を表示する際に必要) */
-			wp_localize_script( 'luxe-block-toolbar', 'luxeThemeURL', array( get_template_directory_uri() ) );
+			wp_localize_script( 'luxe-block-toolbar', 'luxeThemeURL', get_template_directory_uri() );
 
 			/* 絵文字の一覧を block.js に渡す*/
 			ob_start();
 			require( TPATH . DSEP . 'json' . DSEP . 'emoji-twitter.json' );
 			$emoji_list = ob_get_clean();
-			wp_localize_script( 'luxe-block-toolbar', 'luxeEmojiList', array( trim( $emoji_list ) ) );
+			wp_localize_script( 'luxe-block-toolbar', 'luxeEmojiList', trim( $emoji_list ) );
 		}
 
 		if( !isset( $luxe['luxe_blocks_off'] ) ) {
@@ -235,7 +228,7 @@ add_action( 'enqueue_block_editor_assets', function() {
 
 			/* ロケール情報を blocks.js に渡す */
 			$get_locale = get_locale();
-			wp_localize_script( 'luxe-blocks', 'luxeLocale', array( $get_locale ) );
+			wp_localize_script( 'luxe-blocks', 'luxeLocale', $get_locale );
 		}
 	}
 	endif;

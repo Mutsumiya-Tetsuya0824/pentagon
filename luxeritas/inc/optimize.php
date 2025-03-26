@@ -14,8 +14,6 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
-require_once( INC . 'thk-filesystem.php' );
-
 /*---------------------------------------------------------------------------
  * Optimize
  *---------------------------------------------------------------------------*/
@@ -25,8 +23,7 @@ class thk_optimize {
 	private $_js_dir	= null;
 	private $_css_dir	= null;
 	private $_tmpl_dir	= null;
-	private $_patterns	= array();
-	private $_wrap_menu_used	= false;
+	private $_shortcodes	= array();
 
 	public function __construct() {
 		require_once( INC . 'files.php' );
@@ -37,14 +34,11 @@ class thk_optimize {
 		$this->_tmpl_dir = TPATH . DSEP . 'styles' . DSEP;
 
 		$this->_thk_files  = new thk_files();
-		$this->_patterns = get_pattern_list( 'shortcode', false, true );
+		$this->_shortcodes = get_phrase_list( 'shortcode', false, true );
 
 		// filesystem initialization
 		$this->_filesystem = new thk_filesystem();
 		if( $this->_filesystem->init_filesystem() === false ) return false;
-
-		// Determine if Custom global nav is used
-		if( thk_wrap_menu_used() === true ) $this->_wrap_menu_used = true;
 	}
 
 	/*
@@ -54,10 +48,6 @@ class thk_optimize {
 		global $luxe;
 
 		$files = $this->_thk_files->styles();
-
-		if( !isset( $luxe['wrap_menu_used'] ) && $this->_wrap_menu_used === true ) {
-			$luxe['wrap_menu_used'] = true;
-		}
 
 		// get overall image
 		if( get_theme_admin_mod( 'all_clear', false ) === false ) {
@@ -70,39 +60,58 @@ class thk_optimize {
 		}
 
 		// determining the conditions
-		$mode_unset_array = [
-			'luxe-mode',
-			'bootstrap',
-			'bootstrap4',
-			'bootstrap5'
-		];
-		$luxe_mode_select = $luxe['luxe_mode_select'];
-
-		if( empty( $luxe['luxe_mode_select'] ) || $luxe['luxe_mode_select'] === 'luxeritas' ) {
-			$luxe_mode_select = 'luxe-mode';
-			unset( $files['bootstrap-clear'] );
+		if( isset( $luxe['luxe_mode_select'] ) && $luxe['luxe_mode_select'] === 'bootstrap' ) {
+			unset(
+				$files['luxe-mode'],
+				$files['bootstrap4']
+			);
+		}
+		elseif( isset( $luxe['luxe_mode_select'] ) && $luxe['luxe_mode_select'] === 'bootstrap4' ) {
+			unset(
+				$files['luxe-mode'],
+				$files['bootstrap']
+			);
+		}
+		else {
+			unset(
+				$files['bootstrap'],
+				$files['bootstrap4'],
+				$files['bootstrap-clear']
+			);
 		}
 
-		foreach( $mode_unset_array as $val ) {
-			if( $val !== $luxe_mode_select ) {
-				unset( $files[$val] );
+		// Font Awesome
+		if( !isset( $luxe['awesome_version'] ) || $luxe['awesome_version'] === 'none' ) {
+			unset( $files['awesome'] );
+			unset( $files['awesome-minimum'] );
+			unset( $files['icomoon'] );
+		}
+		else {
+			if( isset( $luxe['awesome_version'] ) && $luxe['awesome_version'] === 5 && $luxe['awesome_load'] === 'svg' ) {
+				unset( $files['awesome'] );
 			}
-		}
-		unset( $mode_unset_array, $luxe_mode_select );
-
-		// Material icons
-		if( !isset( $luxe['material_load'] ) ) {
-			unset( $files['material-icons'] );
+			else {
+				if( isset( $luxe['awesome_load_css_file'] ) && $luxe['awesome_load_css_file'] !== 'local' ) {
+					unset( $files['awesome'] );
+					unset( $files['awesome-minimum'] );
+				}
+				elseif( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] === 'async' ) {
+					unset( $files['awesome'] );
+					unset( $files['awesome-minimum'] );
+				}
+				else {
+					unset( $files['awesome-minimum'] );
+				}
+			}
+			// icomoon font
+			if( $luxe['awesome_load'] === 'css' && ( $luxe['awesome_load_async'] === 'async' || $luxe['awesome_load_async'] === 'none' ) ) {
+				unset( $files['icomoon'] );
+			}
 		}
 
 		// Grid layout
 		if( !isset( $luxe['grid_enable'] ) ) {
 			unset( $files['grid'] );
-		}
-
-		// Custom global nav ( Wrapper menu )
-		if( $this->_wrap_menu_used === false ) {
-			unset( $files['nav-wrap-menu'] );
 		}
 
 		// sns buttons
@@ -126,7 +135,6 @@ class thk_optimize {
 		if( !isset( $luxe['blogcard_enable'] ) )	unset( $files['blogcard'] );
 		if( !isset( $luxe['css_search'] ) )		unset( $files['search'] );
 		if( !isset( $luxe['css_archive'] ) )		unset( $files['archive'] );
-		if( !isset( $luxe['css_archive_drop'] ) )	unset( $files['archive-drop'] );
 		if( !isset( $luxe['css_calendar'] ) )		unset( $files['calendar'] );
 		if( !isset( $luxe['css_tagcloud'] ) )		unset( $files['tagcloud'] );
 		if( !isset( $luxe['css_new_post'] ) )		unset( $files['new-post'] );
@@ -135,22 +143,15 @@ class thk_optimize {
 		if( !isset( $luxe['css_follow_button'] ) )	unset( $files['follow-button'] );
 		if( !isset( $luxe['css_rss_feedly'] ) )		unset( $files['rss-feedly'] );
 		if( !isset( $luxe['css_qr_code'] ) )		unset( $files['qr-code'] );
-		if( !isset( $luxe['css_pwa_install_box'] ) )	unset( $files['pwa-install-box'] );
-
-		if( !isset( $luxe['pwa_enable'] ) || !isset( $luxe['pwa_offline_enable'] ) || !isset( $luxe['pwa_install_widget'] ) ) {
-			unset( $files['pwa-install-box'] );
-		}
 
 		if( !isset( $luxe['global_navi_visible'] ) || !isset( $luxe['global_navi_mobile_type'] ) ) {
 			unset(
 				$files['mobile-common'],
-				$files['mobile-menu']
+				$files['mobile-menu'],
+				$files['mobile-luxury']
 			);
-			if( !isset( $luxe['mobile_search_button'] ) ) {
-				unset( $files['mobile-luxury'] );
-			}
 		}
-		elseif( isset( $luxe['global_navi_mobile_type'] ) && ( $luxe['global_navi_mobile_type'] === 'luxury' || $luxe['global_navi_mobile_type'] === 'luxury_head' ) ) {
+		elseif( isset( $luxe['global_navi_mobile_type'] ) && $luxe['global_navi_mobile_type'] === 'luxury' ) {
 			unset( $files['mobile-menu'] );
 		}
 		else {
@@ -175,14 +176,19 @@ class thk_optimize {
 	 * CSS Optimize
 	 */
 	public function css_optimize( $files = array(), $name = 'style.min.css', $dir_replace_flag = false ) {
-		global $luxe, $wp_filesystem;
-
+		global $luxe, $awesome, $wp_filesystem;
 		$contents = array();
 
 		$style_min = TPATH . DSEP . $name;
 
 		// get stylesheet file content
 		$replaces = $this->_thk_files->dir_replace();
+		$quote_to_apos = $this->_thk_files->quote_to_apos();
+
+		if( isset( $luxe['awesome_load_file'] ) && $luxe['awesome_load_file'] !== 'cdn' ) {
+			if( isset( $replaces['awesome'] ) ) $replaces['awesome'] = true;
+			if( isset( $replaces['awesome-minimum'] ) ) $replaces['awesome-minimum'] = true;
+		}
 
 		foreach( $files as $key => $val ) {
 			if( isset( $replaces[$key] ) && $dir_replace_flag === true ) {
@@ -196,27 +202,21 @@ class thk_optimize {
 			else {
 				$contents[$key] = $wp_filesystem->get_contents( $val );
 			}
-		}
-
-		if( isset( $contents['material-icons'] ) ) {
-			$material_classes = 'body .material-icons, body .material-icons-outlined';
-
-			$material_replaced = $material_classes;
-
-			if( isset( $luxe['material_add_rounded'] ) ) {
-				$material_replaced .= ',body .material-icons-rounded';
-			}
-			if( isset( $luxe['material_add_sharp'] ) ) {
-				$material_replaced .= ',body .material-icons-sharp';
-			}
-			if( isset( $luxe['material_add_two_tone'] ) ) {
-				$material_replaced .= ',body .material-icons-two-tone';
-			}
-
-			if( $material_classes !== $material_replaced ) {
-				$contents['material-icons'] = str_replace( $material_classes, $material_replaced, $contents['material-icons'] );
+			// " を ' に変換 (Font Awesome 5 のみ適用)
+			if( isset( $quote_to_apos[$key] ) ) {
+				$contents[$key] = str_replace( '"', "'", $contents[$key] );
 			}
 		}
+
+		// create web fonts stylesheet
+		/*
+		$webfont = new Create_Web_Font();
+		$font_arr = $webfont->create_web_font_stylesheet();
+
+		$contents['font_alphabet'] = $font_arr['font_alphabet'];
+		$contents['font_japanese'] = $font_arr['font_japanese'];
+		$contents['font_family']   = $font_arr['font_family'];
+		*/
 
 		// design file css
 		$contents['design_file'] = thk_read_design_style( 'style.css' );
@@ -247,6 +247,15 @@ class thk_optimize {
 			$save .= $value . "\n";
 		}
 
+		// Font Awesome version replace
+		if( $awesome['ver'][0] === '4' ) {
+			$save = str_replace( array(
+					'Font Awesome 5 Free',
+					'Font Awesome 5 Brands',
+				), 'Fontawesome', $save
+			);
+		}
+
 		// css compression and save
 		if( isset( $luxe['parent_css_uncompress'] ) ) {
 			if( $this->_filesystem->file_save( $style_min, $save ) === false ) return false;
@@ -269,6 +278,35 @@ class thk_optimize {
 		// file exists check
 		foreach( $files as $key => $val ) {
 			if( file_exists( $val ) === false ) unset( $files[$key] );
+		}
+
+		// Font Awesome
+		if( !isset( $luxe['awesome_version'] ) || $luxe['awesome_version'] === 'none' ) {
+			unset( $files['awesome'] );
+			unset( $files['awesome-minimum'] );
+			unset( $files['icomoon'] );
+		}
+		else {
+			if( isset( $luxe['awesome_version'] ) && $luxe['awesome_version'] === 5 && $luxe['awesome_load'] === 'svg' ) {
+				unset( $files['awesome'] );
+			}
+			else {
+				if( isset( $luxe['awesome_load_css_file'] ) && $luxe['awesome_load_css_file'] !== 'local' ) {
+					unset( $files['awesome'] );
+					unset( $files['awesome-minimum'] );
+				}
+				elseif( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] !== 'async' ) {
+					unset( $files['awesome'] );
+					unset( $files['awesome-minimum'] );
+				}
+				else {
+					unset( $files['awesome-minimum'] );
+				}
+			}
+			// icomoon font
+			if( $luxe['awesome_load'] === 'css' && ( $luxe['awesome_load_async'] === 'sync' || $luxe['awesome_load_async'] === 'none' ) ) {
+				unset( $files['icomoon'] );
+			}
 		}
 
 		// Block library
@@ -317,13 +355,14 @@ class thk_optimize {
 	 * Asynchronous CSS Optimize
 	 */
 	public function css_async_optimize( $files = array(), $dir_replace_flag = false ) {
-		global $luxe, $wp_filesystem;
+		global $luxe, $awesome, $wp_filesystem;
 		$contents = array();
 
 		$style_min = TPATH . DSEP . 'style.async.min.css';
 
 		// get stylesheet file content
 		$replaces = $this->_thk_files->dir_replace();
+		$quote_to_apos = $this->_thk_files->quote_to_apos();
 
 		foreach( $files as $key => $val ) {
 			if( isset( $replaces[$key] ) && $dir_replace_flag === true ) {
@@ -337,12 +376,25 @@ class thk_optimize {
 			else {
 				$contents[$key] = $wp_filesystem->get_contents( $val );
 			}
+			// " を ' に変換 (Font Awesome 5 のみ適用)
+			if( isset( $quote_to_apos[$key] ) ) {
+				$contents[$key] = str_replace( '"', "'", $contents[$key] );
+			}
 		}
 
 		// css bind
 		$save = '';
 		foreach( $contents as $value ) {
 			$save .= $value . "\n";
+		}
+
+		// Font Awesome version replace
+		if( $awesome['ver'][0] === '4' ) {
+			$save = str_replace( array(
+					'Font Awesome 5 Free',
+					'Font Awesome 5 Brands',
+				), 'Fontawesome', $save
+			);
 		}
 
 		// css compression and save
@@ -361,10 +413,6 @@ class thk_optimize {
 	 */
 	public function css_amp_optimize_init() {
 		global $luxe, $wp_filesystem;
-
-		if( !isset( $luxe['wrap_menu_used'] ) && $this->_wrap_menu_used === true ) {
-			$luxe['wrap_menu_used'] = true;
-		}
 
 		$files = $this->_thk_files->styles_amp();
 
@@ -396,7 +444,6 @@ class thk_optimize {
 		if( !isset( $luxe['toc_auto_insert'] ) )	unset( $files['toc'] );
 		if( !isset( $luxe['toc_amp'] ) )		unset( $files['toc'] );
 		if( !isset( $luxe['amp_css_archive'] ) )	unset( $files['archive'] );
-		if( !isset( $luxe['amp_css_archive_drop'] ) )	unset( $files['archive-drop'] );
 		if( !isset( $luxe['amp_css_calendar'] ) )	unset( $files['calendar'] );
 		if( !isset( $luxe['amp_css_tagcloud'] ) )	unset( $files['tagcloud'] );
 		if( !isset( $luxe['amp_css_new_post'] ) )	unset( $files['new-post'] );
@@ -407,11 +454,6 @@ class thk_optimize {
 		if( !isset( $luxe['amp_css_qr_code'] ) )	unset( $files['qr-code'] );
 
 		if( !isset( $luxe['head_band_search'] ) )	unset( $files['head-search'] );
-
-		// Custom global nav ( Wrapper menu )
-		if( $this->_wrap_menu_used === false ) {
-			unset( $files['nav-wrap-menu'] );
-		}
 
 		if( !isset( $luxe['balloon_enable'] ) ) {
 			unset( $files['balloon'] );
@@ -461,16 +503,10 @@ class thk_optimize {
 	 */
 	public function javascript_optimize() {
 		global $luxe, $wp_filesystem;
-
 		$contents = array();
 		$save = '';
 
 		$luxe_min = $this->_js_dir . 'luxe.min.js';
-
-		if( !isset( $luxe['wrap_menu_used'] ) && $this->_wrap_menu_used === true ) {
-			$luxe['wrap_menu_used'] = true;
-		}
-
 		$jscript = new create_Javascript();
 
 		/*
@@ -530,9 +566,7 @@ class thk_optimize {
 		$files = $this->_thk_files->scripts_dom_content_loaded();
 		foreach( $files as $key => $val ) {
 			if( $val !== null ) {
-				if( file_exists( $val ) === true ) {
-					$contents[$key] = $wp_filesystem->get_contents( $val );
-				}
+				$contents[$key] = $wp_filesystem->get_contents( $val );
 			}
 
 			// luxe script
@@ -541,12 +575,7 @@ class thk_optimize {
 				if( stripos( $various, 'insert' . '_luxe' ) === false || stripos( $various, 'thk' . '_get' . '_yuv' ) === false ) {
 					wp_die();
 				}
-				if( !empty( $contents[$key] ) ) {
-					$contents[$key] .= $various;
-				}
-				else {
-					$contents[$key] = $various;
-				}
+				$contents[$key] .= $various;
 			}
 		}
 
@@ -575,11 +604,10 @@ class thk_optimize {
 			}
 */
 			// smoothScroll
-/*
 			if( isset( $luxe['lazyload_thumbs'] ) || isset( $luxe['lazyload_contents'] ) || isset( $luxe['lazyload_sidebar'] ) || isset( $luxe['lazyload_footer'] ) ) {
 				unset( $files['sscroll'] );
 			}
-*/
+
 			// strip
 			if( $luxe['gallery_type'] !== 'strip' ) {
 				unset( $files['strip'] );
@@ -608,20 +636,13 @@ class thk_optimize {
 			// get javascript file content
 			foreach( $files as $key => $val ) {
 				if( $val !== null ) {
-					if( file_exists( $val ) === true ) {
-						$contents[$key] = $wp_filesystem->get_contents( $val );
-					}
+					$contents[$key] = $wp_filesystem->get_contents( $val );
 				}
 
 				// luxe script
 				if( $key === 'luxe' ) {
 					$various = $jscript->create_luxe_various_script();
-					if( !empty( $contents[$key] ) ) {
-						$contents[$key] .= $various;
-					}
-					else {
-						$contents[$key] = $various;
-					}
+					$contents[$key] .= $various;
 				}
 			}
 
@@ -873,5 +894,73 @@ JQUERY_CHECK;
 	protected function ballon_css_replace( $contents ) {
 		require_once( INC . 'balloon-css-replace.php' );
 		return $contents;
+	}
+}
+
+/*---------------------------------------------------------------------------
+ * ファイル操作
+ *---------------------------------------------------------------------------*/
+class thk_filesystem {
+	/* save */
+	public function file_save( $file=THK_STYLE_TMP_CSS, $txt='' ) {
+		global $wp_filesystem;
+
+		add_filter( 'request_filesystem_credentials', '__return_true' );
+
+		$this->init_filesystem();
+		if( false === $wp_filesystem->put_contents( $file , $txt, FS_CHMOD_FILE ) ) {
+			//echo "error saving file!";
+			if( is_admin() === true ) {
+				if( function_exists( 'add_settings_error' ) === true ) {
+					add_settings_error( 'luxe-custom', '', __( 'Error saving file.', 'luxeritas' ) . '<br />' . $file );
+				}
+			}
+			elseif( defined( 'WP_DEBUG' ) === true && WP_DEBUG == true ) {
+				$result = new WP_Error( 'error saving file', __( 'Error saving file.', 'luxeritas' ), $file );
+				thk_error_msg( $result );
+			}
+			return false;
+		}
+		return;
+	}
+
+	/* init */
+	public function init_filesystem( $url = null ) {
+		global $wp_filesystem;
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+		// direct accsess
+		$access_type = get_filesystem_method();
+
+		if( $access_type !== 'direct') {
+			add_filter( 'filesystem_method', function( $a ) {
+				return 'direct';
+			});
+			if( defined( 'FS_CHMOD_DIR' ) === false ) {
+				//define( 'FS_CHMOD_DIR', ( 0755 & ~ umask() ) );
+				define( 'FS_CHMOD_DIR', 0777 );
+			}
+			if( defined( 'FS_CHMOD_FILE' ) === false ) {
+				//define( 'FS_CHMOD_FILE', ( 0644 & ~ umask() ) );
+				define( 'FS_CHMOD_FILE', 0666 );
+			}
+		}
+
+		// nonce
+		if( $url === null ) {
+			$url = wp_nonce_url( 'customize.php?return=' . urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+		}
+		$creds = request_filesystem_credentials( $url, '', false, false, null );
+
+		// Writable or Check
+		if( $creds === false ) {
+			return false;
+		}
+		// WP_Filesystem_Base init
+		if( WP_Filesystem( $creds ) === false ) {
+			request_filesystem_credentials( $url, '', true, false, null );
+			return false;
+		}
+		return;
 	}
 }

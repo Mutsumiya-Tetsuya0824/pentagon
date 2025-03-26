@@ -69,29 +69,20 @@ if( $st_query->have_posts() === true ) {
 <div class="toc clearfix">
 <?php
 		if( isset( $luxe['thumbnail_visible'] ) ) {
+?>
+<div class="term"><a href="<?php the_permalink() ?>" aria-hidden="true"><?php
 			$attachment_id = false;
-			$echo = false;
 			$post_thumbnail = has_post_thumbnail();
 
 			if( $post_thumbnail === false && isset( $luxe['no_img'] ) ) {
 				$attachment_id = thk_get_image_id_from_url( $luxe['no_img'] );
-				if( $attachment_id !== false ) {
-					$post_thumbnail = true;
-					$echo = true;
-					$aria_label = 'aria-label="No Imaage"';
-				}
+				if( $attachment_id !== false ) $post_thumbnail = true;
 			}
 
 			if( $post_thumbnail === true ) {	// サムネイル
 				$thumb = 'thumb100';
-				$image_id = $attachment_id;
-
-				if( $attachment_id === false ) {
-					$image_id = get_post_thumbnail_id();
-				}
-
+				$image_id = get_post_thumbnail_id();
 				$image_url = wp_get_attachment_image_src( $image_id, $thumb );
-
 				if( isset( $image_url[0] ) && stripos( $image_url[0], '-100x100.' ) !== false ) {
 					$image_path = str_replace( $wp_upload_dir['baseurl'], $wp_upload_dir['basedir'], $image_url[0] );
 
@@ -102,55 +93,20 @@ if( $st_query->have_posts() === true ) {
 				else {
 					$thumb = 'thumbnail';
 				}
-
-				if( $attachment_id === false ) {
-					$attachment_id = get_post_thumbnail_id();
-					$attachment_image = wp_get_attachment_image( $attachment_id );
-
-					if( isset( $luxe['amp'] ) ) {
-						$aria_label = 'aria-hidden="true"';
-					}
-					else {
-						if( !empty( $attachment_image ) && stripos( $attachment_image, 'alt="' ) !== false ) {
-							$aria_label = substr( $attachment_image, stripos( $attachment_image, 'alt="' ) + 5 );
-							$aria_label = substr( $aria_label, 0, stripos( $aria_label, '"' ) );
-							if( empty( $aria_label ) ) {
-								$aria_label = 'aria-label="' . thk_random_alt_or_aria_label( 'Thumbnail of related posts' ) . '"';
-							}
-							else {
-								$aria_label = 'aria-label="' . $aria_label . '"';
-							}
-						}
-						else {
-							$aria_label = 'aria-label="' . thk_random_alt_or_aria_label( 'Thumbnail of related posts' ) . '"';
-						}
-					}
+				if( $attachment_id !== false ) {
+					echo wp_get_attachment_image( $attachment_id );
 				}
 				else {
-					if( isset( $luxe['amp'] ) ) {
-						$aria_label = 'aria-hidden="true"';
-					}
-					else {
-						$aria_label = 'aria-label="No Image"';
-					}
+					the_post_thumbnail( $thumb );
 				}
-?><figure class="term"><a href="<?php the_permalink() ?>" <?php echo $aria_label; ?>><?php
-				if( $echo === true ) {
-					$attachment_image = wp_get_attachment_image( $attachment_id, $thumb );
-					echo thk_alt_attribute( $attachment_image, 'Thumbnail of related posts' );
-				}
-				else {
-					//the_post_thumbnail( $thumb );
-					$get_post_thumbnail = get_the_post_thumbnail( null, $thumb );
-					echo thk_alt_attribute( $get_post_thumbnail, 'Thumbnail of related posts' );
-				}
-?></a></figure><?php
 			}
 			else {
-				$aria_label = isset( $luxe['amp'] ) ? 'aria-hidden="true"' : 'aria-label="No Image"';
-?><figure class="term"><a href="<?php the_permalink() ?>" <?php echo $aria_label; ?>><img src="<?php echo TURI; ?>/images/no-img-100x100.png" alt="No Image" title="No Image" width="100" height="100" /></a></figure>
+?><img src="<?php echo TURI; ?>/images/no-img-100x100.png" alt="No Image" title="No Image" width="100" height="100" />
 <?php
 			}
+?></a>
+</div>
+<?php
 		}
 ?>
 <div class="excerpt">

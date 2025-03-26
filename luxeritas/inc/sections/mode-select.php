@@ -23,16 +23,12 @@
 Luxeritas Mode
 </p>
 <p class="radio">
-<input type="radio" value="bootstrap5" name="luxe_mode_select"<?php thk_value_check( 'luxe_mode_select', 'radio', 'bootstrap5' ); ?> />
-Bootstrap 5 Mode
+<input type="radio" value="bootstrap" name="luxe_mode_select"<?php thk_value_check( 'luxe_mode_select', 'radio', 'bootstrap' ); ?> />
+Bootstrap 3 Mode
 </p>
 <p class="radio">
 <input type="radio" value="bootstrap4" name="luxe_mode_select"<?php thk_value_check( 'luxe_mode_select', 'radio', 'bootstrap4' ); ?> />
 Bootstrap 4 Mode
-</p>
-<p class="radio">
-<input type="radio" value="bootstrap" name="luxe_mode_select"<?php thk_value_check( 'luxe_mode_select', 'radio', 'bootstrap' ); ?> />
-Bootstrap 3 Mode
 </p>
 </li>
 </ul>

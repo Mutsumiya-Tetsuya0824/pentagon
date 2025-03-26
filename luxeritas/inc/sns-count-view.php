@@ -43,10 +43,13 @@ class cache_control {
 		$luxe = null;
 
 		/* SNS カウント数取得 */
-		thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
 		require_once( INC . 'filters.php' );
 
 		global $luxe, $wp_filesystem;
+
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 		$wp_upload_dir = wp_upload_dir();
 		$cache_dir = $wp_upload_dir['basedir'] . '/luxe-sns/';

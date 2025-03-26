@@ -29,8 +29,7 @@
 <?php
 $widget_css = array(
 	'css_search'		=> __( 'Search Form Widget', 'luxeritas' ),
-	'css_archive'		=> __( 'Categories &amp; Archive Widget', 'luxeritas' ),
-	'css_archive_drop'	=> __( 'Categories &amp; Archive DropDown Widget', 'luxeritas' ),
+	'css_archive'		=> __( 'Categories &amp; Archive DropDown Widget', 'luxeritas' ),
 	'css_calendar'		=> __( 'Calendar Widget', 'luxeritas' ),
 	'css_tagcloud'		=> __( 'Tag cloud Widget', 'luxeritas' ),
 	'css_new_post'		=> __( 'Recent posts', 'luxeritas' ) . ' (' . __( 'by Luxeritas', 'luxeritas' ) . ')',
@@ -39,11 +38,9 @@ $widget_css = array(
 	'css_follow_button'	=> __( 'SNS Follow Button (by Luxeritas)', 'luxeritas' ),
 	'css_rss_feedly'	=> __( 'RSS / Feedly Button (by Luxeritas)', 'luxeritas' ),
 	'css_qr_code'		=> __( 'QR Code', 'luxeritas' ) . ' (' . __( 'by Luxeritas', 'luxeritas' ) . ')',
-	'css_pwa_install_box'	=> __( 'PWA install button', 'luxeritas' ) . ' (' . __( 'by Luxeritas', 'luxeritas' ) . ')',
 );
 $widget_no_amp = array(
 	'css_search'		=> true,
-	'css_pwa_install_box'	=> true,
 );
 
 foreach( $widget_css as $key => $val ) {

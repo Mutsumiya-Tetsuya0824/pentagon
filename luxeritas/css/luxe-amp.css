@@ -121,12 +121,8 @@ h1, h2, h3, h4, h5, h6 {
 ------------------------------------
  grid
 ------------------------------------ */
-.row {
-	display: flex;
-	flex-wrap: wrap;
-}
-div[class^=col-] {
-	flex: 0 0 auto;
+.col-4, .col-6, .col-12 {
+	float: left;
 	position: relative;
 	width: 100%;
 	min-height: 1px;
@@ -134,12 +130,21 @@ div[class^=col-] {
 	padding-left: 15px;
 }
 .col-12 {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 100%;
+	flex: 0 0 100%;
 	max-width: 100%;
 }
 .col-6 {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 50%;
+	flex: 0 0 50%;
 	max-width: 50%;
 }
 .col-4 {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 33.333333%;
+	flex: 0 0 33.333333%;
 	max-width: 33.333333%;
 }
 
@@ -158,6 +163,8 @@ div[class^=col-] {
  bootstrap pagination
 ------------------------------------ */
 .pagination {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
 	padding-left: 0;
 	list-style: none;

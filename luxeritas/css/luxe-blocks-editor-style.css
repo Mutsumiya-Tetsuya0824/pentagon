@@ -14,41 +14,6 @@
 
 /**
  * ----------------------------------------------------------------------------
- * Toolbar scroll
- * ----------------------------------------------------------------------------
- */
-@media (max-width: 1200px) and (min-width: 920px) {
-	.components-popover__content .block-editor-block-toolbar {
-		max-width: 550px;
-		overflow-x: auto;
-		overflow-y: hidden;
-	}
-}
-@media (max-width: 919px) {
-	.components-popover__content .block-editor-block-toolbar {
-		max-width: 435px;
-		overflow-x: auto;
-		overflow-y: hidden;
-	}
-}
-.edit-post-header-toolbar__block-toolbar .block-editor-block-toolbar {
-	overflow: visible;
-	overflow-y: auto;
-	overflow-y: hidden;
-}
-
-/**
- * ----------------------------------------------------------------------------
- * WordPress default reset
- * ----------------------------------------------------------------------------
- */
-/* WP 5.6 */
-.components-accessible-toolbar .components-toolbar-group>.components-button.components-button.has-icon svg, .components-toolbar div>.components-button.components-button.has-icon svg {
-	min-width: auto;
-	min-width: initial;
-}
-/**
- * ----------------------------------------------------------------------------
  * Control / Inspector
  * ----------------------------------------------------------------------------
  */
@@ -73,10 +38,6 @@
 　　	background: #000;
 	box-shadow: inset 0 0 0 6px #c0c0c0;
 }
-.block-editor-block-toolbar .components-button:focus::before {
-	content: none;
-}
-
 .components-tooltip .components-popover__content__dropdown-tooltip {
 	color: #fff;
 	background: #000;
@@ -109,6 +70,8 @@ div[class*="luxe-blocks"] .components-button {
 }
 
 .luxe-blocks-control-spacing-controls {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
 }
 .luxe-blocks-control-margins-label {
@@ -145,6 +108,9 @@ div[class*="luxe-blocks"] .components-button {
 }
 .dummy-shortcode-button {
 	display: none;
+}
+.edit-post-header-toolbar__block-toolbar {
+	overflow-y: auto;
 }
 .components-dropdown-button__popover .components-popover__content {
 	min-width: 256px!important;
@@ -221,15 +187,6 @@ svg.luxe-block-toolbar-dot-highlight {
 
 /**
  * ----------------------------------------------------------------------------
- * SVG
- * ----------------------------------------------------------------------------
- */
-svg {
-	vertical-align: middle;
-}
-
-/**
- * ----------------------------------------------------------------------------
  * Blogcard
  * ----------------------------------------------------------------------------
  */
@@ -275,15 +232,14 @@ div.luxe-blogcard-dummy-image {
 .wp-block-luxe-blocks-accordion-title .block-editor-plain-text:focus::placeholder {
 	color: rgba(255, 255, 255, .6);
 }
-
 .wp-block-luxe-blocks-topic-title,
 .wp-block-luxe-blocks-accordion-title {
+	display: -ms-flexbox;
 	display: flex;
-	align-items: center;
 }
-.wp-block-luxe-blocks-topic-title svg,
-.wp-block-luxe-blocks-accordion-title svg {
-	margin-right: 6px;
+.wp-block-luxe-blocks-topic-icon svg,
+.wp-block-luxe-blocks-accordion-icon svg {
+	margin: 0 6px 0 -3px;
 }
 
 /**
@@ -339,28 +295,31 @@ div.luxe-blogcard-dummy-image {
  */
 .wp-block-luxe-blocks-topic-title-wrap {
 	list-style: none;
-	margin: -2.58px 0;
-	padding: 2.58px 0;
+	margin: 0;
+	padding: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
 	align-items: center;
 }
-.wp-block-luxe-blocks-topic-title * {
+[class*=topic-title] svg {
 	vertical-align: middle;
-	line-height: 1.9;
+	margin: 0 6px 0 -3px;
 }
-
+.wp-block-luxe-blocks-topic-title .editor-rich-text {
+	line-height: 1.8;
+}
 /**
  * ----------------------------------------------------------------------------
  * Accordion
  * ----------------------------------------------------------------------------
  */
 .wp-block-luxe-blocks-accordion-icon {
-	/*display: inline-block;*/
-	display: table-cell;
+	display: inline-block;
 	line-height: 1;
-	width: 28px;
-	margin-right: 2px;
-	/*margin-top: 2px;*/
+	margin-top: 2px;
 }
 
 /**
@@ -442,15 +401,6 @@ div.luxe-blogcard-dummy-image {
 
 /**
  * ----------------------------------------------------------------------------
- * HTML pattern inser editor
- * ----------------------------------------------------------------------------
- */
-[data-type="luxe-blocks/fixedphrase"] textarea, [data-type="luxe-blocks/syntaxhighlighter"] textarea {
-	padding: .8em 1em;
-}
-
-/**
- * ----------------------------------------------------------------------------
  * Scroll block
  * ----------------------------------------------------------------------------
  */
@@ -492,9 +442,6 @@ div.luxe-blogcard-dummy-image {
  * Speach balloon
  * ----------------------------------------------------------------------------
  */
-body.wp-admin div.wp-block-luxe-blocks-balloon-image-wrap button {
-	padding: 0;
-}
 
 /* 全共通 */
 .wp-block-luxe-blocks-balloon {

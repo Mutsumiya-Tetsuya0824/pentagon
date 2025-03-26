@@ -15,31 +15,28 @@
 
 /* Widget New Post */
 #thk-new {
-	font-size: 1.2rem;
 	margin: -10px 0 0 0;
 }
 #thk-new .term img,
 #thk-new .term amp-img {
 	margin: 0 10px 0 0;
 	padding: 1px;
-	max-width: 100px;
-	max-height: 100px;
+	width: 100px;
+	height: 100px;
 }
 #thk-new .excerpt p {
 	display: block;
 	margin: 0;
 	padding: 0;
+	font-size: 1.2rem;
 	line-height: 1.4;
 }
-#thk-new p.new-meta {
-	margin: 0 0 6px;
-}
 #thk-new p.new-title {
-	font-size: 1.3rem;
+	font-size: 1.4rem;
 	font-weight: bold;
 	line-height: 1.4;
 	padding: 0;
-	margin: 0 0 12px;
+	margin: 0 0 14px 0;
 	text-decoration: none;
 }
 #thk-new .toc {

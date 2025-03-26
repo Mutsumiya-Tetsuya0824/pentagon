@@ -15,12 +15,17 @@
 
 /* Tag Cloud */
 .tagcloud {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
 	letter-spacing: -.4em;
 }
 .tagcloud a {
 	display: inline-block;
+	-webkit-box-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
 	flex: 1 0 auto;
 	min-width: 1px;
 	letter-spacing: normal;

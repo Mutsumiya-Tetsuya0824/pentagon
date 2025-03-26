@@ -14,11 +14,11 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
-/*---------------------------------------------------------------------------
- * Child theme editor
- *---------------------------------------------------------------------------*/
-thk_filesystem_init();
+require_once( INC . 'optimize.php' );
 global $wp_filesystem;
+
+$filesystem = new thk_filesystem();
+if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 $file = '';
 $title = '';

@@ -29,29 +29,16 @@ class thk_block_styles {
 		// 再利用ブロックウィジェットのブロックスタイル
 		if( $_is['singular'] === false && $list_view_content === true ) {
 			// アーカイブが全文表示の場合
-			$ret = '';
 			if( have_posts() === true ) {
 				$ret = $this->create_block_styles( $widget_concat );
 				while( have_posts() === true ) {
 					the_post();
-					// 投稿コンテンツ内に再利用ブロックが使われてる場合のブロックスタイル
-					if ( has_blocks( $post->post_content ) && strpos( $post->post_content, '<!-- wp:block {"ref":' ) !== false ) {
-						$blocks = do_blocks( $post->post_content );
-						$ret = $this->create_block_styles( $blocks );
-					}
-					else {
-						$ret = $this->create_block_styles( $post->post_content );
-					}
+					$ret = $this->create_block_styles( $post->post_content );
 				}
 			}
 			return $ret;
 		}
 		elseif( $_is['singular'] === true ) {
-			// 投稿コンテンツ内に再利用ブロックが使われてる場合のブロックスタイル
-			if ( has_blocks( $post->post_content ) && strpos( $post->post_content, '<!-- wp:block {"ref":' ) !== false ) {
-				$blocks = do_blocks( $post->post_content );
-				return $this->create_block_styles( $widget_concat . $blocks );
-			}
 			// 投稿コンテンツ内のブロックスタイル
 			return $this->create_block_styles( $widget_concat . $post->post_content );
 		}
@@ -65,10 +52,6 @@ class thk_block_styles {
 
 		$css_dir = TPATH . DSEP . 'css' . DSEP;
 		$styles_dir = TPATH . DSEP . 'styles' . DSEP;
-
-		if( strpos( $contents, 'luxe-blocks' ) !== false ) {
-			$this->_styles['styles'] .= "[class*=luxe-blocks] p {margin:1em 0}";
-		}
 
 		// color & background-color
 		if( strpos( $contents, 'has-text-color' ) !== false || strpos( $contents, 'has-background' ) !== false ) {
@@ -118,13 +101,19 @@ class thk_block_styles {
 			}
 		}
 
+
+
+
+
+
+
+
 		$luxe_blocks = [
-			'<div class="wp-block-luxe-blocks-vertical"'		=> 'vertical.css',		// 縦書き
-			'<span class="wp-block-luxe-blocks-topic-icon"'		=> 'topic.css',			// トピック
-			'<div class="wp-block-luxe-blocks-notification-icon"'	=> 'notification.css',		// お知らせ（Notification）
-			'<div class="wp-block-luxe-blocks-accordion"'		=> 'accordion.css',		// アコーディオン
-			'<div class="wp-block-luxe-blocks-profile"'		=> 'profile.css',		// 紹介文（Profile）
-			' luxe-overlay-'					=> 'block-overlay.css',		// オーバーレイ
+			'<div class="wp-block-luxe-blocks-vertical"'	=> 'vertical.css',				// 縦書き
+			'<span class="wp-block-luxe-blocks-topic-icon"'	=> 'topic.css',					// トピック
+			'<div class="wp-block-luxe-blocks-accordion"'	=> 'accordion-' . $awesome['ver'][0] . '.css',	// アコーディオン
+			'<div class="wp-block-luxe-blocks-profile"'	=> 'profile.css',				// 紹介文（Profile）
+			' luxe-overlay-'				=> 'block-overlay.css',				// オーバーレイ
 		];
 
 		if( isset( $luxe['amp'] ) || ( isset( $luxe['wp_block_library_load'] ) && $luxe['wp_block_library_load'] === 'none' ) ) {
@@ -135,7 +124,7 @@ class thk_block_styles {
 
 			if( isset( $luxe['amp'] ) ) {
 				$luxe_blocks += [
-					'class="wp-block-gallery '	=> 'wp-block-gallery-amp.css',	// ブロックエディタのギャラリー
+					'<ul class="wp-block-gallery '	=> 'wp-block-gallery-amp.css',	// ブロックエディタのギャラリー
 				];
 			}
 		}

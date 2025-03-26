@@ -14,6 +14,46 @@
  * @translators rakeem( http://rakeem.jp/ )
  */
 
+
+global $wp_query;
+if (!isset($wp_query) || !is_a($wp_query, 'WP_Query')) {
+	$wp_query = new WP_Query();
+}
+
+
+global $luxe, $global_navi_open_close, $wp_query;
+
+// $luxe の安全な初期化
+if (!isset($luxe) || !is_array($luxe)) {
+  $luxe = [];
+}
+
+// 必要なクラスの読み込み
+require_once( INC . 'colors.php' );
+$conf = new defConfig();
+$colors_class = new thk_colors();
+$default_colors = $conf->over_all_default_colors();
+unset($conf);
+
+// 安全に値を取得
+$overall_key = isset($luxe['overall_image']) && is_string($luxe['overall_image']) && $luxe['overall_image'] !== '' && isset($default_colors[$luxe['overall_image']])
+  ? $luxe['overall_image']
+  : 'default';
+
+$bg_color = isset($default_colors[$overall_key]['contbg']) ? $default_colors[$overall_key]['contbg'] : '#ffffff';
+
+// global_navi_open_close の安全な取得
+$global_navi_open_close = isset($luxe['global_navi_open_close']) ? $luxe['global_navi_open_close'] : '';
+
+// 必要なら safe_get 関数も置いておく
+function safe_get($array, $key, $default = '') {
+  return isset($array[$key]) ? $array[$key] : $default;
+}
+
+
+
+
+
 class create_Javascript {
 	private $_tdel   = null;
 	private $_js_dir = null;
@@ -26,6 +66,7 @@ class create_Javascript {
 		// Javascript の依存チェック用配列
 		$this->_depend = array(
 			'stickykit'=> $this->_js_dir . 'jquery.sticky-kit.min.js',
+			'sscroll'  => $this->_js_dir . 'smoothScroll.min.js',
 			'autosize' => $this->_js_dir . 'autosize.min.js',
 		);
 		foreach( $this->_depend as $key => $val ) {
@@ -72,49 +113,23 @@ class create_Javascript {
 		global $luxe;
 		$ret = '';
 
-		if( isset( $luxe['material_load'] ) ) {
-			if( isset( $luxe['material_load_async'] ) && $luxe['material_load_async'] === 'async' ) {
+		if( isset( $luxe['awesome_version'] ) && $luxe['awesome_version'] !== 'none' ) {
+			if( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] === 'async' && isset( $luxe['awesome_load_css_file'] ) && $luxe['awesome_load_css_file'] === 'cdn' ) {
 				global $awesome;
-
-				if( isset( $awesome['material'] ) ) {
-					$ret .= <<< SCRIPT
+				$ret .= <<< SCRIPT
 !function(d){
 	var n = d.createElement('link');
 	n.async = !0;
 	n.defer = !0;
 	n.media = "all";
 	n.rel  = "stylesheet";
-	n.href = "{$awesome['material']['uri']}{$awesome['material']['css']}";
+	n.href = "{$awesome['uri']}{$awesome['css']}";
 	if( d.getElementsByTagName('head')[0] !== null ) {
 		d.getElementsByTagName('head')[0].appendChild( n );
 	}
 }(document);
 
 SCRIPT;
-				}
-			}
-		}
-
-		if( isset( $luxe['awesome_load'] ) ) {
-			if( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] === 'async' && isset( $luxe['awesome_type'] ) && $luxe['awesome_type'] === 'css' ) {
-				global $awesome;
-
-				if( isset( $awesome['awesome'] ) ) {
-					$ret .= <<< SCRIPT
-!function(d){
-	var n = d.createElement('link');
-	n.async = !0;
-	n.defer = !0;
-	n.media = "all";
-	n.rel  = "stylesheet";
-	n.href = "{$awesome['awesome']['uri']}{$awesome['awesome']['css']}";
-	if( d.getElementsByTagName('head')[0] !== null ) {
-		d.getElementsByTagName('head')[0].appendChild( n );
-	}
-}(document);
-
-SCRIPT;
-				}
 			}
 		}
 
@@ -282,7 +297,6 @@ var luxeFadeOut = function(o, l) {
 
 	c.flex = "1 1 100%";
 	c.minWidth = "100%";
-	c.lineHeight = "23px";
 	c.height = "35px";
 	c.maxHeight = "35px";
 	c.marginTop = n.classList.contains("sns-count-true") && !0 === a.classList.contains("snsfb") && e !== "mobile" ? "-18px" : "4px";
@@ -328,12 +342,21 @@ SCRIPT;
 	 いろいろ
 	------------------------------------ */
 	public function create_luxe_dom_content_loaded_script() {
-		global $luxe, $_is, $awesome;
+		
+		global $luxe, $_is, $awesome, $global_navi_open_close; // ←ここに追加
 
 		$ret = '';
 		thk_default_set();
 
 		$side_1_width = isset( $luxe['side_1_width'] ) ? $luxe['side_1_width'] : 366;
+
+		$fa_plus_square  = '\f0fe';
+		$fa_minus_square = '\f146';
+
+		if( $awesome['ver'][0] === '4' ) {
+			$fa_plus_square  = '\f196';
+			$fa_minus_square = '\f147';
+		}
 
 		require_once( INC . 'colors.php' );
 		$conf = new defConfig();
@@ -343,7 +366,9 @@ SCRIPT;
 		$default_colors = $conf->over_all_default_colors();
 		unset( $conf );
 
-		$bg_color = isset( $luxe['body_bg_color'] ) ? $luxe['body_bg_color'] : $default_colors[$luxe['overall_image']]['contbg'];
+		// 358行目あたり
+$overall_image = isset($luxe['overall_image']) && $luxe['overall_image'] !== '' ? $luxe['overall_image'] : 'default';
+$bg_color = isset($default_colors[$overall_image]['contbg']) ? $default_colors[$overall_image]['contbg'] : '#ffffff';
 		$inverse = $colors_class->get_text_color_matches_background( $bg_color );
 		$rgb = $colors_class->colorcode_2_rgb( $inverse );
 		$brap_rgba = 'background: rgba(' . $rgb['r'] . ',' . $rgb['g'] . ',' . $rgb['b'] . ', .5 )';
@@ -375,38 +400,20 @@ SCRIPT;
 		}
 
 		$ret .= <<< SCRIPT
-/* "passive" が使えるかどうかを検出 */
-var luxePassiveSupported = function() {
-	function e() {}
-	var t = !1;
-	try {
-		var n = Object.defineProperty({}, "passive", {
-			get: function () {
-				t = !0;
-			},
-		});
-		window.addEventListener("test", e, n), window.removeEventListener("test", e, n);
-	} catch(e) {}
-	return t;
-}
-
 var luxeDOMContentLoaded = function() {
 console.log("Luxeritas " + "{$luxe_version}" + ": loading success");
 var w = window
 ,   d = document
-,   luxeGetStyleValue = function(e, t) {
+,  luxeGetStyleValue = function(e, t) {
 	// Get CSS
 	return e && t ? w.getComputedStyle(e).getPropertyValue(t) : null
-}
-,   luxeShow = function( e ) {
+}, luxeShow = function( e ) {
 	// Show an element
 	if( e !== null && typeof e !== "undefined" ) e.style.display = "block";
-}
-,   luxeHide = function( e ) {
+}, luxeHide = function( e ) {
 	// Hide an element
 	if( e !== null && typeof e !== "undefined" ) e.style.display = "none";
-}
-,   luxeWrapListner;
+};
 
 try {  /* page.top */
 	!function() {
@@ -419,37 +426,23 @@ try {  /* page.top */
 		,   v = 0		// スクロール位置
 		,   x = -1
 		,   e = function() {
-			var r = performance.now()
-			,   a = c.scrollTop
-			,   t = w.requestAnimationFrame( function e(l) {
-				var o = 1 - (l - r) / 400;
-				0 < o ? ((c.scrollTop = o * a), w.requestAnimationFrame(e)) : ((c.scrollTop = 0), w.cancelAnimationFrame(t));
+			var n = performance.now()
+			,   o = c.scrollTop
+			,   i = w.requestAnimationFrame( function e(t) {
+				var l = 1 - (t - n) / 400;
+				0 < l ? (c.scrollTop = l * o, w.requestAnimationFrame(e)) : (c.scrollTop = 0, w.cancelAnimationFrame(i))
 			});
-			return !1;
-		}
-		,   q = function() {
-			var n = d.getElementsByTagName("html");
-			void 0 !== n[0] && null !== n[0] && (n[0].style.scrollBehavior = "auto");
-			e();
-			setTimeout( function() {
-				void 0 !== n[0] && null !== n[0] && (n[0].style.scrollBehavior = "");
-			}, 1000 );
+			return !1
 		};
-
-		null !== t && (t.onclick = function() { q() });
-		null !== l && (l.onclick = function() { q() });
-
+		null !== t && (t.onclick = function() { e() });
+		null !== l && (l.onclick = function() { e() });
 
 		// スクロール監視
-		w.addEventListener( "scroll", function() {
+		w.addEventListener("scroll", function() {
 			var e = w.pageYOffset;
 
 			// スクロール量が 500px に達したらトップに戻るボタン表示
-			if( "undefined" != typeof r ) {
-				500 < e ? (r.opacity = ".5", r.visibility = "visible" ) : (r.opacity = "0", r.visibility = "hidden");
-			} else {
-				console.warn( "Page top style (opcity or visibility ?)" );
-			}
+			500 < e ? (r.opacity = ".5", r.visibility = "visible" ) : (r.opacity = "0", r.visibility = "hidden");
 
 			// レイヤーが画面外に出たらレイヤー消す
 			if( null !== d.getElementById("ovlay") ) {
@@ -507,7 +500,7 @@ SCRIPT;
 		}
 
 			$ret .= <<< SCRIPT
-		}, !1 )
+		}, !1)
 	}();
 } catch (e) {
 	console.error("page.top.error: " + e.message)
@@ -519,17 +512,16 @@ SCRIPT;
 			// カスタマイズプレビューだと get_theme_mod で値を直接取ってこないとダメですた
 			$luxe['awesome_load_async'] = get_theme_mod('awesome_load_async');
 		}
-
-		/* placeholder にアイコンフォントを直接書くと、Nu Checker で Warning 出るので、Javascript で置換 */
-		/* 警告出なくなったので、廃止
-		$ret .= <<< SCRIPT
+		if( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] !== 'none' ) {
+			/* placeholder にアイコンフォントを直接書くと、Nu Checker で Warning 出るので、jQuery で置換 */
+			$ret .= <<< SCRIPT
 !function() {
 	for (var e = d.getElementsByClassName("search-field"), r = 0; e.length > r; ++r) {
 		var l = e[r].outerHTML; - 1 != l.indexOf("query-input") && -1 != l.indexOf("placeholder") && (e[r].parentNode.innerHTML = l.replace('placeholder="', 'placeholder=" &#xf002; '))
 	}
 }();
 SCRIPT;
-		*/
+		}
 
 		/* 以下 グローバルナビ */
 		$ret .= <<< SCRIPT
@@ -551,25 +543,16 @@ SCRIPT;
 				}
 			}
 		}); d.body.removeAttribute('style'), d.documentElement.removeAttribute("style");
-
-		w.removeEventListener("resize", luxeWrapListner, !1);
 	}
 
 SCRIPT;
 
-		if( isset( $luxe['global_navi_visible'] ) || isset( $luxe['mobile_sidebar_button'] ) || isset( $luxe['mobile_search_button'] ) || isset( $luxe['mobile_sns_button'] ) ) {
-			$nav_min_css_path = TPATH . DSEP . 'styles' . DSEP . 'nav.min.css';
-			if( file_exists( $nav_min_css_path ) === true ) {
-				ob_start();
-				require( $nav_min_css_path );
-				$nav_min_css = trim( ob_get_clean() );
-			}
-
-			$ret .= <<< SCRIPT
+		if( isset( $luxe['global_navi_visible'] ) ) {
+				$ret .= <<< SCRIPT
 try{ /* global.nav */
 	if( window.jQuery ) {
 		var $ = jQuery;
-		$('#nav li.gl').hover( function() {
+		$('#nav li').hover( function() {
 			var t = $('>ul', this);
 			t.css( 'display', 'table');
 			t.css( 'width', t.outerWidth() + 'px');
@@ -581,16 +564,6 @@ try{ /* global.nav */
 			//$('>ul', this).stop().toggle(300);
 		});
 	}
-	else {
-		//!function(d){
-			var n = d.createElement('style');
-			n.innerHTML = '{$nav_min_css}';
-			if( d.getElementsByTagName('head')[0] !== null ) {
-				d.getElementsByTagName('head')[0].appendChild( n );
-			}
-		//}(document);
-	}
-
 	/*
 	else {
 		!function() {
@@ -643,73 +616,31 @@ try{ /* global.nav */
 		}();
 	}
 	*/
-
-SCRIPT;
-		// PC 用ラッパーメニュー ( Custom global nav )
-		// 作ってはみたものの CSS だけで出来ちゃったので削除
-		/*
-		if( isset( $luxe['wrap_menu_used'] ) ) {
-			$ret .= <<< SCRIPT
-	try {
-		!(function() {
-			if( null !== s ) {
-				for( var r = d.getElementById("gnavi"), e = r.querySelectorAll(".has-wrap-menu"), t = 0; t < e.length; t++ ) {
-					var i = d.getElementById(e[t].id)
-					,   n = i.getAttribute("data-child-id")
-					,   l = d.getElementById("menu-item-" + n);
-
-					null !== l && (
-						i.addEventListener( "mouseover", function() {
-							var t = d.getElementById("menu-item-" + this.getAttribute("data-child-id"));
-							null !== t && (t.style.width = r.clientWidth + "px");
-						}, !1 ),
-						i.addEventListener( "mouseleave", function() {
-							var t = d.getElementById("menu-item-" + this.getAttribute("data-child-id"));
-							null !== t && (t.removeAttribute("style"));
-						}, !1 ),
-						l.addEventListener( "mouseleave", function() {
-							var t = d.getElementById(this.id);
-							null !== t && (t.removeAttribute("style"));
-						}, !1 )
-					);
-				}
-			}
-		})();
-	} catch (e) {
-		console.error("wrapper.menu.error: " + e.message);
-	};
-
-SCRIPT;
-		}
-		*/
-
-		$ret .= <<< SCRIPT
 } catch (e) {
 	console.error("global.nav.error: " + e.message)
 }
 
 try{ /* mibile.nav */
 	var luxeScrollOff = function( e ){
-		e.preventDefault(), e.stopImmediatePropagation()
+		e.preventDefault();
 	}, no_scroll = function() {  // スクロール禁止
 		// PC
 		var sclev = "onwheel" in d ? "wheel" : "onmousewheel" in d ? "mousewheel" : "DOMMouseScroll";
-		d.addEventListener( sclev, luxeScrollOff, !!luxePassiveSupported() && { passive: !1 } );
+		d.addEventListener( sclev, luxeScrollOff, false );
 		// スマホ
-		d.addEventListener( "touchmove", luxeScrollOff, !!luxePassiveSupported() && { passive: !1 } );
+		d.addEventListener( "touchmove", luxeScrollOff, {passive: false} );
 	}, go_scroll =  function() { // スクロール復活 
 		// PC
 		var sclev = "onwheel" in d ? "wheel" : "onmousewheel" in d ? "mousewheel" : "DOMMouseScroll";
-		d.removeEventListener( sclev, luxeScrollOff, !!luxePassiveSupported() && { passive: !1 } );
+		d.removeEventListener( sclev, luxeScrollOff, false );
 		// スマホ
-		d.removeEventListener( "touchmove", luxeScrollOff, !!luxePassiveSupported() && { passive: !1 } );
+		d.removeEventListener( "touchmove", luxeScrollOff, {passive: false} );
 	}
 
 	// モバイルメニュー ( Luxury 版 )
 	//var nav = $('#nav')
 	var mar
-  	,   mof = d.querySelector(".mob-func")
-	,   mom = d.querySelectorAll(".mob-menu")
+ 	,   mom = d.querySelectorAll(".mob-menu")
 	,   mos = d.querySelectorAll(".mob-side")
 	,   sns = d.querySelectorAll(".mob-sns")
 	,   toc = d.querySelectorAll(".mob-toc")
@@ -747,62 +678,6 @@ try{ /* mibile.nav */
 		tocbn = 'style=\"' + pzcss + 'width:100%;padding:10px\"><div id="toc_container" style="width:100%">' + tocid.innerHTML + "</div></div>" +
 			'<style>#toclay label{display:none}#toclay ul{width:auto!important;height:auto!important}</style>'
 	}
-
-SCRIPT;
-		if(
-			isset( $luxe['global_navi_mobile_type'] ) && isset( $awesome["menu"] ) && isset( $awesome["close"] ) &&
-			( $luxe['global_navi_mobile_type'] === 'luxury' || $luxe['global_navi_mobile_type'] === 'global' )
-		) {
-			$ret .= <<< SCRIPT
-
-	!(function() {
-		// モバイル用グローバルナビの一段目の開閉
-		var t = d.querySelector(".mobile-nav")
-		,   e = w.sessionStorage;
-
-		if( null !== mof ) {
-			var k = 44	// 閉じてる時の height
-			,   v = 48	// 閉じてる時の width
-			,   x = 88;	// 開いてる時の width
-			1 != e.getItem(["luxe_mobile_menu_open"]) ? ( e.setItem(["luxe_mobile_menu_open"], [0]), mof.innerHTML = '<span>{$awesome["menu"]}</span>' ) : (t.style.width = x + "px", t.style.maxHeight = "100vh", mof.innerHTML = '<span>{$awesome["close"]}</span>'),
-			mof.onclick = function() {
-				0 == e.getItem(["luxe_mobile_menu_open"]) ? (t.style.width = x + "px", t.style.maxHeight = "100vh", e.setItem(["luxe_mobile_menu_open"], [1])) : (t.style.width = v + "px", t.style.maxHeight = k + "px", e.setItem(["luxe_mobile_menu_open"], [0]));
-				1 != e.getItem(["luxe_mobile_menu_open"]) ? mof.innerHTML = '<span>{$awesome["menu"]}</span>' : mof.innerHTML = '<span>{$awesome["close"]}</span>';
-			}
-		};
-
-		// モバイル用グローバルナビの位置調節
-		var n, r, y
-		,   p = 8	// モバイル用グローバルナビの top 位置 ( right の位置は custom-css.php 内に書かれてる CSS )
-		,   l = d.getElementsByClassName("band")
-		,   i = d.getElementById("wpadminbar")
-		,   o = null !== i ? i.offsetHeight : 0;
-
-		null != t && (
-			(n = 0),
-			t.getBoundingClientRect(),
-			0 < l.length && (n = l[0].clientHeight),
-			(r = function() {
-				var e;
-				o = null !== i ? i.offsetHeight : 0;
-				0 < l.length && ((e = 0 < (e = l[0].getBoundingClientRect()).bottom && e.top < w.innerHeight), (n = 1 == e ? l[0].clientHeight : 0)), (t.style.top = n + o + p + "px");
-			}),
-			(y = function() {
-				t.style.transition = "width .6s, max-height .6s, top .4s",
-				r()
-			}),
-			r(),
-			w.addEventListener("resize", y, !1),
-			w.addEventListener("scroll", y, !1)
-		);
-	})();
-
-SCRIPT;
-		}
-
-		$close_icon_escape = isset( $awesome['close'] ) ? str_replace( '"', '\"', $awesome['close'] ) : '';
-
-		$ret .= <<< SCRIPT
 
 	mar = {"mom":[mom,mobmn], "mos":[mos,sdbar], "srh":[srh,sform], "sns":[sns,snsbn,"snslay"], "toc":[toc,tocbn,"toclay"]};
 
@@ -865,9 +740,8 @@ SCRIPT;
 		l.id = "ovlay";
 		l.innerHTML =
 			'<div id=\"bwrap\" style=\"position:absolute;top:0;width:100%;z-index:1000\"></div>' +
-			'<div id=\"close\" style="top:' + ( ctop + 10 ) + 'px">{$close_icon_escape}</div>' +
-			'<div id=\"' + layerName + '\" ' + layer.replace('id="gnavi-wrap"', 'id="gnavi-wrap-ovlay"').replace(/id=\"menu-item-/g, 'id="menu-item-wrap-') + '</div>' +
-			//'<div id=\"' + layerName + '\" ' + layer + '</div>' +
+			'<div id=\"close\" style="top:' + ( ctop + 10 ) + 'px"><i class=\"{$awesome['fas']}fa-times\"></i></div>' +
+			'<div id=\"' + layerName + '\" ' + layer + '</div>' +
 			'</div>';
 		;
 		d.body.appendChild( l );
@@ -879,14 +753,13 @@ SCRIPT;
 		if( cpoint === "mom") {
 
 SCRIPT;
-				if( $luxe['global_navi_open_close'] === 'individual' ) {
+				if ($global_navi_open_close === 'individual') {
 					$ret .= <<< SCRIPT
 		s.innerText +=
-		'#layer li[class*=\"children\"] li a::before{content:\"-\"}' +
+		'#layer li[class*=\"children\"] li a::before{content:\"-\";}' +
 		'#layer li[class*=\"children\"] a::before,' +
-		'#layer li li[class*=\"children\"] > a::before{content:\"\\\\f0fe\";}' +
-		'#layer li li[class*=\"children\"] li a::before{content:\"\\\\0b7\"}' +
-		'#layer li[class*=\"has-wrap-menu\"] > a::before{content:\"\\\\f150\";margin-left:-4px};}' /* margin-left:-4px は Fontawesome の位置調整 */
+		'#layer li li[class*=\"children\"] > a::before{content:\"\\{$fa_plus_square}\";font-weight:400}' +
+		'#layer li li[class*=\"children\"] li a::before{content:\"\\\\0b7\";}'
 
 SCRIPT;
 				}
@@ -906,7 +779,7 @@ SCRIPT;
 		d.getElementsByTagName("head")[0].appendChild( s );
 
 		if( cpoint === "mom") {
-			luxeShow( d.querySelector("#layer ul.gu") );
+			luxeShow( d.querySelector("#layer ul") );
 			luxeHide( d.querySelector("#layer .mobile-nav") );
 		} else if( cpoint === "mos") {
 			var top = w.pageYOffset;
@@ -936,9 +809,9 @@ SCRIPT;
 		}
 
 SCRIPT;
-			if( $luxe['global_navi_open_close'] === 'individual' ) {
+			if ($global_navi_open_close === 'individual') {
 				$ret .= <<< SCRIPT
-		luxeHide( d.querySelector("#layer ul ul.gu") );
+		luxeHide( d.querySelector("#layer ul ul") );
 		var layer = d.querySelectorAll('#layer ul li[class*=\"children\"] > a');
 		Array.prototype.forEach.call( layer, function(e) {
 			e.addEventListener("click", function(F) {
@@ -957,12 +830,12 @@ SCRIPT;
 				var q = m.style
 
 				if( g(m, "display") === "none" ) {
-					q.display = "block";
+					m.style.display = "block";
 					var h = m.offsetHeight
 					,   s = m.offsetWidth;
-					q.opacity = 1, q.height = 0, q.width = 0, w.requestAnimationFrame(function e(t) {
+					q.display = "block", q.opacity = 1, q.height = 0, q.width = 0, w.requestAnimationFrame(function e(t) {
 						var i = (t - n) / 300;
-						i < 1 ? (q.opacity = u.max(i, 0), q.height = u.min(i * h, h) + "px", q.width = u.min(i * s, s) + "px", w.requestAnimationFrame(e)) : (q.opacity = "", q.width = "", q.height = "", q.display = "block")
+						i < 1 ? (q.opacity = u.max(i, 0), q.height = u.min(i * h, h) + "px", q.width = u.min(i * s, s) + "px", w.requestAnimationFrame(e)) : (m.removeAttribute("style"), q.display = "block")
 					})
 				} else {
 					var h = m.offsetHeight
@@ -984,16 +857,12 @@ SCRIPT;
 						'#layer li[class$=\"' + a + '\"] > a::before,' +
 						'#layer li[class*=\"' + a + ' \"] > a::before,' +
 						'#layer li li[class$=\"' + a + '\"] > a::before,' +
-						'#layer li li[class*=\"' + a + ' \"] > a::before{content:\"\\\\f146\";}' +
+						'#layer li li[class*=\"' + a + ' \"] > a::before{content:\"\\{$fa_minus_square}\";}' +
 						'</style>'
 					;
 					d.getElementById("ovlay").appendChild( l );
-				} if( F.target.href.indexOf("#") == 0 ) {
-					F.preventDefault();
-				} else {
-					F.preventDefault(), F.stopImmediatePropagation();
-				}
-			}, !1 );
+				} F.preventDefault(), F.stopImmediatePropagation();
+			});
 		});
 
 SCRIPT;
@@ -1065,30 +934,19 @@ SCRIPT;
 		} else if( cpoint === "srh" ) {
 			s = d.getElementById("sform");
 			if( null !== s ) {
-				var h = d.getElementsByTagName("html")
-				,   p = typeof Promise !== "undefined" ? new Promise( function(r) {
-					setTimeout( function() {
-						r();
-					}, 100 );
-				}) : null;
-
-				if( null !== h[0] ) h[0].style.scrollBehavior = "auto";
-
-				null !== p ? p.then( function() {
-					w.scrollTo(0, 0);
-					no_scroll();
-					d.documentElement.style.overflow = "hidden";
-					s.style.top = "-100%";
-					luxeShow(s);
-					w.requestAnimationFrame( function e(o) {
-						var t = (o - r) / 250
-						,   l = (ctop + 100) * t;
-						s.style.top = l + "px", 1 < t ? s.style.top = ctop + 100 + "px" : w.requestAnimationFrame(e)
-					}), setTimeout( function() {
-						var e = d.querySelector("#sform .search-field");
-						null !== s ? ( e.focus(), e.click() ) : console.error("Not Found: #sform .search-field");
-					}, 200 );
-				}) : alert( "This feature can't be used in this browser" );
+				w.scrollTo(0, 0);
+				no_scroll();
+				d.documentElement.style.overflow = "hidden";
+				s.style.top = "-100%";
+				luxeShow(s);
+				w.requestAnimationFrame( function e(o) {
+					var t = (o - r) / 250
+					,   l = (ctop + 100) * t;
+					s.style.top = l + "px", 1 < t ? s.style.top = ctop + 100 + "px" : w.requestAnimationFrame(e)
+				}), setTimeout( function() {
+					var e = d.querySelector("#sform .search-field");
+					null !== s ? ( e.focus(), e.click() ) : console.error("Not Found: #sform .search-field");
+				}, 200 );
 			} else { 
 				remove_ovlay();
 				console.error("Not Found: #sform");
@@ -1171,71 +1029,6 @@ SCRIPT;
 		if( null !== B ) B.onclick = layerClose;
 		if( null !== C ) C.onclick = layerClose;
 	}
-
-SCRIPT;
-
-			// モバイル用ラッパーメニュー ( Custom global nav )
-			if( isset( $luxe['wrap_menu_used'] ) ) {
-				$ret .= <<< SCRIPT
-	try {
-		!function() {
-			var e = function() {
-				var e = d.getElementById("layer");
-				if( null !== e ) {
-					for( var u = e.querySelectorAll(".gnavi-wrap-menu"), g = e.querySelectorAll(".has-wrap-menu"), t = (e.querySelectorAll("ul li.gl"), 0); t < g.length; t++ ) {
-						var l = d.getElementById(g[t].id)
-						,   n = l.getAttribute("data-child-id");
-
-						if( null !== d.getElementById("menu-item-wrap-" + n ) ) {
-							l.onclick = function(e) {
-								for( var n = d.getElementById("menu-item-wrap-" + this.getAttribute("data-child-id")), t = 0; t < g.length; t++ ) {
-									var l, i, s = g[t];
-									if( "" !== s.style.paddingBottom && s !== this ) {
-										i = parseFloat(s.style.paddingBottom.replace("px", ""));
-										if( s.getBoundingClientRect().top + w.pageYOffset < e.pageY && void 0 !== (l = d.getElementsByTagName("html"))[0] && null !== l[0] ) {
-											l[0].style.scrollBehavior = "auto", s.style.transition = "all .5s", s.style.paddingBottom = 0, scrollBy(0, 0 - i);
-											setTimeout( function() {
-												/*void 0 !== l[0] && null !== l[0] && ((l[0].style.scrollBehavior = ""), s.removeAttribute("style"));*/
-												void 0 !== l[0] && null !== l[0] && (l[0].style.scrollBehavior = "");
-											}, "500" );
-										}
-										w.removeEventListener("resize", luxeWrapListner, !1);
-									}
-								}
-								if( null !== n ) {
-									if( "" == n.style.cssText || -1 != n.style.transition.indexOf("none") ) {
-										var m = this;
-										(luxeWrapListner = function() {
-											for( var e = 0; e < u.length; e++ ) {
-												var t = d.getElementById(g[e].id)
-												,   l = d.getElementById(u[e].id);
-												null !== t && t.removeAttribute("style"), null !== l && l.removeAttribute("style");
-											}
-											n.style.transform = "scale(1, 1)", m.style.paddingBottom = n.childNodes[0].clientHeight + "px";
-											w.addEventListener("resize", luxeWrapListner, !1);
-										})();
-									} else if( 0 !== e.target.querySelectorAll(".gnavi-wrap-menu").length ) {
-										for( r = 0; r < u.length; r++ ) {
-											o = d.getElementById(g[r].id), a = d.getElementById(u[r].id);
-											null !== o && o.removeAttribute("style"), null !== a && a.removeAttribute("style");
-										}
-										w.removeEventListener("resize", luxeWrapListner, !1);
-									}
-								}
-							};
-						}
-					}
-				}
-			}
-			for( var t = 0; t < mom.length; t++ ) mom[t].addEventListener("click", e, !1);
-		}();
-	} catch (e) {
-		console.error("mobile.wrapper.menu.error: " + e.message);
-	}
-
-SCRIPT;
-			}
-			$ret .= <<< SCRIPT
 } catch(e) { console.error( 'mobile.nav.error: ' + e.message ); };
 
 SCRIPT;
@@ -1343,7 +1136,7 @@ try{
 			if( document.getElementById(id) !== null ) {
 				var luxhtml = document.getElementById(id).innerHTML;
 				if( luxhtml.indexOf('{$site[0]}') != -1 && luxhtml.indexOf('{$site[1]}') != -1 ) {
-					if( d.getElementById(id).parentNode.getAttribute('id') === '{$site[3]}' ) {
+					if( document.getElementById(id).parentNode.getAttribute('id') === '{$site[3]}' ) {
 						//x.css({'{$css_txt}': b + l });
 						//a.css({'{$css_txt}': i + l });
 						x.style.{$css_txt} = b + l;
@@ -1413,11 +1206,8 @@ try{
 			}
 		}
 		if( k != i && k != h && k != g ) {
-			if( "undefined"!=typeof k || null!=typeof k ) {
+			if( typeof(k) != "undefined" ) {
 				e = k.split(",")
-			} else {
-				e = ["255", "255", "255", "0"];
-				console.warn( "Yuv k.split" );
 			}
 		} else {
 			e = ["255", "255", "255", "0"]
@@ -1480,8 +1270,7 @@ SCRIPT;
 
 SCRIPT;
 */
-		if( $_is['customize_preview'] === false ) {
-			$ret .= <<< SCRIPT
+		$ret .= <<< SCRIPT
 	s.innerText = '{$imp}color:' + c[0] + '{$imp_close}}';
 	document.getElementsByTagName('head')[0].appendChild( s );
 	setInterval( function() {
@@ -1489,29 +1278,24 @@ SCRIPT;
 			document.getElementsByTagName('head')[0].appendChild( s );
 		}
 	}, 1000 );
-SCRIPT;
-		}
-
-		$ret .= <<< SCRIPT
 } catch(e) {
 	console.error( 'html.body.error: ' + e.message );
 	//var c = [], n = d.body; n.parentNode.removeChild( n );
 }
 };
 
-!function(d) {
-	"readyState" in d || (d.readyState = "loading", d.addEventListener("DOMContentLoaded", function e() {
-		d.readyState = "interactive", this.removeEventListener("DOMContentLoaded", e, !1)
-	}, !1 ), d.addEventListener("load", function e() {
-		d.readyState = "complete", this.removeEventListener("load", e, !1)
-	}, !1 ))
+!function(t) {
+	"readyState" in t || (t.readyState = "loading", t.addEventListener("DOMContentLoaded", function e() {
+		t.readyState = "interactive", this.removeEventListener("DOMContentLoaded", e, !1)
+	}, !1), t.addEventListener("load", function e() {
+		t.readyState = "complete", this.removeEventListener("load", e, !1)
+	}, !1))
 }(document);
 
 var luxeDOMContentLoadedCheck = function(e) {
-	var d = document;
-	"loading" !== d.readyState && "uninitialized" !== d.readyState && typeof luxeDOMContentLoaded == "function" ? (console.log("readyState: " + d.readyState), luxeDOMContentLoaded()) : window.setTimeout(function() {
+	"loading" !== document.readyState && "uninitialized" !== document.readyState && typeof luxeDOMContentLoaded == "function" ? (console.log("readyState: " + document.readyState), luxeDOMContentLoaded()) : window.setTimeout(function() {
 		luxeDOMContentLoadedCheck(e)
-	}, 100 )
+	}, 100)
 };
 
 luxeDOMContentLoadedCheck();
@@ -1525,10 +1309,6 @@ SCRIPT;
 				wp_die( __( 'This theme is broken.', 'luxeritas' ) );
 			}
 		}
-		if( $_is['customize_preview'] === true ) {
-			return str_replace( $ins_func . ';', '', $ret );
-		}
-
 		return $ret;
 	}
 
@@ -1549,22 +1329,20 @@ try {
 	jQeryCheck2( function($, w, d) {
 $( function(){
 
-var luxeListenScroll = function(e) {
+/* "passive" が使えるかどうかを検出 */
+var luxePassiveSupported = false;
+try {
+	window.addEventListener("test", null, Object.defineProperty({}, "passive", { get: function() { luxePassiveSupported = true; } }));
+} catch(err) {}
+
+var luxeListenScroll = function( e ) {
 	// スクロールイベント登録
-	/*
-	w.addEventListener( "scroll", e, luxePassiveSupported() ? { passive: true } : false );
-	w.addEventListener( "touchmove", e, luxePassiveSupported() ? { passive: true } : false );
-	*/
-    	w.addEventListener( "scroll", e, !!luxePassiveSupported() && { passive: !1 } );
-	w.addEventListener( "touchmove", e, !!luxePassiveSupported() && { passive: !1 } );
-}, luxeDetachScroll = function(e) {
+	w.addEventListener( "scroll", e, luxePassiveSupported ? { passive: true } : false );
+	w.addEventListener( "touchmove", e, luxePassiveSupported ? { passive: true } : false );
+}, luxeDetachScroll = function( e ) {
 	// スクロールイベント解除
-	/*
-	w.removeEventListener( "scroll", e, luxePassiveSupported() ? { passive: true } : false );
-	w.removeEventListener( "touchmove", e, luxePassiveSupported() ? { passive: true } : false );
-	*/
-    	w.removeEventListener( "scroll", e, !!luxePassiveSupported() && { passive: !1 } );
-	w.removeEventListener( "touchmove", e, !!luxePassiveSupported() && { passive: !1 } );
+	w.removeEventListener( "scroll", e, luxePassiveSupported ? { passive: true } : false );
+	w.removeEventListener( "touchmove", e, luxePassiveSupported ? { passive: true } : false );
 }, luxeGetStyleValue = function(e, t) {
 	// Get CSS
 	return e && t ? w.getComputedStyle(e).getPropertyValue(t) : null
@@ -1593,8 +1371,8 @@ try{ /* offset.set */
 			if( luxeGetStyleValue( skeepid, "max-width" ) !== "32767px" ) {
 
 SCRIPT;
-		/* スムーススクロール と 追従スクロール の offset 値 */
-		if( isset( $this->_depend['stickykit'] ) ) {
+		/* スムーズスクロール と 追従スクロール の offset 値 */
+		if( isset( $this->_depend['sscroll'] ) || isset( $this->_depend['stickykit'] ) ) {
 			if( isset( $luxe['head_band_visible'] ) && isset( $luxe['head_band_fixed'] ) ) {
 				// 帯メニュー固定時の高さをプラス
 				$ret .= "offset += $('.band').height();";
@@ -1616,65 +1394,27 @@ SCRIPT;
 		}
 	}
 } catch(e) { console.error( 'offset.set.error: ' + e.message ); }
+offsetCalc();
 
 SCRIPT;
 
-		/* スムーススクロール ( LazyLoad 対応 ) */
-		if( !isset( $luxe['smooth_scroll_off'] ) && isset( $luxe['jquery_load'] ) && $luxe['jquery_load'] !== 'none' ) {
-			$ret .= <<< SCRIPT
-Array.prototype.forEach.call( d.querySelectorAll("a[href^='#']"), function(e) {
-	e.addEventListener( "click", function(t) {
-		var o = this.getAttribute("href").trim()
-		,   b = d.getElementById( o.slice(1) );
-
-		if( o === "#" ) return;
-
-		if( 0 < (a = $(o)).length ) {
-			t.preventDefault();
-			$("html, body").animate(
-				{
-					scrollTop: a.offset().top
-				}, {
-					duration: 600,
-					step: function(t, o) {
-						var e = a.offset().top;
-						o.end !== e && (o.end = e);
-					},
-				}
-			);
-
-		/* jQuery 使わないバージョン ( IE 未対応 )
-		if( "#" !== o && null !== b ) {
-			t.preventDefault();
-
-			w.requestAnimationFrame( function t(o) {
-				var e = b.getBoundingClientRect().top + w.scrollY;
-				w.scrollTo({ top: e, behavior: "smooth" });
-
-			        setTimeout( function() {
-					var a = b.getBoundingClientRect().top + w.scrollY;
-					w.scrollTo({ top: a, behavior: "auto" });
-					a !== e && w.requestAnimationFrame(t);
-			        }, "600");
+		/* スムーズスクロール */
+		if( isset( $this->_depend['sscroll'] ) ) {
+			// Intersection Observer 有効時には使えない
+			if( !isset( $luxe['lazyload_thumbs'] ) && !isset( $luxe['lazyload_contents'] ) && !isset( $luxe['lazyload_sidebar'] ) && !isset( $luxe['lazyload_footer'] ) ) {
+				/* source & download: https://www.cssscript.com/smooth-scroll-vanilla-javascript/ */
+				$ret .= <<< SCRIPT
+try{
+	//d.querySelectorAll('a[href^="#"]').forEach( function (a) {
+	var sms = d.querySelectorAll('a[href^="#"]');
+	Array.prototype.forEach.call( sms, function(a) {
+		if( a.getAttribute("href") !== "#" ) {
+			a.addEventListener("click", function () {
+				smoothScroll.scrollTo(this.getAttribute("href"), 500);
 			});
-			*/
-
-			w.history && w.history.pushState && history.pushState("", d.title, o);
-
-SCRIPT;
-
-		if( !isset( $luxe['smooth_scroll_hash'] ) ) $ret .= 'location.hash = "";';
-
-		$ret .= <<< SCRIPT
 		}
 	});
-});
-
-SCRIPT;
-			if( !isset( $luxe['smooth_scroll_hash'] ) ) {
-			/* ブラウザの履歴からアンカーリンクの # 消す */
-			$ret .= <<< SCRIPT
-w.history.replaceState(null, "", location.pathname + location.search);
+} catch(e) { console.error( 'smooth.scroll.error: ' + e.message ); }
 
 SCRIPT;
 			}
@@ -1695,18 +1435,8 @@ $ret .= "try{\n"; /* stick.watch */
 	,   skeepid = d.getElementById("side-scroll")
 	,   sHeight = 0;
 
-	offsetCalc();
-
 	function stick_primary( top ) {
 		if( skeep.css('max-width') !== '32767px' ) {
-
-SCRIPT;
-			// CSS の親要素に transeform が使われてると position: fixed が効かなくなってスクロール追従サイドバーが動かくなくなるので、その対策
-			if( isset( $luxe['opening_anime'] ) && ( $luxe['opening_anime'] === 'stretch_sideways' || $luxe['opening_anime'] === 'stretch_vertically' ) ) {
-				$ret .= 'd.getElementById("primary").style.animation="none"';
-			}
-
-			$ret .= <<< SCRIPT
 			//skeep.stick_in_parent({parent:'#primary',offset_top:top,spacer:0,inner_scrolling:0,recalc_every:1});
 			skeep.stick_in_parent({parent:'#primary',offset_top:top,spacer:0,inner_scrolling:0});
 		}
@@ -1770,7 +1500,7 @@ SCRIPT;
 	});
 
 	// リサイズイベント登録
-	w.addEventListener( "resize", skprsz, !1 );
+	w.addEventListener( "resize", skprsz, false );
 
 SCRIPT;
 		}
@@ -1782,8 +1512,8 @@ SCRIPT;
 		) {
 			$nav_sticky = <<< NAV_STICKY
 	top = 0;
-	if( bar !== null ) {
-		top += bar.offsetHeight;
+	if( d.getElementById('wpadminbar') !== null ) {
+		top += d.getElementById('wpadminbar').offsetHeight;
 	}
 
 NAV_STICKY;
@@ -1798,24 +1528,14 @@ NAV_STICKY;
 	e = d.getElementById("nav");
 	r = ( e !== null ? e.getBoundingClientRect() : '' );
 	y = w.pageYOffset;
-	hidfgt = r.top + y, null !== bar && ( hidfgt -= bar.offsetHeight ); // #nav のY座標 (この位置からナビ固定)
-	/*
 	hidfgt = r.top + y;	// #nav のY座標 (この位置からナビ固定)
-	if( d.getElementById('wpadminbar') !== null ) hidfgt -= d.getElementById('wpadminbar').offsetHeight;
-	*/
-	navhid = top - ( e !== null ? e.offsetHeight : 0 ) - 1; // グローバルナビの高さ分マイナス(リサイズイベント用)
+	navhid  = top - ( e !== null ? e.offsetHeight : 0 ) - 1 // グローバルナビの高さ分マイナス(リサイズイベント用)
 	T = false;
 
 NAV_STICKY;
 
 			// グローバルナビを上スクロールの時だけ固定する場合
 			if( isset( $luxe['global_navi_scroll_up_sticky'] ) ) {
-
-				$gnav_progress_height = 0;
-				if( isset( $luxe['global_navi_scroll_progress'] ) && isset( $luxe['gnavi_border_bottom_width'] ) ) {
-					$gnav_progress_height = (int)$luxe['gnavi_border_bottom_width'] + 1;
-				}
-
 				$nav_sticky .= <<< NAV_STICKY
 	if( skeepid !== null ) skeepid.style.transition = "all .5s ease-in-out";
 	hidfgb = hidfgt + ( e !== null ? e.offsetHeight : 0 );	// 上スクロールの時だけ固定する場合は、#nav の bottom 部分を Y座標にする
@@ -1843,7 +1563,7 @@ NAV_STICKY;
 				nowpos = y;
 				opos = difpos;
 
-				navhid = top - e.offsetHeight - 1 + {$gnav_progress_height}; // ナビの高さ分マイナス(スクロールイベント用)
+				navhid = top - e.offsetHeight - 1; // ナビの高さ分マイナス(スクロールイベント用)
 
 				if( y <= hidfgb && difpos <= 0 ) {
 					thk_unpin( e );
@@ -1905,11 +1625,11 @@ NAV_STICKY;
 		thk_pin( e, top, '' );
 	}
 
-	//T = false;
+	T = false;
 	stkeve = ( "scroll", function(){
-	//	if( T === false ) {
-			//requestAnimationFrame( function() {
-			//	T = false;
+		if( T === false ) {
+			requestAnimationFrame( function() {
+				T = false;
 				//p = $('.pin')[0];
 				p = d.querySelector(".pin")
 
@@ -1918,9 +1638,9 @@ NAV_STICKY;
 				} else if( p === null ) {
 					thk_pin( e, top, '' );
 				}
-			//});
-			//T = true;
-	//	}
+			});
+			T = true;
+		}
 	});
 
 NAV_STICKY;
@@ -1946,10 +1666,8 @@ NAV_STICKY;
 				$stick .= $nav_sticky . 'luxeListenScroll( stkeve );';
 			}
 
-			$nav_width = isset( $luxe['bootstrap_header'] ) && $luxe['bootstrap_header'] === 'in' ? 'd.getElementById("primary").clientWidth + "px"' : '"100%"';
-
 			$ret .= <<< SCRIPT
-	var e, r, p, y, T
+	var e, r, p, y
 	,   top = 0
 	,   navhid = 0
 	,   mnav
@@ -1961,7 +1679,6 @@ NAV_STICKY;
 	/* ,   stktim = null	// スクロールイベント負荷軽減用 */
 	/* ,   stkint = 200	// インターバル(PC では少し速く:100、モバイルでは少し遅く:200) */
 	,   stkeve
-	,   bar = d.getElementById('wpadminbar')
 	,   v = luxeGetStyleValue;
 
 	function thk_nav_stick() {
@@ -1977,18 +1694,16 @@ NAV_STICKY;
 				R = false;
 				//resz = true;
 				//thk_nav_stick();
-				//e.style.width = "";
-				e.style.width = {$nav_width}
+				e.style.width = "";
 				offsetCalc();
 				//resz = false;
 			});
 			R = true;
 		}
-	}, !1 );
+	}, false );
 
 	function thk_pin( o, sp, trs, cls ) {
 		var s = o.style;
-		//if( typeof trs === "undefined" || trs === null || trs === "" ) var trs = "all .5s ease-in-out";
 		if( typeof trs === "undefined" ) var trs = "all .5s ease-in-out";
 		if( typeof cls === "undefined" ) var cls = "pin";
 
@@ -1996,12 +1711,7 @@ NAV_STICKY;
 SCRIPT;
 
 		if( isset( $luxe['head_band_visible'] ) && isset( $luxe['head_band_fixed'] ) ) {
-			if( isset($luxe['bootstrap_header']) && $luxe['bootstrap_header'] === 'out' ) {
-				$ret .= 'd.getElementById("head-band") !== null && (s.top = sp + d.getElementById("head-band").offsetHeight + "px"),';
-			}
-			else {
-				$ret .= 'd.getElementById("head-band-in") !== null && (s.top = sp + d.getElementById("head-band-in").offsetHeight + "px"),';
-			}
+			$ret .= 's.top = sp + d.getElementById("head-band").offsetHeight + "px",';
 		}
 		else {
 			$ret .= 's.top = sp + "px",';
@@ -2009,8 +1719,7 @@ SCRIPT;
 
 		$ret .= <<< SCRIPT
 		s.position = "fixed",
-		//s.width = o.clientWidth + 'px'
-		s.width = {$nav_width}
+		s.width = o.clientWidth + 'px'
 
 		luxeAddClass( o, cls );
 		//$('body').css('marginTop', d.getElementById('nav').offsetHeight + 'px');
@@ -2066,7 +1775,7 @@ SCRIPT;
 			$ret .= "} catch(e) { console.error( 'fluidbox.error: ' + e.message ); }\n";
 		}
 
-		if( isset( $luxe['head_band_visible'] ) && isset( $luxe['head_band_search'] ) ) {
+		if( isset( $luxe['head_band_search'] ) ) {
 			/* 帯メニュー検索ボックスのサイズと色の変更 */
 			$ret .= <<< SCRIPT
 try { /* head.band.search */
@@ -2092,47 +1801,6 @@ try { /* head.band.search */
 SCRIPT;
 		}
 
-		/* グローバルナビのスクロールプログレスバー */
-		if( isset( $luxe['global_navi_scroll_progress'] ) ) {
-			if( isset( $luxe['global_navi_progress_rate'] ) && $luxe['global_navi_progress_rate'] === 'post' ) {
-				/* 投稿で100% */
-				$ret .= <<< SCRIPT
-var LuxeProgressBar = function () {
-	var e, t, l, n, u
-	,   r = window
-	,   i = document
-	,   s = i.getElementById("core");
-	null === s && (s = i.getElementById("list")),
-		null === s && (s = i.getElementById("main")),
-		null !== s &&
-			((e = i.documentElement.clientHeight),
-			(t = r.scrollY || r.pageYOffset),
-			(l = s.clientHeight),
-			(n = (t / (s.offsetTop + l - e)) * 100),
-			null !== (u = i.getElementById("gnav-progress")) && (n < 100 && 0 < n ? u.setAttribute("value", n) : 100 <= n ? u.setAttribute("value", 100) : u.setAttribute("value", 0)));
-};
-SCRIPT;
-			}
-			else {
-				/* ページ全体で100% */
-				$ret .= <<< SCRIPT
-var LuxeProgressBar = function () {
-	var e = d.documentElement.clientHeight
-	,   n = ((w.scrollY || w.pageYOffset) / (d.body.clientHeight - e)) * 100
-	,   u = d.getElementById("gnav-progress");
-	null !== u && (n < 100 && 0 < n ? u.setAttribute("value", n) : 100 <= n ? u.setAttribute("value", 100) : u.setAttribute("value", 0));
-};
-SCRIPT;
-			}
-
-			/* スクロールプログレスバーのリスナー */
-			$ret .= <<< SCRIPT
-w.addEventListener("scroll", LuxeProgressBar, !1), w.addEventListener("resize", LuxeProgressBar, !1);
-//w.onscroll = LuxeProgressBar, w.onresize = LuxeProgressBar;
-
-SCRIPT;
-		}
-
 		if( isset( $luxe['autocomplete'] ) ) {
 			/* 検索ボックスのオートコンプリート (Google Autocomplete) */
 			$ret .= <<< SCRIPT
@@ -2141,7 +1809,6 @@ SCRIPT;
 			$('.search-field, .head-search-field').autocomplete({
 				source: function(request, response){
 					$.ajax({
-						type: "GET",
 						url: "//www.google.com/complete/search",
 						data: {
 							hl: 'ja',
@@ -2151,8 +1818,10 @@ SCRIPT;
 							q: request.term
 						},
 						dataType: "jsonp",
-					}).then( function(d) {
-						response(d[1]);
+						type: "GET",
+						success: function(data) {
+							response(data[1]);
+						}
 					});
 				},
 				delay: 300
@@ -2219,9 +1888,8 @@ SCRIPT;
 		$ret .= <<< SCRIPT
 var luxeGetSnsCount = function(h, i, j, k, f) {
 	var g = h.location.search
-	,   q = document.querySelectorAll(j);
-
-	if( window.jQuery && q.length > 0 ) {
+	,   q = document.querySelector(j);
+	if( window.jQuery && q != null ) {
 		jQuery.ajax({
 			type: "GET",
 			url: "{$ajaxurl}",
@@ -2233,25 +1901,25 @@ var luxeGetSnsCount = function(h, i, j, k, f) {
 			dataType: "text",
 			async: true,
 			cache: false,
-			timeout: 30000
-		}).then( function(b) {
-			if( isFinite(b) && b !== "" ) {
-				for( r = 0; r < q.length; r++ ) {
-					q[r].textContent = String(b).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
-				}
-			} else {
-				if( typeof(b) === "string" && b !== "" ) {
-					var a = b.slice(0, 11);
-					for( r=0; r<q.length; r++ ) q[r].textContent = a;
+			timeout: 30000,
+			success: function(b) {
+				if (isFinite(b) && b !== "") {
+					q.textContent = String(b).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
 				} else {
-					for( r=0; r<q.length; r++ ) q[r].textContent = "!";
+					if (typeof(b) === "string" && b !== "") {
+						var a = b.slice(0, 11);
+						q.textContent = a
+					} else {
+						q.textContent = "!"
+					}
 				}
+			},
+			error: function() {
+				q.textContent = "!"
 			}
-		}, function() {
-			q.textContent = "!"
 		})
 	} else {
-		if( q != null ) q.textContent = "?";
+		if ( q != null ) q.textContent = "?";
 	}
 };
 !function(b, d) {
@@ -2260,13 +1928,13 @@ var luxeGetSnsCount = function(h, i, j, k, f) {
 		,   g = d.getElementsByClassName("sns-cache-true")
 		,   r = d.getElementsByClassName("feed-count-true");
 
-		if( m.length > 0 || g.length > 0 ) {
+		if (m.length > 0 || g.length > 0) {
 			var k = g.length > 0 ? g[0] : m[0]
 			,   f = k.getAttribute("data-luxe-permalink")
 			,   e = k.getAttribute("data-incomplete")
 			,   l = e != null ? e.split(",") : "";
 
-			if( g.length > 0 && window.jQuery ) {
+			if (g.length > 0 && window.jQuery) {
 				var s = jQuery.ajax({
 					type: "POST",
 					url: "{$ajaxurl}",
@@ -2278,12 +1946,12 @@ var luxeGetSnsCount = function(h, i, j, k, f) {
 					async: true,
 					cache: false
 				})
-				,   h = setInterval( function() {
-					if( s && s.readyState > 0 ) {
+				,   h = setInterval(function() {
+					if (s && s.readyState > 0) {
 						s.abort();
 						clearInterval(h)
 					}
-				}, 500 )
+				}, 500)
 			}
 
 			var q = {
@@ -2293,18 +1961,17 @@ var luxeGetSnsCount = function(h, i, j, k, f) {
 				f: ".facebook-count"
 			};
 
-			Object.keys(q).forEach( function(i) {
+			Object.keys(q).forEach(function(i) {
 				var j = this[i];
-				if( g.length < 1 || l.indexOf(i) >= 0 ) {
+				if (g.length < 1 || l.indexOf(i) >= 0) {
 					luxeGetSnsCount(b, i, j, m, f)
 				}
-			}, q )
+			}, q)
 		}
-		if( r.length > 0 && d.getElementsByClassName("feed-cache-true").length < 1 ) {
+		if (r.length > 0 && d.getElementsByClassName("feed-cache-true").length < 1) {
 			luxeGetSnsCount(b, "r", ".feedly-count", r, f)
 		}
-		this.removeEventListener("load", c, !1);
-	}, !1 );
+	}, false );
 }(window, document);
 
 SCRIPT;

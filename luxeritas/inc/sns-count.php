@@ -37,58 +37,41 @@ class getSnsCount {
 	/* facebook count */
 	public function facebookCount( $url, $app_id = '', $app_secret = '', $access_token = '' ) {
 		// 新 API で取得
-		if( ( !empty( $app_id ) && !empty( $app_secret ) ) || !empty( $access_token ) ) {
-			if( empty( $access_token ) ) {
-				$access_token = $app_id . '|' . $app_secret;
-			}
-
-			$share = wp_remote_get( 'https://graph.facebook.com/v8.0/?fields=og_object{engagement},engagement&access_token=' . $access_token . '&id=' . $url . '', $this->_args );
+		if( !empty( $app_id ) && !empty( $app_secret ) && !empty( $access_token ) ) {
+			$share = wp_remote_get( 'https://graph.facebook.com/v8.0/?fields=og_object{engagement}&access_token=' . $access_token . '&id=' . $url . '', $this->_args );
 			if( !is_wp_error( $share ) ) {
 				if( $share['response']['code'] === 200 && isset( $share['body'] ) ) {
-					$engagement = @json_decode( $share['body'] )->engagement;
-					if( empty( $engagement ) ) {
-						$this->_ret = @json_decode( $share['body'] )->og_object->engagement->count;
-					}
-					else {
-						$this->_ret  = !empty( $engagement->reaction_count )       ? (int)$engagement->reaction_count       : 0;
-						$this->_ret += !empty( $engagement->comment_count )        ? (int)$engagement->comment_count        : 0;
-						$this->_ret += !empty( $engagement->share_count )          ? (int)$engagement->share_count          : 0;
-						$this->_ret += !empty( $engagement->comment_plugin_count ) ? (int)$engagement->comment_plugin_count : 0;
-					}
-
+					$this->_ret = @json_decode( $share['body'] )->og_object->engagement->count;
 					$this->_ret = $this->numberUnformat( $this->_ret );
 				}
 				elseif( $share['response']['code'] !== 200 ) {
 					return $share['response']['message'];
 				}
 			}
+		}
 
-			// 旧 API で取得その１
-			if( !is_numeric( $this->_ret ) ) {
-				$share = wp_remote_get( 'https://graph.facebook.com/?id=' . $url . '&fields=og_object{engagement}', $this->_args );
-				if( !is_wp_error( $share ) ) {
-					if( $share['response']['code'] === 200 && isset( $share['body'] ) ) {
-						$this->_ret = @json_decode( $share['body'] )->og_object->engagement->count;
-						$this->_ret = $this->numberUnformat( $this->_ret );
+		// 旧 API で取得その１
+		if( !is_numeric( $this->_ret ) ) {
+			$share = wp_remote_get( 'https://graph.facebook.com/?id=' . $url . '&fields=og_object{engagement}', $this->_args );
+			if( !is_wp_error( $share ) ) {
+				if( $share['response']['code'] === 200 && isset( $share['body'] ) ) {
+					$this->_ret = @json_decode( $share['body'] )->og_object->engagement->count;
+					$this->_ret = $this->numberUnformat( $this->_ret );
 
-						if( empty( $this->_ret ) ) {
-							$id_confirm = @json_decode( $share['body'] );
-							if( isset( $id_confirm->id ) ) {
-								$this->_ret = 0;
-							}
+					if( empty( $this->_ret ) ) {
+						$id_confirm = @json_decode( $share['body'] );
+						if( isset( $id_confirm->id ) ) {
+							$this->_ret = 0;
 						}
 					}
-					elseif( $share['response']['code'] !== 200 ) {
-						$this->_ret = '!';
-					}
+				}
+				elseif( $share['response']['code'] !== 200 ) {
+					$this->_ret = '!';
 				}
 			}
+		}
 
-			if( !is_numeric( $this->_ret ) ) $this->_ret = '!';
-		}
-		else {
-			$this->_ret = '!';
-		}
+		if( !is_numeric( $this->_ret ) ) $this->_ret = '!';
 		return $this->_ret;
 	}
 

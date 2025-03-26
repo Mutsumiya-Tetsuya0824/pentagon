@@ -17,8 +17,11 @@
 if( function_exists( 'thk_phrase_files_restore' ) === false ):
 function thk_phrase_files_restore( $code, $json_phrase_file ) {
 	if( !empty( $json_phrase_file[$code] ) ) {
-		$filesystem = thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
 		global $wp_filesystem;
+
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 		$code_dir = SPATH . DSEP . $code . DSEP;
 
@@ -55,8 +58,11 @@ endif;
 $files_key = $_POST['option_page'] === 'restore' ? 'luxe-restore' : 'luxe-restore-appearance';
 
 if( isset( $_FILES[$files_key] ) ) {
-	thk_filesystem_init();
+	require_once( INC . 'optimize.php' );
 	global $wp_filesystem;
+
+	$filesystem = new thk_filesystem();
+	if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 	$json_file = $_FILES[$files_key]['tmp_name'];
 	$file_type = $_FILES[$files_key]['type'];
@@ -140,7 +146,6 @@ if( isset( $_FILES[$files_key] ) ) {
 			}
 		}
 
-		thk_phrase_files_restore( 'block-patterns', $json_phrase_file, $err );
 		thk_phrase_files_restore( 'phrases', $json_phrase_file, $err );
 		thk_phrase_files_restore( 'shortcodes', $json_phrase_file, $err );
 

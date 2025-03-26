@@ -41,9 +41,9 @@ class luxe_customize {
 				'style'		=> 'CSS',
 				'script'	=> 'Javascript',
 				'lazyload'	=> 'Lazy Load',
-				'icon'		=> __( 'Icon fonts', 'luxeritas' ),
-				'comment'	=> __( 'Comment', 'luxeritas' ),
+				'icon'		=> ' Font Awesome',
 				'search'	=> __( 'Search', 'luxeritas' ),
+				'captcha'	=> __( 'CAPTCHA', 'luxeritas' ),
 				'copyright'	=> __( 'Copyright', 'luxeritas' ),
 				'others'	=> __( 'Others', 'luxeritas' ),
 				'version'	=> __( 'Version', 'luxeritas' ),
@@ -67,13 +67,22 @@ class luxe_customize {
 
 			echo	'<h2 class="luxe-customize-title">', esc_html( get_admin_page_title() ), '</h2>';
 		}
-		elseif( $this->_page === 'luxe_pattern' ) {
-			$this->_active = isset( $_GET['active'] ) ? $_GET['active'] : 'pattern';
+		elseif( $this->_page === 'luxe_phrase' ) {
+			$this->_active = isset( $_GET['active'] ) ? $_GET['active'] : 'phrase';
 
 			$this->_tabs = array(
-				'pattern'		=> __( 'Block patterns', 'luxeritas' ),
-				'phrase'		=> __( 'HTML patterns', 'luxeritas' ),
+				'phrase'		=> __( 'Fixed phrases', 'luxeritas' ),
+				'phrase_sample'		=> __( 'Sample registration', 'luxeritas' ),
+			);
+
+			echo	'<h2 class="luxe-customize-title">', esc_html( get_admin_page_title() ), '</h2>';
+		}
+		elseif( $this->_page === 'luxe_code' ) {
+			$this->_active = isset( $_GET['active'] ) ? $_GET['active'] : 'shortcode';
+
+			$this->_tabs = array(
 				'shortcode'		=> __( 'Shortcode', 'luxeritas' ),
+				'shortcode_sample'	=> __( 'Sample registration', 'luxeritas' ),
 			);
 
 			echo	'<h2 class="luxe-customize-title">', esc_html( get_admin_page_title() ), '</h2>';
@@ -109,7 +118,7 @@ class luxe_customize {
 
 			$this->_tabs = array(
 				'fast'		=> __( 'Speed settings', 'luxeritas' ),
-				'htaccess'	=> __( 'htaccess for speed boost &amp; security improvement', 'luxeritas' ),
+				'htaccess'	=> __( 'htaccess for speed boost', 'luxeritas' ),
 			);
 
 			echo	'<h2 class="luxe-customize-title">', esc_html( get_admin_page_title() ), '</h2>';
@@ -153,7 +162,6 @@ class luxe_customize {
 			$this->_active !== 'thumregen' &&
 			$this->_active !== 'old_editor'    &&
 			$this->_active !== 'version'   &&
-			$this->_active !== 'pattern'   &&
 			$this->_active !== 'phrase'    &&
 			$this->_active !== 'shortcode' &&
 			$this->_active !== 'design_select' &&
@@ -166,7 +174,7 @@ class luxe_customize {
 		) $form = true;
 
 		// options.php は経由しないので、nonce のチェックは check_admin_referer でやる
-		if( $form === true ) echo '<form id="luxe-customize" style="overflow:auto" method="post" action="">';
+		if( $form === true ) echo '<form id="luxe-customize" method="post" action="">';
 
 		$func = '_' . $this->_active . '_section';
 		if( method_exists( $this, $func ) === true ) {
@@ -186,7 +194,6 @@ class luxe_customize {
 		if( TPATH === SPATH ) {
 			$dont_child = true;
 			if(
-				$this->_active !== 'pattern'		&&
 				$this->_active !== 'phrase'		&&
 				$this->_active !== 'shortcode'		&&
 				$this->_active !== 'design_select'	&&
@@ -213,7 +220,7 @@ class luxe_customize {
 			$settings = str_replace( '<>', '', $settings );
 		}
 		echo $settings;
-/*
+
 		if( isset( $_GET['page'] ) &&  $_GET['page'] === 'luxe_edit' ) {
 			submit_button( '', 'primary', 'edit_save', true, array( 'disabled' => 1 ) );
 			echo '</form>';
@@ -222,19 +229,9 @@ class luxe_customize {
 			submit_button( '', 'primary', 'save', true, array( 'disabled' => 1 ) );
 			echo '</form>';
 		}
-*/
-		if( isset( $_GET['page'] ) &&  $_GET['page'] === 'luxe_edit' ) {
-			submit_button( '', 'primary', 'edit_save', true );
-			echo '</form>';
-		}
-		elseif( $form === true ) {
-			submit_button( '', 'primary', 'save', true );
-			echo '</form>';
-		}
 ?>
 </div>
 <?php
-/*
 		// 画像の設定項目がある場合
 		if(
 			isset( $_GET['page'] ) && $_GET['page'] === 'luxe' &&
@@ -247,9 +244,6 @@ class luxe_customize {
 <script>
 jQuery(document).ready(function($) {
 	$("#save").prop("disabled", false);
-	$('.luxe-field-title').click(function() {
-		$(this).parent().nextAll().toggle( 'linear' );
-	});
 });
 </script>
 <?php
@@ -269,16 +263,6 @@ jQuery(document).ready(function($) {
 </script>
 <?php
 		}
-*/
-?>
-<script>
-jQuery(document).ready(function($) {
-	$('.luxe-field-title').click(function() {
-		$(this).parent().nextAll().toggle( 'linear' );
-	});
-});
-</script>
-<?php
 	}
 
 	public function sections( $args ) {
@@ -308,7 +292,7 @@ jQuery(document).ready(function($) {
 		add_settings_section( 'pwa-theme', __( 'Mobile Theme', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 		add_settings_section( 'pwa', 'PWA', array( $this, 'sections' ), $this->_active );
 		add_settings_section( 'pwa-manifest', __( 'Manifest', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
-		add_settings_section( 'pwa-others', __( 'Others', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'pwa-physical-or-none', __( 'Output files', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 	}
 
 	private function _title_section() {
@@ -341,20 +325,20 @@ jQuery(document).ready(function($) {
 
 	private function _lazyload_section() {
 		add_settings_section( 'lazyload', 'Lazy Load (' . __( 'Lazy loading of image', 'luxeritas' ) . ')', array( $this, 'sections' ), $this->_active );
-		add_settings_section( 'intersection-observer', 'Intersection Observer', array( $this, 'sections' ), $this->_active );
 	}
 
 	private function _icon_section() {
-		add_settings_section( 'icon-font', sprintf( __( 'Setting of %s', 'luxeritas' ), __( 'icon fonts', 'luxeritas' ) ), array( $this, 'sections' ), $this->_active );
-		add_settings_section( 'fontawesome-load', sprintf( __( 'Setting of %s', 'luxeritas' ), 'Font Awesome 5 / 6' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'fontawesome-version', sprintf( __( 'Setting of %s', 'luxeritas' ), __( 'icon fonts', 'luxeritas' ) ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'fontawesome-load', sprintf( __( 'Setting of %s', 'luxeritas' ), 'Font Awesome 5 ' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'fontawesome-css', sprintf( __( 'Setting of %s', 'luxeritas' ), 'CSS ' ) . ' ( Web Fonts with CSS )' , array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'fontawesome-js', sprintf( __( 'Setting of %s', 'luxeritas' ), 'SVG ' ) . ' ( SVG with JavaScript )', array( $this, 'sections' ), $this->_active );
 	}
 
 	private function _search_section() {
 		add_settings_section( 'search', sprintf( __( 'Setting of %s', 'luxeritas' ), __( 'Search Widget', 'luxeritas' ) ), array( $this, 'sections' ), $this->_active );
 	}
 
-	private function _comment_section() {
-		//add_settings_section( 'comment', __( 'Comment posting setting', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+	private function _captcha_section() {
 		add_settings_section( 'captcha', sprintf( __( 'Setting of %s', 'luxeritas' ), __( 'CAPTCHA', 'luxeritas' ) ), array( $this, 'sections' ), $this->_active );
 		add_settings_section( 'recaptcha', sprintf( __( 'Setting of %s', 'luxeritas' ), 'Google reCAPTCHA ' ), array( $this, 'sections' ), $this->_active );
 		add_settings_section( 'securimage', sprintf( __( 'Setting of %s', 'luxeritas' ), 'Securimage PHP CAPTCHA ' ), array( $this, 'sections' ), $this->_active );
@@ -380,7 +364,6 @@ jQuery(document).ready(function($) {
 	}
 
 	private function _widget_section() {
-		add_settings_section( 'block-based-widgets-enable', __( 'Block-based Widgets Editor', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 		add_settings_section( 'widget-body', __( 'Widget', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 		add_settings_section( 'widget-area', __( 'Widget Area', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 	}
@@ -407,7 +390,7 @@ jQuery(document).ready(function($) {
 	}
 
 	private function _htaccess_section() {
-		add_settings_section( 'htaccess', __( 'htaccess for apache web server', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'htaccess', __( 'htaccess for speed boost', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 	}
 
 	private function _version_section() {
@@ -420,17 +403,32 @@ jQuery(document).ready(function($) {
 			. '</p>';
 	}
 	*/
-	private function _pattern_section() {
+	private function _phrase_section() {
 		//echo $this->_old_editor_msg();
-		add_settings_section( 'block-pattern-list', __( 'Block pattern list', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'phrase-list', __( 'Fixed phrase list', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 	}
 
-	private function _phrase_section() {
-		add_settings_section( 'phrase-list', __( 'HTML pattern list', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+	private function _phrase_sample_section() {
+		//echo $this->_old_editor_msg();
+		add_settings_section( 'phrase-sample', __( 'Fixed phrases', 'luxeritas' ) . __( ' sample', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'phrase-luxeritas', __( 'Fixed phrases', 'luxeritas' ) . __( ' For luxeritas only', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 	}
 
 	private function _shortcode_section() {
 		add_settings_section( 'shortcode-list', __( 'Shortcode list', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+	}
+
+	private function _shortcode_sample_section() {
+		add_settings_section( 'shortcode-sample', __( 'Shortcode', 'luxeritas' ) . __( ' sample', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+		add_settings_section( 'shortcode-balloon', __( 'Speech balloon shortcode', 'luxeritas' ) . __( ' For luxeritas only', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+	}
+
+	private function _highlighter_section() {
+		add_settings_section( 'shortcode-list', __( 'Code language list', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
+	}
+
+	private function _highlighter_regist_section() {
+		add_settings_section( 'highlighter-regist', __( 'Code language registration', 'luxeritas' ) . __( ' For luxeritas only', 'luxeritas' ), array( $this, 'sections' ), $this->_active );
 	}
 
 	private function _design_select_section() {

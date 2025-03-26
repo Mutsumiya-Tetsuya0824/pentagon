@@ -12,7 +12,7 @@
  * (at your option) any later version.
 */
 
-#ladmin *:not(i) {
+#ladmin * {
 	margin: 0;
 	padding: 0;
 	color: #fff;
@@ -27,12 +27,7 @@
 	border: 1px solid #fff;
 	z-index: 9;
 }
-#ladmin li {
+#ladmin li, #ladmin i {
 	display: table-cell;
 	padding: 0 5px;
-}
-#ladmin i {
-	font-size: 1.6rem;
-	padding-left: 5px;
-	padding-right: 5px;
 }

@@ -40,10 +40,7 @@ img, amp-img, amp-anim, video, amp-video, canvas, svg {
 	object-fit: contain;
 }
 pre, ul, ol {
-	margin: 1.6em 0;
-}
-ul ul, ol ol, ul ol, ol ul {
-	margin: 0 .6em 0;
+	margin: 0 0 1.6em;
 }
 pre {
 	margin-bottom: 30px;
@@ -85,16 +82,47 @@ blockquote ol:first-child, blockquote p:first-child, blockquote ul:first-child {
 blockquote ol:last-child, blockquote p:last-child, blockquote ul:last-child {
 	margin-bottom: 5px;
 }
-[type="text"], [type="email"] {
+[type="submit"], [type="text"], [type="email"], .reply a {
 	display: inline;
 	line-height: 1.0;
 	vertical-align: middle;
 	padding: 12px 12px 11px 12px;
 	max-width: 100%;
+}
+.reply a,
+[type="submit"],
+div[class$=-w] ul[class*=sns] li a,
+.widget_categories select, .widget_archive select {
+	color: #333;
+	font-weight: normal;
+	background: #fff;
+	border: 1px solid #ddd;
+}
+div[class$=-w] ul[class*=sns] li a {
+	color: #666;
+	background: #fbfbfb;
+	border: 1px solid #ccc;
+}
+option, textarea, [type="text"], [type="email"], [type="search"] {
 	color: inherit;
 	background: #fff;
 	border: 1px solid #ddd;
 }
+[type="search"] {
+	-webkit-appearance: none;
+	outline-offset: -2px;
+	line-height: 1.0;
+	border-radius: 0;
+}
+[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-decoration {
+	display: none;
+}
+textarea {
+	padding: 8px;
+	max-width: 100%;
+}
+
 .cboth {
 	clear: both;
 }
@@ -141,13 +169,6 @@ em {
 	display: block;
 	margin-right: auto;
 	margin-left: auto;
-}
-.post .alignfull {
-	margin-left: -68px;
-	margin-right: -68px;
-}
-figure.alignwide > amp-img, figure.alignfull > amp-img {
-	min-width: 100%;
 }
 
 blockquote.alignleft,
@@ -236,12 +257,6 @@ amp-img[class*="wp-image-"], amp-img[class*="attachment-"] {
 .wp-block-image {
 	margin: 1.6em 0;
 }
-figure.wp-block-image {
-	display: inline-block;
-}
-.post ul.blocks-gallery-grid {
-	padding: 0;
-}
 
 /*
 ------------------------------------
@@ -297,8 +312,9 @@ div[id*="head-band"] {
 	display: inline;
 	margin: 5px;
 	line-height: 1.0;
-	font-family: "icomoon";
+	font-family: 'Font Awesome 5 Free';
 	content: "\f0da";
+	font-weight: 900;
 }
 
 /* Header Band Follow Button*/
@@ -360,7 +376,8 @@ amp-img.onepoint {
 	position: relative;
 	margin: auto;
 }
-#header #gnavi, #foot-in {
+#header #gnavi,
+#foot-in {
 	margin: auto;
 }
 
@@ -376,7 +393,7 @@ amp-img.onepoint {
 	position: relative;
 	z-index: 20;
 }
-#nav, #gnavi ul.gu, #gnavi li.gl > a, .mobile-nav {
+#nav, #gnavi ul, #gnavi li a, .mobile-nav {
 	color: #111;
 	background: #fff;
 }
@@ -386,71 +403,88 @@ amp-img.onepoint {
 #gnavi .nav-menu {
 	display: block;
 }
-#gnavi ul.gu {
+#gnavi ul {
 	margin: 0;
 	text-indent: 0;
 	white-space: nowrap;
 }
-#gnavi li.gl {
+#gnavi li,
+#gnavi li a {
+	display: block;
+	text-decoration: none;
+	text-align: center;
+}
+#gnavi li {
 	float: left;
 	position: relative;
 	list-style-type: none;
 }
-/*#gnavi li.gl,*/
-#gnavi li.gl > a {
-	display: block;
-	text-decoration: none;
-	text-align: center;
-	height: 100%;
+#gnavi li:hover > a, #gnavi li:hover > a > span, div.mobile-nav:hover, ul.mobile-nav li:hover {
+	color: #fff;
+	background: #0099ff;
 }
-#gnavi li ul.gu {
+#gnavi li ul {
 	display: none;
 }
 
+#gnavi .current-menu-item > a,
+#gnavi .current-menu-ancestor > a,
+#gnavi .current_page_item > a,
+#gnavi .current_page_ancestor > a {
+	background: none repeat scroll 0 0 #000;
+	color: #fff;
+}
+
 @media (min-width: 992px){
-	#gnavi ul.gu {
+	#gnavi ul {
+		display: -webkit-box;
+		display: -ms-flexbox;
 		display: flex;
+		-ms-flex-wrap: wrap;
 		flex-wrap: wrap;
 	}
-	#gnavi li.gl {
+	#gnavi li {
+		-webkit-box-flex: 0 0 auto;
+		-ms-flex: 0 0 auto;
 		flex: 0 0 auto;
 		min-width: 1px;
 		background: #0099ff;
 	}
-	#gnavi .gc > ul > li.gl {
+	#gnavi div > ul > li {
 		background: none;
 	}
-	#gnavi li.gl > a > .gim {
+	#gnavi li span {
 		display: block;
 	}
-	#gnavi .gc > ul > li > a > .gim {
-		transition: .4s;
+	#gnavi div > ul > li > a > span {
+		transition: 0.4s ease;
 		border-bottom: 0;
 		padding: 16px 18px;
-		height: 100%;
 	}
-	#gnavi li.gl > ul {
+	#gnavi li > ul {
 		display: none;
+		visibility: hidden;
 		margin: 0;
-		border: 1px solid #ddd;
-		border-bottom: 0;
+		padding: 1px 0 0 0;
+		border-right: 1px solid #ddd;
+		border-left: 1px solid #ddd;
 		background: transparent;
 		position: absolute;
 		top: 100%;
 		z-index: 1;
 	}
-	#gnavi li li.gl {
+	#gnavi li li {
 		width: 100%;
 		min-width: 160px;
 	}
-	#gnavi li li.gl a > .gim {
+	#gnavi li li span {
 		border-bottom: 1px solid #ddd;
 		font-size: 1.3rem;
 		padding: 10px 15px;
 		width: 100%;
 		text-align: left;
 	}
-	#gnavi li.gl:hover > ul {
+	#gnavi li:hover > ul {
 		display: table;
 		visibility: visible;
 		border-collapse: separate;
@@ -458,36 +492,26 @@ amp-img.onepoint {
 		z-index: 1;
 		animation: moveY 0.3s 1 normal ease;
 	}
-	#gnavi li li.gl > ul {
+	#gnavi li li ul {
 		padding: 0;
 		border-top: 1px solid #ddd;
 		overflow: hidden;
 		top: -1px;
 		left: 100%;
 	}
-	#gnavi li li.gl:hover > ul {
+	#gnavi li li:hover ul {
 		display: table;
 		table-layout: auto;
 		z-index: 1;
 		animation: moveX 0.8s 1 normal ease;
 	}
-	#gnavi li.gl:hover > a, #gnavi li.gl:hover > a > .gim, div.mobile-nav:hover, ul.mobile-nav li:hover {
-		color: #fff;
-		background: #0099ff;
-	}
-	#gnavi li[class*="current"] > a {
-		background: none repeat scroll 0 0 #000;
-		color: #fff;
-	}
-	#gnavi ul ul > li[class*="children"] > a > .gim::after { /* グローバルメニューに孫がある時の「孫があるよマーク」*/
-		font-family: "icomoon";
+	#gnavi ul ul > li[class*="children"] > a > span::after { /* グローバルメニューに孫がある時の「孫があるよマーク」*/
+		font-family: 'Font Awesome 5 Free';
 		content: "\f0da";
+		font-weight: 900;
 		position: absolute;
 		right: 6px;
-		top: 0;
-		bottom: 0;
-		margin: auto;
-		height: 1.3rem;
+		padding: 4px 0;
 	}
 }
 @keyframes moveY {
@@ -506,49 +530,45 @@ input[type="checkbox"].nav-on{
 @media (max-width: 991px){
 	#gnavi label.mobile-nav {
 		display: block;
-		padding: 12px 20px;
+		padding: 8px 20px;
 		cursor: pointer;
 	}
-	#gnavi ul.gu {
+	#gnavi ul {
 		border: 0;
 	}
-	#gnavi li.gl {
+	#gnavi li {
 		display: block;
 		float: none;
 		width: 100%;
 		border-top: 1px solid #ddd;
 		list-style: disc inside;
 	}
-	#gnavi li.gl > a {
+	#gnavi li a {
 		padding: 11px 20px;
 		text-align: left;
 	}
-	#gnavi li.gl > ul {
+	#gnavi li ul {
 		display: block;
 	}
 	#gnavi li[class*="children"] a {
 		padding-left: 20px;
 	}
-	#gnavi li[class*="children"] li a {
+	#gnavi li[class*=children] li a {
 		padding-left: 35px;
 	}
-	#gnavi li li[class*="children"] li a {
+	#gnavi li li[class*=children] li a {
 		padding-left: 55px;
 	}
-	#gnavi li.gl > a:before {
-		font-family: "icomoon";
+	#gnavi li a:before {
+		font-family: 'Font Awesome 5 Free';
 		content: "\f0da";
+		font-weight: 900;
 		padding-right: 10px;
 	}
-	#gnavi li.has-wrap-menu > a:before {
-		content: "\f150";
-		font-weight: 400;
-		margin-left: -4px;
-	}
-	#gnavi li li.gl > a:before {
+	#gnavi li li a:before {
 		content: "-";
 	}
-	#gnavi li li li.gl > a:before {
+	#gnavi li li li a:before {
 		content: "\0b7";
 	}
 	input[type="checkbox"].nav-on + div {
@@ -583,13 +603,11 @@ input[type="checkbox"].nav-on{
 ---------------------------------*/
 #breadcrumb {
 	margin: 20px 0 15px 0;
-	padding: 8px;
-	line-height: 2.0;
+	padding: 10px;
 }
 #breadcrumb, #breadcrumb a {
 	color: #111;
 	text-decoration: none;
-	word-break: normal;
 }
 #breadcrumb a:hover {
 	text-decoration: underline;
@@ -699,11 +717,17 @@ input[type="checkbox"].nav-on{
 	opacity: 0.3;
 }
 .pagination {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
 	justify-content: center;
 	margin: 0;
 }
 .pagination li {
+	-webkit-box-flex: 1 1 42px;
+	-ms-flex: 1 1 42px;
 	flex: 1 1 42px;
 	max-width: 42px;
 	min-width: 27px;
@@ -886,10 +910,6 @@ input[type="checkbox"].nav-on{
 	position: absolute;
 	top: 10px;
 }
-#pnavi .next-arrow *,
-#pnavi .prev-arrow * {
-	vertical-align: middle;
-}
 #pnavi .next-arrow {
 	left: 20px;
 }
@@ -941,8 +961,17 @@ input[type="checkbox"].nav-on{
 #pnavi i.navi-home,
 #pnavi .no-img-next i,
 #pnavi .no-img-prev i {
-	font-size: 7.6rem;
-	padding: 5px 0;
+	height: 100px;
+}
+#pnavi i.navi-home {
+	font-size: 96px;
+	padding: 2px 0 2px 25px;
+}
+
+#pnavi .no-img-next i,
+#pnavi .no-img-prev i {
+	font-size: 70px;
+	padding: 15px 0 15px 25px;
 }
 
 @media (min-width: 1200px), (min-width: 540px) and (max-width: 991px) {
@@ -972,7 +1001,9 @@ input[type="checkbox"].nav-on{
 	line-height: 2.0;
 	margin: 0 0 15px 0;
 }
-.related i, .discussion i, .tb i {
+.related i,
+.discussion i,
+.tb i {
 	margin-right: 10px;
 }
 
@@ -1302,12 +1333,16 @@ amp-iframe {
  Responsive Style
 ------------------------------------ */
 #main {
+	-webkit-box-flex: 0 1 772px;
+	-ms-flex: 0 1 772px;
 	flex: 0 1 772px;
 	max-width: 772px;
 	min-width: 1px;
 	float: left;
 }
 #side {
+	-webkit-box-flex: 0 0 366px;
+	-ms-flex: 0 0 366px;
 	flex: 0 0 366px;
 	width: 366px;
 	min-width: 1px;
@@ -1317,6 +1352,8 @@ amp-iframe {
 /* 992px and over */
 @media (min-width: 992px) {
 	#primary, #field {
+		display: -webkit-box;
+		display: -ms-flexbox;
 		display: flex;
 	}
 	#breadcrumb, .head-cover {
@@ -1350,6 +1387,8 @@ amp-iframe {
 }
 @media screen and (min-width: 992px) and (max-width: 1199px) {
 	#main {
+		-webkit-box-flex: 0 1 592px;
+		-ms-flex: 0 1 592px;
 		flex: 0 1 592px;
 		max-width: 592px;
 		min-width: 1px;
@@ -1394,10 +1433,6 @@ amp-iframe {
 	.grid {
 		margin: 0 0 20px 0;
 	}
-	.post .alignfull {
-		margin-left: -20px;
-		margin-right: -20px;
-	}
 	#side .widget {
 		margin-left: 0;
 		margin-right: 0;
@@ -1427,7 +1462,7 @@ amp-iframe {
 		font-size: 1.2rem;
 	}
 	/* 抜粋の改行消す */
-	.excerpt p:not(.meta) {
+	.excerpt p {
 		display: inline;
 	}
 	.excerpt br {

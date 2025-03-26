@@ -90,6 +90,11 @@ button {
 	border-radius: 0;
 }
 
+button:focus {
+	outline: 1px dotted;
+	outline: 5px auto -webkit-focus-ring-color;
+}
+
 input,
 button,
 select,
@@ -112,28 +117,41 @@ select {
 }
 
 button,
-[type=button],
-[type=reset],
-[type=submit] {
+html [type="button"],
+[type="reset"],
+[type="submit"] {
 	-webkit-appearance: button;
 }
-button:not(:disabled),
-[type=button]:not(:disabled),
-[type=reset]:not(:disabled),
-[type=submit]:not(:disabled) {
-	cursor: pointer;
-}
 
-::-moz-focus-inner {
+button::-moz-focus-inner,
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
 	padding: 0;
 	border-style: none;
 }
 
-::-webkit-inner-spin-button {
+input[type="radio"],
+input[type="checkbox"] {
+	box-sizing: border-box;
+	padding: 0;
+}
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
 	height: auto;
 }
-::-webkit-search-decoration {
+[type="search"] {
+	outline-offset: -2px;
 	-webkit-appearance: none;
+}
+
+[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-decoration {
+	-webkit-appearance: none;
+}
+textarea {
+	overflow: auto;
+	resize: vertical;
 }
 label {
 	display: inline-block;
@@ -183,12 +201,8 @@ h1, h2, h3, h4, h5, h6 {
 ------------------------------------
  grid
 ------------------------------------ */
-.row {
-	display: flex;
-	flex-wrap: wrap;
-}
-div[class^=col-] {
-	flex: 0 0 auto;
+.col-4, .col-6, .col-12 {
+	float: left;
 	position: relative;
 	width: 100%;
 	min-height: 1px;
@@ -196,12 +210,21 @@ div[class^=col-] {
 	padding-left: 15px;
 }
 .col-12 {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 100%;
+	flex: 0 0 100%;
 	max-width: 100%;
 }
 .col-6 {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 50%;
+	flex: 0 0 50%;
 	max-width: 50%;
 }
 .col-4 {
+	-webkit-box-flex: 0;
+	-ms-flex: 0 0 33.333333%;
+	flex: 0 0 33.333333%;
 	max-width: 33.333333%;
 }
 
@@ -220,6 +243,8 @@ div[class^=col-] {
  bootstrap pagination
 ------------------------------------ */
 .pagination {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
 	padding-left: 0;
 	list-style: none;

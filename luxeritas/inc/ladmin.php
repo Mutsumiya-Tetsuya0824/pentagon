@@ -36,6 +36,13 @@ if( isset( $luxe['amp_enable'] ) ) {
 if( isset( $luxe['amp'] ) ) {
 	global $awesome;
 
+	$icon_tablet = 'fa-tablet-alt';
+	$icon_mobile = 'fa-mobile-alt';
+	if( $awesome['ver'][0] === '4' ) {
+		$icon_tablet = 'fa-tablet';
+		$icon_mobile = 'fa-mobile';
+	}
+
 	if( $_is['front_page'] === true ) {
 		$enc_url_front_page = rawurlencode( THK_HOME_URL . '?amp=1' );
 	}
@@ -44,13 +51,13 @@ if( isset( $luxe['amp'] ) ) {
 ?>
 <div id="ladmin">
 <ul id="ladmin-b">
-<li><a href="<?php echo wp_get_canonical_url() ?>"><?php echo $awesome['circle-left']; ?><?php echo __( 'Origin', 'luxeritas' ) ?></a></li>
+<li><a href="<?php echo wp_get_canonical_url() ?>"><i class="<?php echo $awesome['fas']; ?>fa-chevron-circle-left"></i><?php echo __( 'Origin', 'luxeritas' ) ?></a></li>
 <?php
 	if( $_is['mobile'] === false ) {
 ?>
-<li><span title="PC" style="color:#ccc"><?php echo $awesome['desktop']; ?></span></li>
-<li><a href="<?php echo THK_HOME_URL, $concat ?>respond_preview=1&device=tablet&url=<?php echo isset( $enc_url_front_page ) ? $enc_url_front_page : $enc_url ?>" title="<?php echo __( 'Tablet', 'luxeritas' ) ?>"><?php echo $awesome['tablet']; ?></a></li>
-<li><a href="<?php echo THK_HOME_URL, $concat ?>respond_preview=1&device=mobile&url=<?php echo isset( $enc_url_front_page ) ? $enc_url_front_page : $enc_url ?>" title="<?php echo __( 'Mobile', 'luxeritas' ) ?>"><?php echo $awesome['mobile']; ?></a></li>
+<li><span title="PC"><i class="<?php echo $awesome['fas']; ?>fa-desktop" style="color:#aaa"></i></span></li>
+<li><a href="<?php echo THK_HOME_URL, $concat ?>respond_preview=1&device=tablet&url=<?php echo isset( $enc_url_front_page ) ? $enc_url_front_page : $enc_url ?>" title="<?php echo __( 'Tablet', 'luxeritas' ) ?>"><i class="<?php echo $awesome['fas'], $icon_tablet; ?>"></i></a></li>
+<li><a href="<?php echo THK_HOME_URL, $concat ?>respond_preview=1&device=mobile&url=<?php echo isset( $enc_url_front_page ) ? $enc_url_front_page : $enc_url ?>" title="<?php echo __( 'Mobile', 'luxeritas' ) ?>"><i class="<?php echo $awesome['fas'], $icon_mobile; ?>"></i></a></li>
 <?php
 	}
 ?>
@@ -64,7 +71,7 @@ else {
 	$enc_url = rawurlencode( $permalink );
 ?>
 <div id="ladmin" style="display: none">
-<ul id="ladmin-v"><li><span id="ladmin-o" title="<?php echo __( 'Show', 'luxeritas' ) ?>" style="cursor:pointer"><i class="collapse-sidebar-arrow"></i></span></li></ul>
+<ul id="ladmin-v"><li><a id="ladmin-o" title="<?php echo __( 'Show', 'luxeritas' ) ?>" style="cursor:pointer"><i class="collapse-sidebar-arrow"></i></a></li></ul>
 <ul id="ladmin-b">
 <li><span id="ladmin-c" title="<?php echo __( 'Hide', 'luxeritas' ) ?>" style="cursor:pointer"><i class="collapse-sidebar-arrow"></i><span class="item_name">&nbsp;<?php echo __( 'Hide', 'luxeritas' ) ?></span></span></li>
 <?php
@@ -82,7 +89,7 @@ else {
 
 		if( $_is['mobile'] === false ) {
 ?>
-<li class="pc-only"><a href="https://validator.schema.org/#url=<?php echo $enc_url ?>" target="_blank" rel="noopener noreferrer" title="<?php echo __( 'Structured data', 'luxeritas' ) ?>"><i class="structured"></i></a></li>
+<li class="pc-only"><a href="https://search.google.com/structured-data/testing-tool#url=<?php echo $enc_url ?>" target="_blank" rel="noopener noreferrer" title="<?php echo __( 'Structured data', 'luxeritas' ) ?>"><i class="structured"></i></a></li>
 <?php
 		}
 		if( $_is['singular'] === true && isset( $luxe['amp_enable'] ) ) {

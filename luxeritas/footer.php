@@ -31,7 +31,6 @@ $footer_nav = wp_nav_menu(
 		'depth' => '1',
 		'container' => 'nav',
 		'container_class' => 'foot-nav',
-		'container_aria_label' => '',
 		'link_before' => '<span>',
 		'link_after' => '</span>',
 		'echo' => false,
@@ -134,30 +133,30 @@ if( $luxe['bootstrap_footer'] === 'in' ) {
 if( !isset( $luxe['amp'] ) ) {
 	if( isset( $luxe['mobile_buttons'] ) ) get_template_part( 'mobile-buttons' );
 ?>
-<div id="page-top"><?php echo $awesome['page-top'], isset( $luxe['page_top_text'] ) ? '<span class="ptop"> ' . $luxe['page_top_text'] . '</span>' : ''; ?></div>
+<div id="page-top"><i class="<?php echo $awesome['fas'], str_replace( '_', '-', $luxe['page_top_icon'] ); ?>"></i><?php echo isset( $luxe['page_top_text'] ) ? '<span class="ptop"> ' . $luxe['page_top_text'] . '</span>' : ''; ?></div>
 <?php
-	if( ( isset( $luxe['global_navi_mobile_type'] ) && ( $luxe['global_navi_mobile_type'] === 'luxury' || $luxe['global_navi_mobile_type'] === 'luxury_head' ) ) || isset( $luxe['mobile_search_button'] ) ) {
-?><aside><div id="sform" itemscope itemtype="https://schema.org/WebSite"><meta itemprop="url" content="<?php echo THK_HOME_URL; ?>" /><form itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction" method="get" class="search-form" action="<?php echo THK_HOME_URL; ?>"><meta itemprop="target" content="<?php echo THK_HOME_URL; ?>?s={s}"/><div><input itemprop="query-input" type="search" class="search-field mobile-search" name="s" placeholder=" &#xf002; Search for ..." required /></div><input type="submit" class="search-submit" value="Search" /></form></div></aside><?php
+	if( ( isset( $luxe['global_navi_mobile_type'] ) && $luxe['global_navi_mobile_type'] === 'luxury' ) || isset( $luxe['mobile_search_button'] ) ) {
+?><aside><div id="sform" itemscope itemtype="https://schema.org/WebSite"><meta itemprop="url" content="<?php echo THK_HOME_URL; ?>" /><form itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction" method="get" class="search-form" action="<?php echo THK_HOME_URL; ?>"><meta itemprop="target" content="<?php echo THK_HOME_URL; ?>?s={s}"/><div><input itemprop="query-input" type="search" class="search-field mobile-search" name="s" placeholder="Search for ..." required /></div><input type="submit" class="search-submit" value="Search" /></form></div></aside><?php
 	}
 
 	if( $_is['customize_preview'] === true ) {
 		require_once( INC . 'create-javascript.php' );
 		$jscript = new create_Javascript();
 		$luxe['awesome_load_async'] = 'none';
-		$luxe['wrap_menu_used'] = true;
 
+		$files = array(
+			'jquery.sticky-kit.min.js',
+			'autosize.min.js',
+		);
+		foreach( $files as $val ) echo '<script src="', TDEL, '/js/', $val, '"></script>';
+
+		echo	'<script>',
+			$jscript->create_luxe_dom_content_loaded_script();
 		if( isset( $luxe['jquery_load'] ) && $luxe['jquery_load'] !== 'none' ) {
-			$files = array(
-				'jquery.sticky-kit.min.js',
-				'autosize.min.js',
-			);
-			foreach( $files as $val ) echo '<script src="', TDEL, '/js/', $val, '"></script>';
+			echo $jscript->create_luxe_various_script();
 		}
-
-		echo	'<script>'
-		,	$jscript->create_luxe_dom_content_loaded_script()
-		,	$jscript->create_luxe_various_script()
-		,	'</script>';
+		//echo	$jscript->create_sns_count_script(),
+		echo	'</script>';
 	}
 
 	// 子 luxech.js もしくは luxech.min.js
@@ -206,6 +205,12 @@ else {
 
 	// Service Worker
 	if( $_is['preview'] === false && $_is['customize_preview'] === false ) {
+		if( isset( $luxe['pwa_enable'] ) && isset( $luxe['pwa_mobile'] ) ) {
+			if( $_is['mobile'] !== true ) {
+				unset( $luxe['pwa_enable'] );
+			}
+		}
+
 		if( isset( $luxe['pwa_enable'] ) && $_is['ssl'] === true ) {
 			$sw_script = THK_HOME_PATH . 'luxe-serviceworker.js';
 			$sw_regist_script = array( TPATH . DSEP . 'js' . DSEP . 'luxe-serviceworker-regist.js', TDEL . '/js/luxe-serviceworker-regist.js' );
@@ -219,7 +224,6 @@ else {
 		if( $luxe['sns_tops_type'] === 'normal' || $luxe['sns_bottoms_type'] === 'normal' ) {
 			// Facebook normal button
 			if( isset( $luxe['facebook_share_tops_button'] ) || isset( $luxe['facebook_share_bottoms_button'] )  ) {
-				if( class_exists( 'thk_locale' ) === false ) require( INC . 'locale.php' );
 				$thk_locale = new thk_locale();
 ?>
 <div id="fb-root"></div>
@@ -235,10 +239,7 @@ else {
 		}
 
 		// Pinterest button
-		if(
-			( ( $_is['singular'] === true && ( isset( $luxe['sns_tops_enable'] ) || isset( $luxe['sns_bottoms_enable'] ) ) ) || ( $_is['home'] === true && isset( $luxe['sns_toppage_view'] ) ) ) &&
-			( isset( $luxe['pinit_share_tops_button'] ) || isset( $luxe['pinit_share_bottoms_button'] ) )
-		) {
+		if( isset( $luxe['pinit_share_tops_button'] ) || isset( $luxe['pinit_share_bottoms_button'] ) ) {
 			if( $_is['home'] === true || ( $_is['singular'] === true && !isset( $luxe['pinit_hover_button'] ) ) ) {
 ?>
 <script async defer src="//assets.pinterest.com/js/pinit.js"></script>
@@ -255,13 +256,6 @@ else {
 <script async defer data-pin-hover="true" src="//assets.pinterest.com/js/pinit.js"></script>
 <?php
 		}
-	}
-
-	if( isset( $luxe['gallery_type'] ) && $luxe['gallery_type'] === 'highslide' ) {
-?>
-<script>try{var hsCheck=function(o){window.hs?o(window.hs):window.setTimeout(function(){hsCheck(o)},100)};hsCheck(function(){hs.registerOverlay({thumbnailId:null,overlayId:"controlbar",position:"top right",hideOnMouseOut:!0})})}catch(o){console.error("hs.check.error: "+o.message)}</script>
-<div id="controlbar" class="highslide-overlay"><button class="highslide-prev" title="Previous (left arrow key)" onclick="return hs.previous(this)"></button><button class="highslide-next" title="Next (right arrow key)" onclick="return hs.next(this)"></button><button class="highslide-close" title="Close" onclick="return hs.close(this)"></button></div>
-<?php
 	}
 
 	wp_footer();
@@ -295,38 +289,22 @@ echo apply_filters( 'thk_json_ld', '' ); // load json-ld
 if( !isset( $luxe['amp'] ) ) {
 	/* ブログカードのキャッシュ作成（最初の一回だけ） */
 	if( isset( $luxe['bc_url'] ) && isset( $luxe['bc_md5'] ) && isset( $luxe['bc_lnk'] ) ) {
-		if( isset( $luxe['bc_first'] ) ) {
-?><style>.bc-progress{width:100%;height:1pc;margin-bottom:1pc;background:#3798d9;background-image:linear-gradient(-45deg,hsla(0,0%,100%,.125) 25%,transparent 25%,transparent 50%,hsla(0,0%,100%,.125) 50%,hsla(0,0%,100%,.125) 75%,transparent 75%,transparent);background-size:34px 34px;transition:none 0 ease 0;animation:a 2s linear infinite}@keyframes a{to{background-position:34px 34px}}</style><?php
-		}
+		$blogcard = new THK_Blogcard();
 
-		if( !isset( $luxe['jquery_load'] ) || ( isset( $luxe['jquery_load'] ) && $luxe['jquery_load'] === 'none' ) ) {
-			// jQuery が無効化されてて ajax が使えない場合
-			$blogcard = new THK_Blogcard();
-
-			$wp_upload_dir = wp_upload_dir();
-			$cache_dir = $wp_upload_dir['basedir'] . DSEP . 'luxe-blogcard' . DSEP;
-			foreach( $luxe['bc_url'] as $i => $val ) {
-				$url_md5 = $luxe['bc_md5'][$i];
-				$cache_file = $cache_dir . $url_md5[0] . DSEP . $url_md5;
-				thk_flash();
-				do_action( 'thk_create_blogcard', $val, $url_md5 );
-				$caches = $blogcard->thk_get_blogcard_cache( $cache_file, $luxe['bc_lnk'][$i], $url_md5 );
-
-				if( isset( $caches[1] ) ) {
-?><script>try{!function(){var e=document.getElementById("bc_<?php echo $url_md5; ?>");null!==e&&(e.outerHTML="<?php echo $caches[1]; ?>")}()}catch(e){console.error("bc_<?php echo $url_md5; ?>.error: "+e.message)}</script><?php
-				}
-				unset( $luxe['bc_url'][$i], $luxe['bc_md5'][$i], $luxe['bc_lnk'][$i] );
+		$wp_upload_dir = wp_upload_dir();
+		$cache_dir = $wp_upload_dir['basedir'] . DSEP . 'luxe-blogcard' . DSEP;
+		foreach( $luxe['bc_url'] as $i => $val ) {
+			$url_md5 = $luxe['bc_md5'][$i];
+			$cache_file = $cache_dir . $url_md5[0] . DSEP . $url_md5;
+			thk_flash();
+			do_action( 'thk_create_blogcard', $val, $url_md5 );
+			$caches = $blogcard->thk_get_blogcard_cache( $cache_file, $luxe['bc_lnk'][$i], $url_md5 );
+			if( isset( $caches[1] ) ) {
+?>
+<script>try{(function(){document.getElementById('bc_<?php echo $url_md5; ?>').innerHTML='<?php echo $caches[1]; ?>';})();}catch(e){console.error('bc_<?php echo $url_md5; ?>.error: '+e.message);}</script>
+<?php
 			}
-		}
-		else {
-			// ajax が使える場合
-			$ajaxurl = admin_url( 'admin-ajax.php' );
-			$blogcard_cache_nonce = wp_create_nonce( 'blogcard_cache' );
-
-			foreach( (array)$luxe['bc_url'] as $i => $val ) {
-?><script>try{var bcjck=function(c){window.jQuery?c(jQuery):window.setTimeout(function(){bcjck(c)},100)};bcjck(function(c){var e=jQuery.ajax({type:"POST",url:"<?php echo $ajaxurl; ?>",data:{action:"thk_blogcard_cache",bc_url:'<?php echo $val; ?>',bc_md5:'<?php echo $luxe["bc_md5"][$i]; ?>',bc_lnk:'<?php echo $luxe["bc_lnk"][$i]; ?>',blogcard_cache_nonce:"<?php echo $blogcard_cache_nonce; ?>"},dataType:"json",async:!0,cache:!1,timeout:3e5}).then(function(e){try{null!==(c=document.getElementById("bc_"+e[0]))&&(c.outerHTML=e[1]),console.log("Create blogcard cache. Success: bc_<?php echo $luxe['bc_md5'][$i]; ?>")}catch(c){console.error("bc_"+e[0]+".error: "+c.message)}var c},function(){console.log("Create blogcard cache. Failed: bc_<?php echo $luxe['bc_md5'][$i]; ?>"),e.abort()})})}catch(c){}</script><?php
-				unset( $luxe['bc_url'][$i], $luxe['bc_md5'][$i], $luxe['bc_lnk'][$i] );
-			}
+			unset( $luxe['bc_url'][$i] );
 		}
 	}
 }

@@ -70,16 +70,18 @@ jQuery(document).ready(function($){
 			type: 'POST',
 			cache: false,
 			url: ajaxurl,
-			data: {action:'regetsnscount', id:id, <?php echo $security; ?>:true, luxe_nonce:'<?php echo $ajax_nonce; ?>' }
-		}).then( function(response) {
-			snsItm.text( icount + ' / ' + post_count + ' ( ' + Math.floor( icount / post_count * 100 * Math.pow( 10, 2 ) ) / Math.pow( 10, 2 ) + '% )' );
-			snsPrg.css( 'width', Math.floor( icount * 100 / post_count * Math.pow( 10, 1 ) ) / Math.pow( 10, 1 ) + '%' );
-			snsLog.append( response + "\n" );
-			snsLog.scrollTop( snsLog[0].scrollHeight );
-			RegetProcess();
-		}), function(response) {
-			RegetProcess();
-		}
+			data: {action:'regetsnscount', id:id, <?php echo $security; ?>:true, luxe_nonce:'<?php echo $ajax_nonce; ?>' },
+			success: function(response) {
+				snsItm.text( icount + ' / ' + post_count + ' ( ' + Math.floor( icount / post_count * 100 * Math.pow( 10, 2 ) ) / Math.pow( 10, 2 ) + '% )' );
+				snsPrg.css( 'width', Math.floor( icount * 100 / post_count * Math.pow( 10, 1 ) ) / Math.pow( 10, 1 ) + '%' );
+				snsLog.append( response + "\n" );
+				snsLog.scrollTop( snsLog[0].scrollHeight );
+				RegetProcess();
+			},
+			error: function(response) {
+				RegetProcess();
+			}
+		});
 	}
 
 	RegetSns(ids.shift());

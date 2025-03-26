@@ -47,7 +47,7 @@ blockquote, .wp-block-quote {
 	display: block;
 	position: relative;
 	overflow: hidden;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
 	margin: 1.6em 5px;
 	padding: 25px;
 	font-size: 1.4rem;
@@ -115,6 +115,10 @@ option, textarea, [type="text"], [type="email"], [type="search"] {
 	outline-offset: -2px;
 	line-height: 1.0;
 	border-radius: 0;
+}
+[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-decoration {
+	display: none;
 }
 textarea {
 	padding: 8px;

@@ -13,17 +13,17 @@
 */
 
 @media (min-width: 992px){
-	#gnavi li:hover > ul.gu,
-	#gnavi li li:hover ul.gu {
+	#gnavi li:hover > ul,
+	#gnavi li li:hover ul {
 		display: table;
 		z-index: 1;
 	}
-	#gnavi li:hover > ul.gu {
+	#gnavi li:hover > ul {
 		border-collapse: separate;
 		width: 100%;
 		animation: moveY 0.3s 1 normal ease;
 	}
-	#gnavi li li:hover > ul.gu {
+	#gnavi li li:hover ul {
 		table-layout: auto;
 		animation: moveX 0.8s 1 normal ease;
 	}

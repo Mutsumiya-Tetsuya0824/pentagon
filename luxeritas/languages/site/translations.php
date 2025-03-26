@@ -36,7 +36,7 @@ __( ' Next ', 'luxeritas' );
 __( ' Prev ', 'luxeritas' );
 __( 'Page Top', 'luxeritas' );
 __( 'Menu', 'luxeritas' );
-__( 'Install', 'luxeritas' );
+__( ' Menu', 'luxeritas' );
 __( 'Edit This', 'luxeritas' );
 __( 'No posts yet', 'luxeritas' );
 __( 'Posted by', 'luxeritas' );

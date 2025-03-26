@@ -72,7 +72,6 @@ Copyright &copy; <span itemprop="copyrightHolder name"><?php thk_value_check( 'c
 <p><textarea name="copyright_text" cols="60" rows="3"><?php thk_value_check( 'copyright_text', 'textarea' ); ?></textarea></p>
 </li>
 </ul>
-<div style="display:none">
 <script>
 jQuery(function($){
 	$('textarea[name="copyright_text"]').focusin(function() {
@@ -83,4 +82,3 @@ jQuery(function($){
 	});
 });
 </script>
-</div>

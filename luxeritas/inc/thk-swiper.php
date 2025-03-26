@@ -15,7 +15,7 @@
  */
 
 if( function_exists('thk_swiper') === false ):
-function thk_swiper( $args, $title, $item_types, $item_max, $show_max, $navigation, $next_prev, $nav_color, $ids = null, $thumb = 'medium', $height = 'auto', $heightpx = 0, $width = 'auto', $slide_bg = 'transparent', $titleview = null, $efect = 'none', $darkness = null, $center = 'post', $no_lazyload = null, $autoplay = 0 ) {
+function thk_swiper( $args, $title, $item_types, $ids = null, $item_max, $show_max, $thumb = 'medium', $height = 'auto', $heightpx = 0, $width = 'auto', $slide_bg = 'transparent', $navigation, $next_prev, $nav_color, $titleview = null, $efect = 'none', $darkness = null, $center = 'post', $no_lazyload = null, $autoplay = 0 ) {
 	global $_is;
 	$cargs = array();
 
@@ -141,7 +141,7 @@ function thk_swiper( $args, $title, $item_types, $item_max, $show_max, $navigati
 					$thumb_img_tag = wp_get_attachment_image( $attachment_id );
 				}
 				else {
-					$thumb_img_tag = get_the_post_thumbnail( $cquery->ID, $thumb );
+					$thumb_img_tag = thk_get_the_post_thumbnail( $cquery->ID, $thumb );
 				}
 
 				// Javascript が無効なら、そもそも表示されないので <noscript> は不要なので消す
@@ -202,8 +202,9 @@ function thk_swiper( $args, $title, $item_types, $item_max, $show_max, $navigati
 <div class="swiper-pagination"></div>
 <?php
 	}
+	$min_css_file = $awesome['ver'][0] === '4' ? 'thk-swiper.min.css' : 'thk-swiper-5.min.css';
 
-	$min_css = array( TPATH . DSEP . 'styles' . DSEP . 'thk-swiper.min.css', TDEL . '/styles/thk-swiper.min.css' );
+	$min_css = array( TPATH . DSEP . 'styles' . DSEP . $min_css_file, TDEL . '/styles/' . $min_css_file );
 	$min_css[1] .= file_exists( $min_css[0] ) === true ? '?v=' . filemtime( $min_css[0] ) : '?v=' . $_SERVER['REQUEST_TIME'];
 
 	$min_js = array( TPATH . DSEP . 'js' . DSEP . 'thk-swiper.min.js', TDEL . '/js/thk-swiper.min.js' );

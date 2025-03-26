@@ -20,51 +20,26 @@ global $luxe, $_is, $observe;
 <?php
 if( isset( $luxe['thumbnail_visible'] ) ) {
 	$attachment_id = false;
-	$echo = false;
 	$post_thumbnail = has_post_thumbnail();
 
 	if( $post_thumbnail === false && isset( $luxe['no_img'] ) ) {
 		$attachment_id = thk_get_image_id_from_url( $luxe['no_img'] );
-		if( $attachment_id !== false ) {
-			$post_thumbnail = true;
-			$echo = true;
-			$aria_label = 'aria-label="No Imaage"';
-		}
+		if( $attachment_id !== false ) $post_thumbnail = true;
 	}
 
 	if( $post_thumbnail === true ) {	// サムネイル
 		$thumb = $luxe['thumbnail_is_size'];
-
-		if( $attachment_id === false ) {
-			$attachment_id = get_post_thumbnail_id();
-			$attachment_image = wp_get_attachment_image( $attachment_id );
-
-			if( !empty( $attachment_image ) && stripos( $attachment_image, 'alt="' ) !== false ) {
-				$aria_label = substr( $attachment_image, stripos( $attachment_image, 'alt="' ) + 5 );
-				$aria_label = substr( $aria_label, 0, stripos( $aria_label, '"' ) );
-				if( empty( $aria_label ) ) {
-					$aria_label = 'aria-label="' . thk_random_alt_or_aria_label( 'Thumbnail of post image' ) . '"';
-				}
-				else {
-					$aria_label = 'aria-label="' . $aria_label . '"';
-				}
-			}
-			else {
-				$aria_label = 'aria-label="' . thk_random_alt_or_aria_label( 'Thumbnail of post image' ) . '"';
-			}
-		}
-?><a href="<?php the_permalink() ?>" <?php echo $aria_label; ?>><?php
-		if( thk_thumbnail_exists( $attachment_id, $thumb ) === false ) {
-			$thumb = 'full';
-		}
-		if( $echo === true ) {
-			$attachment_image = wp_get_attachment_image( $attachment_id, $thumb, 0, array( 'itemprop' => 'image', 'class' => 'thumbnail' ) );
-			echo thk_alt_attribute( $attachment_image, 'Thumbnail of post image' );
+?>
+<a href="<?php the_permalink() ?>" aria-hidden="true"><?php
+		if( $attachment_id !== false ) {
+			echo wp_get_attachment_image( $attachment_id, $thumb, 0, array( 'itemprop' => 'image', 'class' => 'thumbnail' ) );
 		}
 		else {
-			//the_post_thumbnail( $thumb, array( 'itemprop' => 'image', 'class' => 'thumbnail' ) );
-			$get_post_thumbnail = get_the_post_thumbnail( null, $thumb, array( 'itemprop' => 'image', 'class' => 'thumbnail' ) );
-			echo thk_alt_attribute( $get_post_thumbnail, 'Thumbnail of post image' );
+			$attachment_id = get_post_thumbnail_id();
+			if( thk_thumbnail_exists( $attachment_id, $thumb ) === false ) {
+				$thumb = 'full';
+			}
+			the_post_thumbnail( $thumb, array( 'itemprop' => 'image', 'class' => 'thumbnail' ) );
 		}
 ?></a>
 <?php
@@ -105,26 +80,24 @@ if( isset( $luxe['thumbnail_visible'] ) ) {
 		}
 
 		$no_img_org = '<img src="' . TURI . '/images/' . $no_img_png . '" itemprop="image" class="thumbnail" alt="No Image" title="No Image" width="' . $no_img_wid . '" height="' . $no_img_hgt . '" />';
-		if( isset( $luxe['lazyload_type'] ) && ( $luxe['lazyload_type'] !== 'intersection' || ( $luxe['lazyload_type'] === 'intersection' && !isset( $luxe['lazyload_thumbs'] ) ) ) ) {
+		if( !isset( $luxe['lazyload_thumbs'] ) ) {
 			$no_img = $no_img_org;
 		}
 		else {
 			$no_img = '<img src="' . $luxe['trans_image'] . '" data-src="' . TURI . '/images/' . $no_img_png . '" itemprop="image" class="lazy thumbnail" alt="No Image" title="No Image" width="' . $no_img_wid . '" height="' . $no_img_hgt . '" />';
-			if( isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' && isset( $luxe['lazyload_noscript'] ) ) {
+			if( isset( $luxe['lazyload_noscript'] ) ) {
 				$no_img .= '<noscript>' . $no_img_org . '</noscript>';
 			}
 		}
 ?>
-<a href="<?php the_permalink() ?>" aria-label="No Image"><?php echo $no_img; ?></a>
+<a href="<?php the_permalink() ?>" aria-hidden="true"><?php echo $no_img; ?></a>
 <?php
 	}
 
-	if( isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' ) {
-		if( isset( $luxe['lazyload_thumbs'] ) && $observe < 1 ) {
-			echo '<script>thklazy()</script>';
-		}
-		++$observe;
+	if( isset( $luxe['lazyload_thumbs'] ) && $observe < 1 ) {
+		echo '<script>thklazy()</script>';
 	}
+	++$observe;
 }
 ?>
 </figure><!--/.term-->
@@ -149,6 +122,6 @@ else {
 <p class="read-more"><?php
 	if( !empty( $luxe['read_more_text'] ) ) {
 		$length = isset( $luxe['short_title_length'] ) ? $luxe['short_title_length'] : 0;
-?><a href="<?php the_permalink(); ?>" class="read-more-link" aria-label="<?php echo $luxe['read_more_text']; ?>" itemprop="url"><?php echo ( isset( $luxe['read_more_short_title'] ) ) ? read_more_title_add( $luxe['read_more_text'], $length ) : $luxe['read_more_text']; // 記事を読むリンク ?></a><?php
+?><a href="<?php the_permalink(); ?>" class="read-more-link" aria-hidden="true" itemprop="url"><?php echo ( isset( $luxe['read_more_short_title'] ) ) ? read_more_title_add( $luxe['read_more_text'], $length ) : $luxe['read_more_text']; // 記事を読むリンク ?></a><?php
 	}
 ?></p>

@@ -181,7 +181,7 @@ function thk_file_status_check() {
 		$ft = filemtime( $files['pluxe']['check'] );
 		if( $ft !== filemtime( $files['pluxe']['compare'] ) ) {
 			$load_files['p-luxe-min'][1] .= '?v=' . $_SERVER['REQUEST_TIME'];
-			//$status = true;
+			$status = true;
 		}
 		else {
 			$load_files['p-luxe-min'][1] .= '?v=' . $ft;
@@ -377,8 +377,20 @@ function thk_load_customize_preview() {
 		wp_enqueue_style( $key, $val . '?v=' . $ver, array(), false, 'all' );
 	}
 
-	/* icomoon (プレビュー) */
-	//wp_enqueue_style( 'icomoon', TDEL . '/css/icomoon.css', array(), false, 'all' );
+	/* アイコンフォント (プレビュー) */
+	if( isset( $luxe['awesome_load_async'] ) && $luxe['awesome_load_async'] === 'async' ) {
+		wp_enqueue_style( 'awesome', TDEL . '/css/fontawesome5.css', array(), false, 'all' );
+		if( $awesome['ver'][0] === '4' ) {
+			wp_enqueue_style( 'awesome', TDEL . '/css/fontawesome4.css', array(), false, 'all' );
+		}
+		else {
+			wp_enqueue_style( 'awesome', TDEL . '/css/fontawesome5.css', array(), false, 'all' );
+		}
+		wp_enqueue_style( 'icomoon', TDEL . '/css/icomoon.css', array(), false, 'all' );
+	}
+	elseif( isset( $luxe['awesome_load'] ) && $luxe['awesome_load'] === 'svg' ) {
+		wp_enqueue_style( 'awesome', TDEL . '/css/fontawesome5.luxe.minimum.css', array(), false, 'all' );
+	}
 
 	/* design file css (プレビュー) */
 	if( isset( $luxe['design_file'] ) && file_exists( SPATH . '/design/' . $luxe['design_file'] . '/style.css' ) === true ) {
@@ -391,12 +403,40 @@ function thk_load_customize_preview() {
 	$last_css = key( $files );
 	wp_add_inline_style( $last_css, thk_custom_css() );
 
+	/* Font Awesome 4 が使われてる箇所をカスタマイズプレビュー用に置換 */
+	if( $awesome === 4 ) {
+		$awesome_replace = <<< AWESOME4
+#head-search button[type=submit]:before,
+.band-menu .menu-item a::before,
+#layer li a::before {
+	font-family: FontAwesome;
+}
+.search-field::-webkit-input-placeholder {
+	font-family: FontAwesome;
+}
+.search-field:-moz-placeholder {
+	font-family: FontAwesome;
+}
+.search-field:-ms-input-placeholder {
+	font-family: FontAwesome;
+}
+.search-field:placeholder-shown {
+	font-family: FontAwesome;
+}
+@media (min-width: 992px){
+	#gnavi ul ul > li[class*="children"] > a > span::after {
+		font-family: FontAwesome;
+	}
+}
+
+AWESOME4;
+		wp_add_inline_style( $last_css, $awesome_replace );
+	}
+
 	/* Web font のフォントファミリー */
-	/*
 	$webfont = new Create_Web_Font();
 	$font_arr = $webfont->create_web_font_stylesheet();
 	wp_add_inline_style( $last_css, $font_arr['font_family'] );
-	*/
 }
 endif;
 
@@ -411,7 +451,7 @@ else {
 		/* Gutenberg のブロックスタイル */
 		if( isset( $luxe['wp_block_library_load'] ) ) {
 			if( $luxe['wp_block_library_load'] === 'inline' || $luxe['wp_block_library_load'] === 'async' || $luxe['wp_block_library_load'] === 'none' ) {
-				add_action( 'wp_enqueue_scripts', function() use( &$luxe ) {
+				add_action( 'wp_enqueue_scripts', function() use( $luxe ) {
 					wp_deregister_style( 'wp-block-library' );
 					wp_register_style( 'wp-block-library', '' );
 					wp_deregister_style( 'wp-block-library-theme' );
@@ -440,7 +480,6 @@ else {
 							$block_library .= thk_direct_style( $block_library_theme );
 						}
 						$block_library .= thk_direct_style( TPATH . '/styles/luxe-blocks-style.min.css' );
-						$block_library = thk_simple_css_minify( $block_library );
 
 						if( !empty( $block_library ) ) {
 							wp_add_inline_style( 'wp-block-library-theme', $block_library );
@@ -546,7 +585,7 @@ if( !isset( $luxe['amp'] ) && !isset( $embed ) ) {
 				case 'google2':
 					wp_register_script( 'jquery', $cdn . '2.2.4/jquery.min.js', array(), false, false );
 				case 'google3':
-					wp_register_script( 'jquery', $cdn . '3.6.0/jquery.min.js', array(), false, false );
+					wp_register_script( 'jquery', $cdn . '3.4.1/jquery.min.js', array(), false, false );
 				case 'luxeritas':
 					$uri = '/js/jquery.luxe.min.js';
 					if( isset( $luxe['jquery_migrate_load'] ) ) {
@@ -584,10 +623,7 @@ if( !isset( $luxe['amp'] ) && !isset( $embed ) ) {
 	if( $luxe['jquery_load'] !== 'none' ) {
 		if( $luxe['bootstrap_js_load_type'] !== 'none' ) {
 			/* Load bootstrap.js */
-			if( $luxe['luxe_mode_select'] === 'bootstrap5' ) {
-				wp_enqueue_script( 'bootstrap', TDEL . '/js/bootstrap5/bootstrap.min.js', array('jquery'), false, false );
-			}
-			elseif( $luxe['luxe_mode_select'] === 'bootstrap4' ) {
+			if( $luxe['luxe_mode_select'] === 'bootstrap4' ) {
 				wp_enqueue_script( 'bootstrap', TDEL . '/js/bootstrap4/bootstrap.min.js', array('jquery'), false, false );
 			}
 			else {

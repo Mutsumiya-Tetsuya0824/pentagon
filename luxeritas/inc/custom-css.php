@@ -93,14 +93,11 @@ function thk_custom_css() {
 html {
 	overflow: auto;
 	overflow-y: scroll;
-	/* scroll-behavior: smooth; */
 	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: 100%;
+	-ms-overflow-style: scrollbar;
 	-webkit-tap-highlight-color: transparent;
 HTML_STYLE;
-
-	if( isset( $luxe['amp_css'] ) ) {
-		$style['all'] .= 'scroll-behavior: smooth;';
-	}
 
 	if( isset( $luxe['font_size_scale'] ) && (float)$luxe['font_size_scale'] !== (float)$defaults['font_size_scale'] ) {
 		$style['all'] .= 'font-size:' . $luxe['font_size_scale'] . '%!important;';
@@ -108,7 +105,6 @@ HTML_STYLE;
 	else {
 		$style['all'] .= 'font-size: 62.5%!important;';
 	}
-
 	$style['all'] .= '}';
 
 	/*---------------------------------------------------------------------------
@@ -120,11 +116,9 @@ HTML_STYLE;
 		$style['min_992']  .= '.container{width: 960px; max-width: 960px;}';
 		$style['min_1200'] .= '.container{width: 1140px; max-width: 1140px;}';
 	}
-	/* flex 未対応のブラウザがほぼ絶滅状態になったので削除
 	if( isset( $luxe['luxe_mode_select'] ) && $luxe['luxe_mode_select'] === 'bootstrap4' ) {
 		$style['all']  .= 'div[class^=col-]{float: left;}';
 	}
-	*/
 
 	/*---------------------------------------------------------------------------
 	 * グリッドレイアウト（記事一覧中央ウィジェットの幅）
@@ -393,37 +387,36 @@ GNAVI_SMART_ICON;
 
 		// 自動リサイズ same の時だけ display: table なので、margin の調整の仕方が異なる
 		if( isset( $luxe['global_navi_auto_resize'] ) && $luxe['global_navi_auto_resize'] === 'same' ) {
-			$style['min_992'] .= '#gnavi .gc > ul::before{content:none;}';
-			$style['min_992'] .= '#gnavi .gc > ul > li > a{border-left:1px solid ' . $separator_color . ';}';
-			$style['min_992'] .= '#gnavi .gc > ul > li:last-child > a{border-right:1px solid ' . $separator_color . ';}';
+			$style['min_992'] .= '#gnavi div > ul::before{content:none;}';
+			$style['min_992'] .= '#gnavi div > ul > li > a{border-left:1px solid ' . $separator_color . ';}';
+			$style['min_992'] .= '#gnavi div > ul > li:last-child > a{border-right:1px solid ' . $separator_color . ';}';
 
 			if( $separator_color !== $def_border_color ) {
-				$style['min_992'] .= '#gnavi li ul.gu{border-left-color:' . $separator_color . '; border-right-color:' . $separator_color . ';}';
+				$style['min_992'] .= '#gnavi li ul{border-left-color:' . $separator_color . '; border-right-color:' . $separator_color . ';}';
 			}
 		}
 		else {
-			$style['min_992'] .= '#gnavi .gc > ul > li > a{border-left:1px solid ' . $separator_color . ';}';
+			$style['min_992'] .= '#gnavi div > ul > li > a{border-left:1px solid ' . $separator_color . ';}';
 		}
 
 		if( isset( $luxe['global_navi_auto_resize'] ) && $luxe['global_navi_auto_resize'] === 'same' ) {
-			$style['min_992'] .= '#gnavi .gc > ul > li:first-child a{border-left:none;}';
+			$style['min_992'] .= '#gnavi div > ul > li:first-child a{border-left:none;}';
 		}
 
-		$style['min_992'] .= '#gnavi .gc > ul > li:first-child > a{border-left:none;}';
-		$style['min_992'] .= '#gnavi .gc > ul > li:last-child > a{border-right:none;}';
+		$style['min_992'] .= '#gnavi div > ul > li:first-child > a{border-left:none;}';
+		$style['min_992'] .= '#gnavi div > ul > li:last-child > a{border-right:none;}';
 
 		// 両端の border ありの時
 		if( $luxe['global_navi_sep'] === 'both' ) {
-			$style['min_992'] .= '#gnavi .gc > ul{border-left:1px solid ' . $separator_color . ';}';
-			$style['min_992'] .= '#gnavi .gc > ul{border-right:1px solid ' . $separator_color . ';}';
+			$style['min_992'] .= '#gnavi div > ul{border-left:1px solid ' . $separator_color . ';}';
+			$style['min_992'] .= '#gnavi div > ul{border-right:1px solid ' . $separator_color . ';}';
 		}
 	}
 
-	/* グローバルナビの子・孫の線 */
 	if( isset( $luxe['gnavi_separator_color'] ) ) {
-		$style['min_992'] .= '#gnavi li.gl > ul,';
-		$style['min_992'] .= '#gnavi li li.gl > a > .gim,';
-		$style['min_992'] .= '#gnavi li li ul.gu {';
+		$style['min_992'] .= '#gnavi li > ul,';
+		$style['min_992'] .= '#gnavi li li span,';
+		$style['min_992'] .= '#gnavi li li ul {';
 		$style['min_992'] .= 'border-color:' . $luxe['gnavi_separator_color'];
 		$style['min_992'] .= ';}';
 	}
@@ -431,7 +424,9 @@ GNAVI_SMART_ICON;
 	/* グローバルナビ自動リサイズ */
 	if( isset( $luxe['global_navi_auto_resize'] ) && $luxe['global_navi_auto_resize'] === 'full' ) {
 		$style['min_992'] .= <<<GNAVI_AUTO
-#gnavi li.gl {
+#gnavi li {
+	-webkit-flex: 1 0 auto;
+	-ms-flex: 1 0 auto;
 	flex: 1 0 auto;
 }
 GNAVI_AUTO;
@@ -439,24 +434,21 @@ GNAVI_AUTO;
 	/* グローバルナビ全幅同じ */
 	elseif( isset( $luxe['global_navi_auto_resize'] ) && $luxe['global_navi_auto_resize'] === 'same' ) {
 		$style['min_992'] .= <<<GNAVI_AUTO
-#gnavi ul.gu {
+#gnavi ul {
 	display: table;
 	table-layout: fixed;
 	width: 100%;
 	/*border-collapse: collapse;*/
 }
-#gnavi .menu {
-	height: 100%;
-}
-#gnavi li.gl {
+#gnavi li {
 	display: table-cell;
 	float: none;
 	width: 100%;
 }
-#gnavi ul ul.gu {
+#gnavi ul ul {
 	table-layout: auto;
 }
-#gnavi li li.gl {
+#gnavi li li {
 	/*display: table-row;*/
 	display: table;
 }
@@ -469,138 +461,6 @@ GNAVI_AUTO;
 		if( isset( $luxe['head_band_visible'] ) ) {
 			$style['all'] .= '#nav{top:' . $top . 'px;}';
 		}
-	}
-
-	/* PC のカスタムグローバルナビ用 (幅を揃えるため #gnavi を poisition: relative に) */
-	if( isset( $luxe['wrap_menu_used'] ) ) {
-		$style['min_992'] .= '#gnavi{position:relative}';
-	}
-
-	/*---------------------------------------------------------------------------
-	 * モバイル用グローバルナビ
-	 *---------------------------------------------------------------------------*/
-	if( isset( $luxe['global_navi_visible'] ) && isset( $luxe['global_navi_mobile_type'] ) ) {
-		if( $luxe['global_navi_mobile_type'] === 'luxury' ) {
-			$style['max_991'] .= <<<GNAVI_MOBILE
-#nav {
-	border-top: 0;
-}
-#gnavi ul.mobile-nav {
-	transition: width .6s, max-height .6s;
-	position: fixed;
-	top: -48px;
-	right: 5px;
-	display: flex;
-	flex-flow: column;
-	margin: 0;
-	border: 1px solid #ddd;
-	max-height: 44px;
-	width: 48px;
-	overflow: hidden;
-	opacity: .9;
-}
-.mobile-nav li.mob-func {
-	min-height: 44px;
-	line-height: 28px;
-}
-.mobile-nav li.mob-func i {
-	font-size: 1.4rem;
-}
-.mobile-nav li.mob-menu {
-	border-top: 3px double #ddd;
-}
-
-GNAVI_MOBILE;
-		}
-		elseif( $luxe['global_navi_mobile_type'] === 'global' ) {
-			$style['max_991'] .= <<<GNAVI_MOBILE
-#nav {
-	border-top: 0;
-}
-#gnavi ul.mobile-nav {
-	transition: max-height .6s;
-	position: fixed;
-	top: -48px;
-	right: 5px;
-	display: flex;
-	width: 60px;
-	flex-flow: column;
-	margin: 0;
-	border: 1px solid #ddd;
-	opacity: .9;
-}
-.mobile-nav li {
-	min-height: 44px;
-	line-height: 30px;
-}
-.mobile-nav li i {
-	vertical-align: middle;
-}
-
-GNAVI_MOBILE;
-		}
-		elseif( $luxe['global_navi_mobile_type'] === 'luxury_head' ) {
-			$style['max_991'] .= <<<GNAVI_MOBILE
-#gnavi ul.mobile-nav {
-	display: table;
-	table-layout: fixed;
-	width: 100%;
-	margin: 0;
-	border: 0;
-}
-.mobile-nav li {
-	display: table-cell;
-}
-
-GNAVI_MOBILE;
-		}
-		elseif( $luxe['global_navi_mobile_type'] === 'luxury_head' || $luxe['global_navi_mobile_type'] === 'global_head' ) {
-			$style['max_991'] .= <<<GNAVI_MOBILE
-#gnavi ul.mobile-nav {
-	display: table;
-	table-layout: fixed;
-	width: 100%;
-	margin: 0;
-	border: 0;
-}
-.mobile-nav li {
-	display: table-cell;
-	padding: 12px 20px;
-	cursor: pointer;
-}
-
-GNAVI_MOBILE;
-		}
-	}
-
-	/*---------------------------------------------------------------------------
-	 * グローバルナビに説明文が使われてる場合
-	 *---------------------------------------------------------------------------*/
-	if( isset( $luxe['global_navi_visible'] ) && has_nav_menu( 'global-nav' ) !== false ) {
-		require( INC . 'navi-menu-walker.php' );
-		$global_nav = wp_nav_menu(
-			array(
-				'theme_location' => 'global-nav',
-				'echo'  => false,
-				'depth' => 3,
-				'fallback_cb' => 'thk_page_menu',
-				'walker' => new THK_Global_Nav_Walker()
-			)
-		);
-
-		if( strpos( $global_nav, 'gnavi-desc' ) !== false ) {
-			$gnavi_desc_color = isset( $luxe['gnavi_desc_color'] ) ? $luxe['gnavi_desc_color'] : '#595959';
-			$gnavi_current_desc_color = isset( $luxe['gnavi_current_desc_color'] ) ? $luxe['gnavi_current_desc_color'] : '#fff';
-			$gnavi_hover_desc_color = isset( $luxe['gnavi_hover_color'] ) ? $luxe['gnavi_hover_color'] : '#fff';
-
-			$style['all'] .= '.gnavi-desc { font-size: .9em; color: ' . $gnavi_desc_color . '; white-space: normal; word-break: break-word; }';
-			$style['min_992'] .= '#gnavi li.gl > a:hover .gnavi-desc, #gnavi li.gl:hover > a > .gim .gnavi-desc { color:' . $gnavi_hover_desc_color . '; }';
-			$style['min_992'] .= '#gnavi li[class*="current"] > a .gnavi-desc { color:' . $gnavi_current_desc_color . '; }';
-			$style['min_992'] .= '.gnavi-desc { display: block; padding-top: 6px; }';
-			$style['max_991'] .= '.gnavi-desc::before { content: "-"; padding: 0 12px; color: ' . $gnavi_desc_color . '; }';
-		}
-
-		unset( $global_nav, $gnavi_desc_color );
 	}
 
 	/*---------------------------------------------------------------------------
@@ -702,15 +562,14 @@ GNAVI_MOBILE;
 	/* Body */
 	// WebFont の font-face
 
+
 	$webfont = new Create_Web_Font();
 	$font_arr = $webfont->create_web_font_stylesheet();
 
-	/* 廃止
 	if( !isset( $luxe['web_font_async'] ) ) {
 		if( isset( $font_arr['font_alphabet'] ) ) $style['all'] .= $font_arr['font_alphabet'];
 		if( isset( $font_arr['font_japanese'] ) ) $style['all'] .= $font_arr['font_japanese'];
 	}
-	*/
 
 	$style['all'] .= <<<BODY
 body {
@@ -932,7 +791,7 @@ LINK_HOVER;
 	/* モバイルでフッター表示 */
 	if( !isset( $luxe['hide_mobile_footer'] ) ) {
 		$style['max_991'] .= '#foot-in{padding:25px 0;}';
-		$style['max_991'] .= '#foot-in .col-xs-4, #foot-in .col-xs-6, #foot-in .col-xs-12{display:block;max-width:100%;width:100%;flex:none;float:none;}';
+		$style['max_991'] .= '#foot-in .col-xs-4, #foot-in .col-xs-6, #foot-in .col-xs-12{display:block;max-width:100%;width:100%;float:none;}';
 	}
 
 	/* ヘッダー文字色と背景色 */
@@ -1030,45 +889,53 @@ LINK_HOVER;
 		*/
 
 		if( isset( $luxe['head_img_height_auto'] ) ) {
-			$sizes = thk_get_image_size( $luxe['head_bg_img'] );
-			if( $luxe['head_img_size'] === 'cover' || $luxe['head_img_size'] === 'contain' || $luxe['head_img_size'] === 'adjust2' ) {
-				$style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '/' . $sizes[0] . '*100%);';
-			}
-			elseif( $luxe['head_img_size'] === 'adjust' ) {
-				if( isset( $luxe['head_img_width_max'] ) ) {
-					$head_padding = ( isset( $head_padding ) ? $head_padding : isset( $luxe['head_band_height'] ) ) ? $luxe['head_band_height'] : 0;
-					if( $head_padding !== 0 ) {
-						$style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '*100%/' . $sizes[0] . ' - ' . $head_padding . 'px);';
-					}
-					else {
-						$style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '*100%/' . $sizes[0] . ');';
-					}
-				}
-				else {
-					$style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '*100%/' . $sizes[0] . ');';
-				}
-			}
-			else {
-				$style['all'] .= 'min-height:' . $sizes[1] . 'px;';
-			}
+    $sizes = thk_get_image_size( $luxe['head_bg_img'] );
+    
+    if( $luxe['head_img_size'] === 'cover' || $luxe['head_img_size'] === 'contain' || $luxe['head_img_size'] === 'adjust2' ) {
+        $style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '/' . $sizes[0] . '*100%);';
+    } elseif( $luxe['head_img_size'] === 'adjust' ) {
+        if( isset( $luxe['head_img_width_max'] ) ) {
+            // 修正: 三項演算子の優先順位を明確にする
+            $head_padding = isset( $head_padding ) 
+                ? $head_padding 
+                : ( isset( $luxe['head_band_height'] ) ? $luxe['head_band_height'] : 0 );
 
-			$style['all'] .= '}';
+            if( $head_padding !== 0 ) {
+                $style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '*100%/' . $sizes[0] . ' - ' . $head_padding . 'px);';
+            } else {
+                $style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '*100%/' . $sizes[0] . ');';
+            }
+        } else {
+            $style['all'] .= 'padding-bottom: calc(' . $sizes[1] . '*100%/' . $sizes[0] . ');';
+        }
+    } else {
+        $style['all'] .= 'min-height:' . $sizes[1] . 'px;';
+    }
 
-			if( ( isset( $luxe['head_img_max_height'] ) && $luxe['head_img_max_height'] > 0 ) || ( isset( $luxe['head_img_min_height'] ) && $luxe['head_img_min_height'] > 0 ) ) {
-				$style['all'] .= '#head-in{';
-				if( isset( $luxe['head_img_max_height'] ) && $luxe['head_img_max_height'] > 0 ) {
-					$style['all'] .= 'max-height:' . (int)$luxe['head_img_max_height'] . 'px;';
-				}
-				if( isset( $luxe['head_img_min_height'] ) && $luxe['head_img_min_height'] > 0 ) {
-					$style['all'] .= 'min-height:' . (int)$luxe['head_img_min_height'] . 'px;';
-				}
-				$style['all'] .= 'overflow:hidden;';
-				$style['all'] .= '}';
-			}
-		}
-		else {
-			$style['all'] .= '}';
-		}
+    $style['all'] .= '}';
+
+    if (
+        ( isset( $luxe['head_img_max_height'] ) && $luxe['head_img_max_height'] > 0 ) ||
+        ( isset( $luxe['head_img_min_height'] ) && $luxe['head_img_min_height'] > 0 )
+    ) {
+        $style['all'] .= '#head-in{';
+        
+        if( isset( $luxe['head_img_max_height'] ) && $luxe['head_img_max_height'] > 0 ) {
+            $style['all'] .= 'max-height:' . (int)$luxe['head_img_max_height'] . 'px;';
+        }
+        
+        if( isset( $luxe['head_img_min_height'] ) && $luxe['head_img_min_height'] > 0 ) {
+            $style['all'] .= 'min-height:' . (int)$luxe['head_img_min_height'] . 'px;';
+        }
+
+        $style['all'] .= 'overflow:hidden;';
+        $style['all'] .= '}';
+    }
+} else {
+    $style['all'] .= '}';
+}
+
+		
 	}
 
 	/*---------------------------------------------------------------------------
@@ -1367,7 +1234,7 @@ BODY;
 	if( isset( $luxe['font_size_gnavi'] ) && (float)$luxe['font_size_gnavi'] !== (float)$defaults['font_size_gnavi'] ) {
 		$rem = (float)$luxe['font_size_gnavi'] / 10;
 		// media query が他と違うので注意！
-		$style['min_992'] .= '#gnavi li.gl > a{';
+		$style['min_992'] .= '#gnavi li a{';
 		$style['min_992'] .= 'font-size:' . $rem . 'rem;';
 		$style['min_992'] .= '}';
 	}
@@ -1419,52 +1286,57 @@ BODY;
 	 *---------------------------------------------------------------------------*/
 	/* グローバルナビ文字色 */
 	if( isset( $luxe['gnavi_color'] ) ) {
-		$style['all'] .= '#nav, #gnavi li.gl > a, .mobile-nav {';
+		$style['all'] .= '#nav, #gnavi ul, #gnavi li a, .mobile-nav {';
 		$style['all'] .= 'color:' . $luxe['gnavi_color'] . ';';
 		$style['all'] .= '}';
 	}
 
 	/* グローバルナビバー背景色 */
 	if( isset( $luxe['gnavi_bar_bg_color'] ) ) {
-		$style['all'] .= '#nav, #gnavi ul.gu{';
+		$style['all'] .= '#nav, #gnavi ul{';
 		$style['all'] .= 'background:' . $luxe['gnavi_bar_bg_color'] . ';';
 		$style['all'] .= '}';
 	}
 
 	/* グローバルナビ背景色 */
 	if( isset( $luxe['gnavi_bg_color'] ) ) {
-		$style['all'] .= '#gnavi li.gl > a, #gnavi .mobile-nav {';
+		$style['all'] .= '#gnavi li a, #gnavi .mobile-nav {';
 		$style['all'] .= 'background:' . $luxe['gnavi_bg_color'] . ';';
 		$style['all'] .= '}';
 	}
 
 	/* グローバルナビホバー色 */
 	if( isset( $luxe['gnavi_hover_color'] ) || isset( $luxe['gnavi_bg_hover_color'] )) {
-		//$style['min_992'] .= '#gnavi li.gl:hover,';
-		$style['min_992'] .= '#gnavi li.gl:hover > a, #gnavi li.gl:hover > a > .gim, div.mobile-nav:hover, ul.mobile-nav li:hover{';
+		//$style['all'] .= '#gnavi li:hover,';
+		$style['all'] .= '#gnavi li:hover > a, #gnavi li:hover > a > span, div.mobile-nav:hover, ul.mobile-nav li:hover{';
 		if( isset( $luxe['gnavi_hover_color'] ) ) {
-			$style['min_992'] .= 'color:' . $luxe['gnavi_hover_color'] . ';';
+			$style['all'] .= 'color:' . $luxe['gnavi_hover_color'] . ';';
 		}
 		if( isset( $luxe['gnavi_bg_hover_color'] ) ) {
-			$style['min_992'] .= 'background:' . $luxe['gnavi_bg_hover_color'] . ';';
+			$style['all'] .= 'background:' . $luxe['gnavi_bg_hover_color'] . ';';
 		}
-		$style['min_992'] .= '}';
+		$style['all'] .= '}';
 
-		$style['max_991'] .= '#gnavi li.gl:hover > a > .gim {';
+		$style['max_991'] .= '#gnavi li:hover > a > span {';
 		$style['max_991'] .= 'background: transparent;';
 		$style['max_991'] .= '}';
 	}
 
 	/* グローバルナビカレント色 */
 	if( isset( $luxe['gnavi_current_color'] ) || isset( $luxe['gnavi_bg_current_color'] )) {
-		$style['min_992'] .= '#gnavi li[class*="current"] > a{';
-		if( isset( $luxe['gnavi_current_color'] ) ) {
-			$style['min_992'] .= 'color:' . $luxe['gnavi_current_color'] . ';';
-		}
 		if( isset( $luxe['gnavi_bg_current_color'] ) ) {
-			$style['min_992'] .= 'background:' . $luxe['gnavi_bg_current_color'] . ';';
+			$style['all'] .= '#gnavi .current-menu-item > a,';
+			$style['all'] .= '#gnavi .current-menu-ancestor > a,';
+			$style['all'] .= '#gnavi .current_page_item > a,';
+			$style['all'] .= '#gnavi .current_page_ancestor > a{';
+			if( isset( $luxe['gnavi_current_color'] ) ) {
+				$style['all'] .= 'color:' . $luxe['gnavi_current_color'] . ';';
+			}
+			if( isset( $luxe['gnavi_bg_current_color'] ) ) {
+				$style['all'] .= 'background:' . $luxe['gnavi_bg_current_color'] . ';';
+			}
+			$style['all'] .= '}';
 		}
-		$style['min_992'] .= '}';
 	}
 
 	if(
@@ -1480,10 +1352,7 @@ BODY;
 
 		/* グローバルナビ下の枠線色 */
 		if( isset( $luxe['gnavi_border_bottom_color'] ) ) {
-			/* プログレスバー有効時は、そもそも表示しないので、何もしない */
-			if( !isset( $luxe['global_navi_scroll_progress'] ) ) {
-				$style['all'] .= 'border-bottom-color:' . $luxe['gnavi_border_bottom_color'] . ';';
-			}
+			$style['all'] .= 'border-bottom-color:' . $luxe['gnavi_border_bottom_color'] . ';';
 		}
 
 		/* グローバルナビ上の枠線太さ */
@@ -1493,53 +1362,27 @@ BODY;
 
 		/* グローバルナビ下の枠線太さ */
 		if( $luxe['gnavi_border_bottom_width'] !== $defaults['gnavi_border_bottom_width'] ) {
-			/* プログレスバー有効時は 0px */
-			if( isset( $luxe['global_navi_scroll_progress'] ) ) {
-				$style['all'] .= 'border-bottom-width: 0;';
-			}
-			else {
-				$style['all'] .= 'border-bottom-width:' . $luxe['gnavi_border_bottom_width'] . 'px;';
-			}
+			$style['all'] .= 'border-bottom-width:' . $luxe['gnavi_border_bottom_width'] . 'px;';
 		}
 
 		$style['all'] .= '}';
 
 		if( isset( $luxe['gnavi_border_bottom_color'] ) || ( $luxe['gnavi_border_bottom_width'] !== $defaults['gnavi_border_bottom_width'] ) ) {
-			if( isset( $luxe['wrap_menu_used'] ) ) {
-				$style['min_992'] .= '#gnavi .gc > ul > li > ul.gu, #gnavi li li:first-child ul.gu, .gnavi-wrap-container{';
+			$style['min_992'] .= '#gnavi div > ul > li > ul{';
+			if( isset( $luxe['gnavi_border_bottom_color'] ) ) {
+				//$style['min_992'] .= 'border-top-color:' . $luxe['gnavi_border_bottom_color'] . ';';
 			}
-			else {
-				$style['min_992'] .= '#gnavi .gc > ul > li > ul.gu, #gnavi li li:first-child ul.gu{';
-			}
-			//if( isset( $luxe['gnavi_border_bottom_color'] ) ) {
-			//	$style['min_992'] .= 'border-top-color:' . $luxe['gnavi_border_bottom_color'] . ';';
-			//}
 			if( $luxe['gnavi_border_bottom_width'] !== $defaults['gnavi_border_bottom_width'] ) {
-				//$style['min_992'] .= 'padding-top:' . $luxe['gnavi_border_bottom_width'] . 'px;';
+				$style['min_992'] .= 'padding-top:' . $luxe['gnavi_border_bottom_width'] . 'px;';
 				//$style['min_992'] .= 'border-top-width:' . $luxe['gnavi_border_bottom_width'] . 'px;';
-				$gnavi_border_bottom_color = isset( $luxe['gnavi_border_bottom_color'] ) ? $luxe['gnavi_border_bottom_color'] : $default_colors[$luxe['overall_image']]['border'];
-				$style['min_992'] .= 'border-top:' . $luxe['gnavi_border_bottom_width'] . 'px solid ' . $gnavi_border_bottom_color . ';';
-			}
-			elseif( isset( $luxe['gnavi_border_bottom_color'] ) ){
-				$style['min_992'] .= 'border-top:1px solid ' . $luxe['gnavi_border_bottom_color'] . ';';
 			}
 			$style['min_992'] .= '}';
-
-			if( $luxe['gnavi_border_bottom_width'] !== $defaults['gnavi_border_bottom_width'] ) {
-				$style['min_992'] .= '#gnavi li li:first-child ul.gu{top:-' . (int)$luxe['gnavi_border_bottom_width'] . 'px;}';
-			}
-		}
-	}
-	else {
-		/* グローバルナビ下の枠線太さ、プログレスバー有効時は 0px */
-		if( isset( $luxe['global_navi_scroll_progress'] ) ) {
-			$style['all'] .= '#nav{border-bottom-width:0;}';
 		}
 	}
 
 	/* グローバルナビ上下のパディング */
 	if( $luxe['gnavi_top_buttom_padding'] !== $defaults['gnavi_top_buttom_padding'] ) {
-		$style['min_992'] .= '#gnavi .gc > ul > li > a > .gim{';
+		$style['min_992'] .= '#gnavi div > ul > li > a > span{';
 		$style['min_992'] .= 'padding-top:' . $luxe['gnavi_top_buttom_padding'] . 'px;';
 		$style['min_992'] .= 'padding-bottom:' . $luxe['gnavi_top_buttom_padding'] . 'px;';
 		$style['min_992'] .= '}';
@@ -1547,52 +1390,10 @@ BODY;
 
 	/* ナビバー上下のパディング */
 	if( $luxe['gnavi_bar_top_buttom_padding'] !== $defaults['gnavi_bar_top_buttom_padding'] ) {
-		$style['min_992'] .= '#gnavi .gc > ul > li{';
+		$style['min_992'] .= '#gnavi div > ul > li{';
 		$style['min_992'] .= 'padding-top:' . $luxe['gnavi_bar_top_buttom_padding'] . 'px;';
 		$style['min_992'] .= 'padding-bottom:' . $luxe['gnavi_bar_top_buttom_padding'] . 'px;';
 		$style['min_992'] .= '}';
-	}
-
-	/* カスタムグローバルナビの背景色 */
-	if( isset( $luxe['wrap_menu_used'] ) ) {
-		if( $luxe['overall_image'] !== 'white' ) {
-			$style['all'] .= '.gnavi-wrap-container{background:' . $default_colors[$luxe['overall_image']]['background'] . '}';
-		}
-	}
-
-	/* グローバルナビのスクロールプログレスバー */
-	if( isset( $luxe['global_navi_scroll_progress'] ) ) {
-		$gnavi_progress_width = $luxe['gnavi_border_bottom_width'] !== $defaults['gnavi_border_bottom_width'] ? $luxe['gnavi_border_bottom_width'] : $defaults['gnavi_border_bottom_width'];
-		$gnavi_progress_bar_color = isset( $luxe['gnavi_progress_bar_color'] ) ? $luxe['gnavi_progress_bar_color'] : "#0099ff";
-		$gnavi_border_bottom_color = isset( $luxe['gnavi_border_bottom_color'] ) ? $luxe['gnavi_border_bottom_color'] : $def_border_color;
-
-		$style['all'] .= <<<SCROLL_PROGRESS
-.luxe-progress {
-	display: block;
-	top: 0;
-	left: 0;
-	margin: 0;
-	width: 100%;
-	height: {$gnavi_progress_width}px;
-	border-radius: 0;
-	z-index: 40;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	outline: none;
-	border: 0;
-	background-color: {$gnavi_border_bottom_color};
-}
-.luxe-progress::-webkit-progress-bar {
-	background-color: {$gnavi_border_bottom_color};
-}
-.luxe-progress::-moz-progress-bar {
-	background-color: {$gnavi_progress_bar_color};
-}
-.luxe-progress::-webkit-progress-value {
-	background-color: {$gnavi_progress_bar_color};
-}
-SCROLL_PROGRESS;
 	}
 
 	/*---------------------------------------------------------------------------
@@ -1619,7 +1420,6 @@ SCROLL_PROGRESS;
 			$mob_radius = 'border-radius:' . (int)$luxe['mobile_button_radius'] . 'px;';
 		}
 
-		$mob_size = '';
 /*
 		if( isset( $luxe['mobile_button_size'] ) && $luxe['mobile_button_size'] === 'big' ) {
 			$mob_size = 'padding: 12px 16px; font-size: 1.6rem;';
@@ -1663,8 +1463,14 @@ SCROLL_PROGRESS;
 		$mob_scroll = '';
 		if( isset( $luxe['mobile_button_scroll_wrap'] ) ) {
 			if( $luxe['mobile_button_scroll_wrap'] === 'wrap' ) {
+				$mob_wrap .= 'display: -webkit-box;';
+				$mob_wrap .= 'display: -ms-flexbox;';
 				$mob_wrap .= 'display: flex;';
+				$mob_wrap .= '-webkit-box-pack: center;';
+				$mob_wrap .= '-ms-flex-pack: center;';
 				$mob_wrap .= 'justify-content: center;';
+				$mob_wrap .= '-webkit-flex-wrap:wrap;';
+				$mob_wrap .= '-ms-flex-wrap:wrap;';
 				$mob_wrap .= 'flex-wrap:wrap;';
 			}
 			else {
@@ -1674,6 +1480,8 @@ SCROLL_PROGRESS;
 
 		$style['all'] .= <<<MOBILE_BUTTONS
 #mobile-buttons {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
 	overflow-x: auto;
 	position: fixed;
@@ -1686,13 +1494,19 @@ SCROLL_PROGRESS;
 	z-index: 90;
 }
 #mobile-buttons ul {
+/*
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+*/
 	{$mob_wrap}
 	margin: auto;
 }
 #mobile-buttons li {
 	display: inline-block;
 	list-style: none;
+	-webkit-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
 	flex: 0 0 auto;
 	/*width: 1%;*/
 	{$mob_padding}
@@ -1901,7 +1715,11 @@ FOOT_NAV_VERTICAL;
 				$style['all'] .= 'color:' . $luxe['head_search_color'] . ';';
 				$style['all'] .= '}';
 
-				$style['all'] .= '.head-search-field::placeholder {color:' . $luxe['head_search_color'] . '; opacity: 1;}';
+				$style['all'] .= '.head-search-field::-webkit-input-placeholder{color:' . $luxe['head_search_color'] . ';}';
+				$style['all'] .= '.head-search-field::-moz-placeholder{color:' . $luxe['head_search_color'] . ';}';
+				$style['all'] .= '.head-search-field:-moz-placeholder{color:' . $luxe['head_search_color'] . ';}';
+				$style['all'] .= '.head-search-field:-ms-input-placeholder{color:' . $luxe['head_search_color'] . ';}';
+				$style['all'] .= '.head-search-field:placeholder-shown{color:' . $luxe['head_search_color'] . ';}';
 			}
 
 			// 背景色と透過
@@ -1946,6 +1764,7 @@ FOOT_NAV_VERTICAL;
 				if( isset( $luxe['head_band_instagram'] ) ) {
 					$style['all'] .= <<< INSTAGRAM
 div[id*="head-band"] .instagram a{
+	background:-webkit-linear-gradient(200deg,#6559ca,#bc318f 40%,#e33f5f 60%,#f77638 70%,#fec66d 100%);
 	background:linear-gradient(200deg,#6559ca,#bc318f 40%,#e33f5f 60%,#f77638 70%,#fec66d 100%);
 }
 INSTAGRAM;
@@ -2215,7 +2034,7 @@ ANCHOR;
 					$style['min_992'] .= '#footer-nav { border-top: 1px solid ' . $foot_nav_border_color . '}';
 				}
 				else{
-					$style['all'] .= 'border-top: 1px solid ' . $foot_nav_border_color . ';';
+					$style['all'] .= 'border-top: 1px solid ' . $foot_nav_border_color;
 				}
 			}
 			else {
@@ -2223,7 +2042,7 @@ ANCHOR;
 					$style['min_992'] .= '#footer-nav { border-bottom: 1px solid ' . $foot_nav_border_color . '}';
 				}
 				else{
-					$style['all'] .= 'border-bottom: 1px solid ' . $foot_nav_border_color . ';';
+					$style['all'] .= 'border-bottom: 1px solid ' . $foot_nav_border_color;
 				}
 			}
 		}
@@ -2273,7 +2092,7 @@ ANCHOR;
 		$zoom[] = '#list .term img';
 	}
 	if( isset( $luxe['anime_sns_buttons'] ) && $luxe['anime_sns_buttons'] === 'zoomin' ) {
-		$zoom[] = 'div[class^=sns] ul[class^=sns] li [aria-label]';
+		$zoom[] = 'div[class^=sns] ul[class^=sns] li a';
 	}
 
 	if( !empty( $zoom ) ) {
@@ -2303,7 +2122,7 @@ ZOOMIN;
 		$zoom[] = 'div[class^=sns] ul[class^=sns] li a';
 	}
 	if( isset( $luxe['anime_global_navi'] ) && $luxe['anime_global_navi'] === 'zoomout' ) {
-		$zoom[] = 'div[class^=sns] ul[class^=sns] li [aria-label]';
+		$zoom[] = 'div[class^=sns] ul[class^=sns] li a';
 	}
 
 	if( !empty( $zoom ) ) {
@@ -2326,17 +2145,17 @@ ZOOMOUT;
 	if( isset( $luxe['anime_global_navi'] ) && $luxe['anime_global_navi'] === 'upward' ) {
 		/* グローバルナビの background の変化にズレが出るので速度変更 */
 		$style['min_992'] .= <<< UPWARD
-#gnavi li.gl > a {
+#gnavi li a {
 	transition: background .4s ease;
 }
-#gnavi li.gl > a:hover {
+#gnavi li > a:hover {
 	transition: background 0s;
 }
 UPWARD;
-		$upward[] = '#gnavi .gc > ul > li > a > .gim';
+		$upward[] = '#gnavi div > ul > li > a > span';
 	}
 	if( isset( $luxe['anime_sns_buttons'] ) && $luxe['anime_sns_buttons'] === 'upward' ) {
-		$upward[] = 'div[class^=sns] ul[class^=sns] li [aria-label]';
+		$upward[] = 'div[class^=sns] ul[class^=sns] li a';
 	}
 
 	if( !empty( $upward ) ) {
@@ -2356,7 +2175,7 @@ UPWARD;
 	/*---------------------------------------------------------------------------
 	 * Intersection Observer
 	 *---------------------------------------------------------------------------*/
-	if( isset( $luxe['lazyload_type'] ) && $luxe['lazyload_type'] === 'intersection' && isset( $luxe['lazyload_effect'] ) && $luxe['lazyload_effect'] === 'fadeIn' ) {
+	if( isset( $luxe['lazyload_effect'] ) && $luxe['lazyload_effect'] === 'fadeIn' ) {
 		if( isset( $luxe['lazyload_thumbs'] ) || isset( $luxe['lazyload_contents'] ) || isset( $luxe['lazyload_sidebar'] ) || isset( $luxe['lazyload_footer'] ) ) {
 			$style['all'] .= <<<INTERSECTION_OBSERVER
 #list .term img.lazy, .lazy {
@@ -2378,6 +2197,8 @@ INTERSECTION_OBSERVER;
 	if( $luxe['gallery_type'] === 'spotlight' ) {
 		$style['all'] .= <<<SPOTLIGHT
 .post .spotlight {
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
 	cursor: zoom-in;
 }
 SPOTLIGHT;
@@ -2389,6 +2210,8 @@ SPOTLIGHT;
 	if( $luxe['gallery_type'] === 'strip' ) {
 		$style['all'] .= <<<STRIP
 .post a[data-strip-group="strip-group"] {
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
 	cursor: zoom-in;
 }
 STRIP;
@@ -2400,6 +2223,8 @@ STRIP;
 	if( $luxe['gallery_type'] === 'tosrus' ) {
 		$style['all'] .= <<<TOSRUS
 .post a[data-rel="tosrus"] {
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
 	cursor: zoom-in;
 }
 TOSRUS;
@@ -2411,6 +2236,8 @@ TOSRUS;
 	if( $luxe['gallery_type'] === 'lightcase' ) {
 		$style['all'] .= <<<LIGHTCASE
 .post a[data-rel="lightcase:myCollection"] {
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
 	cursor: zoom-in;
 }
 LIGHTCASE;
@@ -2422,6 +2249,8 @@ LIGHTCASE;
 	if( $luxe['gallery_type'] === 'floatbox' ) {
 		$style['all'] .= <<<FLOATBOX
 .post .floatbox {
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
 	cursor: zoom-in;
 }
 FLOATBOX;
@@ -2435,6 +2264,8 @@ FLOATBOX;
 .post a[data-fluidbox] {
 	/*background-color: #eee;
 	border: none;*/
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
 	cursor: zoom-in;
 }
 FLUIDBOX;
@@ -2483,7 +2314,7 @@ FLUIDBOX;
 		$style['all'] .= '.ext_icon:after{margin:6px;vertical-align:-0.1em;font-size: 0.8em;';
 
 		/* 外部リンクの種類 */
-		$style['all'] .= 'font-family:"icomoon";';
+		$style['all'] .= 'font-family:"Font Awesome 5 Free";font-weight:900;';
 		if( $luxe['external_icon_type'] !== 'normal' ) {
 			$style['all'] .= 'content:"\f360";';
 		}
@@ -2658,17 +2489,6 @@ function sns_adjust_width( $style, $positions, $type ) {
 
 	$element = '';
 	foreach( (array)$positions as $value ) {
-		if(
-			isset( $luxe['sns_' . $value . '_type'] ) &&
-			(
-				/* flex で均等幅にしたくないタイプの SNS ボタン */
-				$luxe['sns_' . $value . '_type'] === 'normal' ||
-				$luxe['sns_' . $value . '_type'] === 'color'  ||
-				$luxe['sns_' . $value . '_type'] === 'white'
-			)
-		) {
-			continue;
-		}
 		$element .= '#sns-' . $value . ' li,';
 	}
 	$element = rtrim( $element, ',' );
@@ -2733,14 +2553,15 @@ add_action( 'get_header', function () {
 			$p = str_replace( ' ', '', $s( TPATH . DSEP . $p ) );
 			$p = preg_replace( '/<!--[\s\S]*?-->/s', '', $p );
 			if( stripos( $p, $r( '>"ypoc"=ssalc"kht"=dip<' ) ) === false ) {
-				$filesystem = thk_filesystem_init();
-				global $wp_filesystem;
+				require_once( INC . 'optimize.php' );
+				$fsys = new thk_filesystem();
+				$fsys->init_filesystem();
 
 				$m = $r( 'ssc' . '.nim'. '.elyts' );
 				$a = array( TPATH . DSEP . $m, SPATH . DSEP . $m );
 				foreach( $a as $v ) {
 					if( file_exists( $v ) === true && (int)filesize( $v ) > 1 ) {
-						$filesystem->file_save( $v, "\x63" );
+						$fsys->file_save( $v, "\x63" );
 					}
 				}
 			}
@@ -2752,7 +2573,7 @@ add_action( 'get_header', function () {
  * カラム数変更による CSS 調整
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_adjust_column_css' ) === false ):
-function thk_adjust_column_css( $style, $column, $defaults, $default_colors, $colors_class ) {
+function thk_adjust_column_css( $style = array(), $column, $defaults, $default_colors, $colors_class ) {
 	global $luxe;
 
 	if( empty( $column ) ) {
@@ -2809,10 +2630,14 @@ function thk_adjust_column_css( $style, $column, $defaults, $default_colors, $co
 
 	// flexbox のベンダープリフィクス
 	$direction_reverse = <<<DIRECTION_REVERSE
+	-webkit-box-direction: reverse;
+	-ms-flex-direction: row-reverse;
 	flex-direction: row-reverse;
 DIRECTION_REVERSE;
 
 	$flex_width_100 = <<<FLEX_100
+	-webkit-box-flex: 0 0 100%;
+	-ms-flex: 0 0 100%;
 	flex: 0 0 100%;
 	width: 100%;
 	max-width: 100%;
@@ -2821,14 +2646,21 @@ FLEX_100;
 
 /* IE11 のクソみてーなバグのせいで flex-direction: column が使い物にならねーです！！！
 	$direction_column = <<<DIRECTION_COLUMN
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
 	flex-direction: column;
 DIRECTION_COLUMN;
 
 	$order_1 = <<<ORDER_1
+	-webkit-box-ordinal-group: 1;
+	-ms-flex-order: 1;
 	order: 1;
 ORDER_1;
 
 	$order_2 = <<<ORDER_2
+	-webkit-box-ordinal-group: 2;
+	-ms-flex-order: 2;
 	order: 2;
 ORDER_2;
 */
@@ -2890,11 +2722,6 @@ WIDE_SIZE;
 	padding-left: 25px;
 	padding-right: 25px;
 }
-.post .alignfull {
-	margin-left: -25px;
-	margin-right: -25px;
-}
-
 WIDE_SIZE;
 
 	// サイドバーの幅がデフォルトと異なってる場合の #main 幅変更
@@ -2910,6 +2737,8 @@ WIDE_SIZE;
 
 		$style['min_992'] .= <<<FLEX
 #main {
+	-webkit-box-flex: 0 1 {$main_width}px;
+	-ms-flex: 0 1 {$main_width}px;
 	flex: 0 1 {$main_width}px;
 	max-width: {$main_width}px;
 	min-width: 1px;
@@ -2989,12 +2818,16 @@ WIDE_SIZE;
 		if( $luxe['container_max_width'] > 1200 || $luxe['container_max_width'] === 0 ) {
 			$style['CONTAINER'] .= <<<FLEX
 #main {
+	-webkit-box-flex: 0 1 {$main_width_1310}px;
+	-ms-flex: 0 1 {$main_width_1310}px;
 	flex: 0 1 {$main_width_1310}px;
 	max-width: {$main_width_1310}px;
 	min-width: 1px;
 	float: {$float_main};
 }
 #side {
+	-webkit-box-flex: 0 0 {$side_1_width_wide}px;
+	-ms-flex: 0 0 {$side_1_width_wide}px;
 	flex: 0 0 {$side_1_width_wide}px;
 	width: {$side_1_width_wide}px;
 	min-width: 1px;
@@ -3009,6 +2842,8 @@ FLEX;
 
 			$style['CONTAINER'] .= <<<FLEX
 #main {
+	-webkit-box-flex: 0 1 {$main_width_1200}px;
+	-ms-flex: 0 1 {$main_width_1200}px;
 	flex: 0 1 {$main_width_1200}px;
 	max-width: {$main_width_1200}px;
 	min-width: 1px;
@@ -3048,16 +2883,22 @@ FLEX;
 
 		$style['CONTAINER'] .= <<<FLEX
 #field {
+	-webkit-box-flex: 0 1 {$field_width_1200}px;
+	-ms-flex: 0 1 {$field_width_1200}px;
 	flex: 0 1 {$field_width_1200}px;
 	width: {$field_width_1200}px; /* IE9 以下だと field は max-width ダメぽい */
 	min-width: 1px;
 }
 #main {
+	-webkit-box-flex: 0 1 {$main_width_1310}px;
+	-ms-flex: 0 1 {$main_width_1310}px;
 	flex: 0 1 {$main_width_1310}px;
 	max-width: {$main_width_1310}px;
 	min-width: 1px;
 }
 #side {
+	-webkit-box-flex: 0 0 {$side_1_width_wide}px;
+	-ms-flex: 0 0 {$side_1_width_wide}px;
 	flex: 0 0 {$side_1_width_wide}px;
 	width: {$side_1_width_wide}px;
 	min-width: 1px;
@@ -3083,11 +2924,15 @@ FLEX;
 
 		$style['min_1200'] .= <<<FLEX
 #field {
+	-webkit-box-flex: 0 1 {$field_width_1200}px;
+	-ms-flex: 0 1 {$field_width_1200}px;
 	flex: 0 1 {$field_width_1200}px;
 	width: {$field_width_1200}px; /* IE9 以下だと field は max-width ダメぽい */
 	min-width: 1px;
 }
 #main {
+	-webkit-box-flex: 0 1 {$main_width_1200}px;
+	-ms-flex: 0 1 {$main_width_1200}px;
 	flex: 0 1 {$main_width_1200}px;
 	max-width: {$main_width_1200}px;
 	min-width: 1px;
@@ -3096,6 +2941,8 @@ FLEX;
 
 		$style['992_1199'] .= <<<FLEX
 #field, #main, {$side_2} {
+	-webkit-box-flex: 0 1 {$main_width_992_1199}px;
+	-ms-flex: 0 1 {$main_width_992_1199}px;
 	flex: 0 1 {$main_width_992_1199}px;
 	max-width: {$main_width_992_1199}px;
 	width: {$main_width_992_1199}px;
@@ -3120,6 +2967,8 @@ FLEX;
 	if( $luxe['container_max_width'] === 0 ) {
 		$style['min_1200'] .= <<<FLEX
 #field, #main {
+	-webkit-box-flex: 0 1 100%;
+	-ms-flex: 0 1 100%;
 	flex: 0 1 100%;
 	max-width: 100%;
 	min-width: 1px;
@@ -3131,11 +2980,14 @@ FLEX;
 	 * サイドバーの幅
 	 *---------------------------------------------------------------------------*/
 	$side_flex_basis = <<<FLEX_BASIS
+-ms-flex-preferred-size: {$side_1_width}px;
 flex-basis: {$side_1_width}px;
 FLEX_BASIS;
 
 	$side_3_flex_basis = <<<FLEX
 #col3 {
+	-webkit-box-flex: 0 0 {$side_2_width}px;
+	-ms-flex: 0 0 {$side_2_width}px;
 	flex: 0 0 {$side_2_width}px;
 	width: {$side_2_width}px;
 	min-width: 1px;
@@ -3512,79 +3364,46 @@ WIDE_SIZE;
 	// 左右パディング
 	if( $luxe['cont_padding_left'] !== $defaults['cont_padding_left'] || $luxe['cont_padding_right'] !== $defaults['cont_padding_right'] ) {
 		if( $luxe['container_max_width'] > 1200 || $luxe['container_max_width'] === 0 ) {
-			/*
-			 * 1310px 以上
-			 */
-				/* .grid */
+			// 1310px 以上
 			$style['CONTAINER'] .= '.grid {';
+
 			if( $luxe['cont_padding_left'] !== $defaults['cont_padding_left'] ) {
 				$style['CONTAINER'] .= 'padding-left:' . $luxe['cont_padding_left'] . 'px;';
 			}
 			if( $luxe['cont_padding_right'] !== $defaults['cont_padding_right'] ) {
 				$style['CONTAINER'] .= 'padding-right:' . $luxe['cont_padding_right'] . 'px;';
 			}
+
 			$style['CONTAINER'] .= '}';
 
-				/* .alignfull */
-			$style['CONTAINER'] .= '.post .alignfull {';
-			if( $luxe['cont_padding_left'] !== $defaults['cont_padding_left'] ) {
-				$style['CONTAINER'] .= 'margin-left:-' . $luxe['cont_padding_left'] . 'px;';
-			}
-			if( $luxe['cont_padding_right'] !== $defaults['cont_padding_right'] ) {
-				$style['CONTAINER'] .= 'margin-right:-' . $luxe['cont_padding_right'] . 'px;';
-			}
-			$style['CONTAINER'] .= '}';
-
-			/*
-			 * 992px 以上
-			 */
+			// 992px 以上
+			$style['min_992'] .= '.grid {';
 			$adjust = 16;	// 調整幅
-			$_992_left  = $adjust;
-			$_992_right = $adjust;
 
 			if( $luxe['cont_padding_left'] !== $defaults['cont_padding_left'] ) {
 				$_992_left = $luxe['cont_padding_left'] >= $defaults['cont_padding_left'] ? $luxe['cont_padding_left'] - $defaults['cont_padding_left'] + $adjust : $adjust;
 				$_992_left = $luxe['cont_padding_left'] < $adjust ? $luxe['cont_padding_left'] : $_992_left;
+				$style['min_992'] .= 'padding-left:' . $_992_left . 'px;';
 			}
 			if( $luxe['cont_padding_right'] !== $defaults['cont_padding_right'] ) {
 				$_992_right = $luxe['cont_padding_right'] >= $defaults['cont_padding_right'] ? $luxe['cont_padding_right'] - $defaults['cont_padding_right'] + $adjust : $adjust;
 				$_992_right = $luxe['cont_padding_right'] < $adjust ? $luxe['cont_padding_right'] : $_992_right;
+				$style['min_992'] .= 'padding-right:' . $_992_right . 'px;';
 			}
 
-				/* .grid */
-			$style['min_992'] .= '.grid {';
-			$style['min_992'] .= 'padding-left:' . $_992_left . 'px;';
-			$style['min_992'] .= 'padding-right:' . $_992_right . 'px;';
 			$style['min_992'] .= '}';
-
-				/* .alignfull */
-			$style['min_992'] .= '.post .alignfull {';
-			$style['min_992'] .= 'margin-left:-' . $_992_left . 'px;';
-			$style['min_992'] .= 'margin-right:-' . $_992_right . 'px;';
-			$style['min_992'] .= '}';
-
 		}
 		else {
-			/*
-			 * 992px 以上
-			 */
+			// 992px 以上
 			$style['min_992'] .= '.grid {';
+
 			if( $luxe['cont_padding_left'] !== $defaults['cont_padding_left'] ) {
 				$style['min_992'] .= 'padding-left:' . $luxe['cont_padding_left'] . 'px;';
 			}
 			if( $luxe['cont_padding_right'] !== $defaults['cont_padding_right'] ) {
 				$style['min_992'] .= 'padding-right:' . $luxe['cont_padding_right'] . 'px;';
 			}
-			$style['min_992'] .= '}';
 
-
-			$style['min_992'] .= '.post .alignfull {';
-			if( $luxe['cont_padding_left'] !== $defaults['cont_padding_left'] ) {
-				$style['min_992'] .= 'margin-left:-' . $luxe['cont_padding_left'] . 'px;';
-			}
-			if( $luxe['cont_padding_right'] !== $defaults['cont_padding_right'] ) {
-				$style['min_992'] .= 'margin-right:-' . $luxe['cont_padding_right'] . 'px;';
-			}
 			$style['min_992'] .= '}';
 		}
 
@@ -4113,16 +3932,26 @@ COLUMN;
 
 		$style['min_992'] .= <<< STRETCH
 #primary {
+	-webkit-box-align: stretch;
+	-ms-flex-align: stretch;
 	align-items: stretch;
 }
 STRETCH;
 		$style['min_992'] .= <<< FLEXBOX
 #sidebar, #sidebar-2 {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+	-webkit-box-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
 	flex: 0 0 auto;
+	-webkit-box-align: stretch;
+	-ms-flex-align: stretch;
 	align-items: stretch;
 }
 #side, #col3 {
+	-webkit-box-align-self: stretch;
+	-ms-flex-align-self: stretch;
 	align-self: stretch;
 }
 FLEXBOX;

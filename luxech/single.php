@@ -376,8 +376,9 @@ display_post_top_thumbnail();
 
 						if (isset($luxe['related_visible'])) {
 							?>
-							<h2 class="related"><i
-									class="<?php echo $awesome['fas']; ?>fa-th-list"></i><?php echo __('Related Posts', 'luxeritas'); ?>
+							<h2 class="related"><i class="fas fa-th-list"></i>
+
+							<?php echo __('Related Posts', 'luxeritas'); ?>
 							</h2>
 							<?php
 							if (isset($luxe['amp'])) {

@@ -32,6 +32,7 @@
 }
 #header::after,
 #header::before {
+	-webkit-animation: shutterOpen 1,2s forwards;
 	animation: shutterOpen 1.2s forwards;
 }
 @keyframes shutterOpen {

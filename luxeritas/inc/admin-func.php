@@ -29,26 +29,18 @@ add_action( 'after_setup_theme', function() {
 	$referer = wp_get_raw_referer();
 
 	if( stripos( (string)$referer, 'wp-admin/widgets.php' ) !== false ) {
-		// ウィジェット変更時の処理
 		if( stripos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax.php' ) !== false ) {
 			thk_options_modify();
 		}
 	}
 
-	if( stripos( (string)$referer, 'wp-admin/nav-menus.php' ) !== false ) {
-		// メニュー保存時の処理
-		thk_options_modify( 'wp_update_nav_menu' );
-	}
-
 	if( stripos( (string)$referer, 'wp-admin/options-permalink.php' ) !== false ) {
-		// パーマリンク変更時の処理
 		if( stripos( $_SERVER['REQUEST_URI'], 'options-permalink.php' ) !== false ) {
 			require( INC . 'rewrite-rules.php' );
 			add_action( 'init', 'thk_add_endpoint', 11 );
 		}
 	}
 	elseif( stripos( (string)$referer, 'wp-admin/upgrade.php' ) !== false ) {
-		// WordPress アップグレード時の処理
 		require( INC . 'rewrite-rules.php' );
 		add_action( 'init', 'thk_add_endpoint', 11 );
 	}
@@ -79,7 +71,6 @@ add_action( 'after_setup_theme', function() {
 	if( TPATH !== SPATH ) {
 		$files = array(
 			'add-amp-analytics.php',
-			//'add-amp-analytics4.php',	GA4 が AMP に正式対応するまではコピーしない
 			'add-amp-body.php',
 			'add-analytics.php',
 			'add-analytics-head.php',
@@ -88,10 +79,148 @@ add_action( 'after_setup_theme', function() {
 		);
 		foreach( $files as $val ) {
 			if( file_exists( SPATH . DSEP . $val ) === false ) {
-				thk_filesystem_init();
-				global $wp_filesystem;
-				$wp_filesystem->copy( TPATH . DSEP . $val, SPATH . DSEP . $val );
-				//@copy( TPATH . DSEP . $val, SPATH . DSEP . $val );
+				@copy( TPATH . DSEP . $val, SPATH . DSEP . $val );
+			}
+		}
+	}
+
+	// ajax 処理
+	if( isset( $_POST ) ) {
+		// 一括処理系
+		if( isset( $_POST['luxe_reget_sns'] ) || isset( $_POST['luxe_regen_thumb'] ) ) {
+			require( INC . 'luxe-batch.php' );
+
+			// SNS カウントキャッシュ一括取得処理
+			if( isset( $_POST['luxe_reget_sns'] ) ) {
+				if( check_ajax_referer( 'luxe_reget_sns', 'luxe_nonce' ) ) {
+					luxe_batch::luxe_reget_sns();
+				}
+			}
+			// サムネイル一括再構築処理
+			if( isset( $_POST['luxe_regen_thumb'] ) ) {
+				if( check_ajax_referer( 'luxe_regen_thumb', 'luxe_nonce' ) ) {
+					luxe_batch::luxe_regen_thumb();
+				}
+			}
+		}
+
+		// ショートコード登録時のポップアップ
+		if( isset( $_POST['sc_popup_nonce'] ) ) {
+			// nonce チェック
+			if( wp_verify_nonce( $_POST['sc_popup_nonce'], 'shortcode_popup' ) ) {
+				add_action( 'wp_ajax_thk_shortcode_regist', function() {
+					$name = trim( esc_attr( stripslashes( $_POST['name'] ) ) );
+					$code_file = SPATH . DSEP . 'shortcodes' . DSEP . $name . '.inc';
+					require_once( INC . 'optimize.php' );
+					global $wp_filesystem;
+					$filesystem = new thk_filesystem();
+					if( $filesystem->init_filesystem( site_url() ) === false ) return false;
+					$codes = $wp_filesystem->get_contents_array( $code_file );
+					$len = count( $codes );
+					unset( $codes[0],  $codes[1], $codes[$len-1], $codes[$len-2] );
+					foreach( (array)$codes as $val ) echo $val;
+					exit;
+				});
+			}
+		}
+
+		// TinyMCE set
+		if( isset( $_POST['mce_popup_nonce'] ) ) {
+			if( wp_verify_nonce( $_POST['mce_popup_nonce'], 'mce_popup' ) ) {
+				add_action( 'wp_ajax_thk_mce_settings', function() {
+					if( isset( $_POST['mce_menubar'] ) ) {
+						if( $_POST['mce_menubar'] === 'true' ) {
+							$_POST['mce_menubar'] = true;
+						}
+						else {
+							unset( $_POST['mce_menubar'] );
+						}
+					}
+					thk_customize_result_set( 'mce_color', 'text', 'admin' );
+					thk_customize_result_set( 'mce_bg_color', 'text', 'admin' );
+					thk_customize_result_set( 'mce_max_width', 'number', 'admin' );
+					thk_customize_result_set( 'mce_enter_key', 'radio', 'admin' );
+					thk_customize_result_set( 'mce_menubar', 'checkbox', 'admin' );
+				});
+			}
+		}
+
+		// Editor button settings
+		if( isset( $_POST['editor_settings_nonce'] ) ) {
+			if( wp_verify_nonce( $_POST['editor_settings_nonce'], 'settings_nonce' ) ) {
+				/*
+				 * Visual Editor
+				 */
+				add_action( 'wp_ajax_v_editor_settings', function() {
+					/*** ビジュアルエディタのボタン 1段目 ***/
+					$buttons_1 = array();
+					$buttons_default_1 = array();
+
+					// POST で受け取った配列
+					foreach( $_POST['buttons_1'] as $val ) {
+						$buttons_1[$val] = true;
+					}
+
+					// デフォルトの配列
+					$v_buttons_default_1 = thk_mce_buttons_1();
+					foreach( $v_buttons_default_1 as $key => $val ) {
+						$buttons_default_1[$key] = true;
+					}
+
+					// デフォルト配列と異なってる時だけ DB に保存 ( DB の無駄を出さないため)
+					if( $buttons_1 !== $buttons_default_1 ) {
+						set_theme_admin_mod( 'veditor_buttons_1', $buttons_1 );
+					}
+					else {
+						remove_theme_admin_mod( 'veditor_buttons_1' );
+					}
+
+					/*** ビジュアルエディタのボタン 2段目 ***/
+					$buttons_2 = array();
+					$buttons_default_2 = array();
+
+					// POST で受け取った配列
+					foreach( $_POST['buttons_2'] as $val ) {
+						$buttons_2[$val] = true;
+					}
+
+					// デフォルトの配列
+					$v_buttons_default_2 = thk_mce_buttons_2();
+					foreach( $v_buttons_default_2 as $key => $val ) {
+						$buttons_default_2[$key] = true;
+					}
+
+					// デフォルト配列と異なってる時だけ DB に保存 ( DB の無駄を出さないため)
+					if( $buttons_2 !== $buttons_default_2 ) {
+						set_theme_admin_mod( 'veditor_buttons_2', $buttons_2 );
+					}
+					else {
+						remove_theme_admin_mod( 'veditor_buttons_2' );
+					}
+				});
+				add_action( 'wp_ajax_v_editor_restore', function() {
+					remove_theme_admin_mod( 'veditor_buttons_1' );
+					remove_theme_admin_mod( 'veditor_buttons_2' );
+				});
+
+				/*
+				 * Text Editor
+				 */
+				add_action( 'wp_ajax_t_editor_settings', function() {
+					$buttons_d = array();
+					foreach( $_POST['buttons_d'] as $val ) {
+						$buttons_d[$val] = true;
+					}
+					if( !empty( $buttons_d ) ) {
+						set_theme_admin_mod( 'teditor_buttons_d', $buttons_d );
+					}
+					else {
+						remove_theme_admin_mod( 'teditor_buttons_d' );
+					}
+				});
+				add_action( 'wp_ajax_t_editor_restore', function() {
+					remove_theme_admin_mod( 'teditor_buttons_d' );
+				});
 			}
 		}
 	}
@@ -196,7 +325,6 @@ add_action( 'admin_menu', function() {
 		'luxe_man',
 		array( $customize, 'luxe_custom_form' )
 	);
-	/*
 	luxe_submenu_page(
 		'luxe',
 		'Luxeritas ' . __( 'Registration phrases', 'luxeritas' ),
@@ -205,13 +333,12 @@ add_action( 'admin_menu', function() {
 		'luxe_phrase',
 		array( $customize, 'luxe_custom_form' )
 	);
-	*/
 	luxe_submenu_page(
 		'luxe',
-		'Luxeritas ' . __( 'Registration pattern', 'luxeritas' ),
-		__( 'Registration pattern', 'luxeritas' ),
+		'Luxeritas ' . __( 'Registration shortcode', 'luxeritas' ),
+		__( 'Registration shortcode', 'luxeritas' ),
 		'manage_options',
-		'luxe_pattern',
+		'luxe_code',
 		array( $customize, 'luxe_custom_form' )
 	);
 	luxe_submenu_page(
@@ -271,7 +398,7 @@ add_action( 'admin_init', function() {
 		}
 
 		if( TPATH === SPATH ) {
-			if( $_REQUEST['page'] === 'luxe_design' || $_REQUEST['page'] === 'luxe_pattern' || $_REQUEST['page'] === 'luxe_high' || $_REQUEST['page'] === 'luxe_edit' ) {
+			if( $_REQUEST['page'] === 'luxe_design' || $_REQUEST['page'] === 'luxe_phrase' || $_REQUEST['page'] === 'luxe_code' || $_REQUEST['page'] === 'luxe_high' || $_REQUEST['page'] === 'luxe_edit' ) {
 				add_settings_error( 'luxe-custom', $_POST['option_page'], __( 'The theme selected is not the child theme, but the parent theme', 'luxeritas' ), 'error' );
 				return false;
 			}
@@ -353,20 +480,17 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'pwa_bg_color', 'text' );
 				thk_customize_result_set( 'pwa_manifest', 'checkbox' );
 				thk_customize_result_set( 'pwa_enable', 'checkbox' );
-				//thk_customize_result_set( 'pwa_mobile', 'checkbox' );
+				thk_customize_result_set( 'pwa_mobile', 'checkbox' );
 				thk_customize_result_set( 'pwa_name', 'text' );
 				thk_customize_result_set( 'pwa_short_name', 'text' );
 				thk_customize_result_set( 'pwa_description', 'text' );
-				thk_customize_result_set( 'pwa_install_mibile', 'checkbox' );
-				thk_customize_result_set( 'pwa_install_widget', 'checkbox' );
 				thk_customize_result_set( 'pwa_start_url', 'select' );
 				thk_customize_result_set( 'pwa_offline_enable', 'checkbox' );
-				thk_customize_result_set( 'pwa_offline_page', 'select' );
 				thk_customize_result_set( 'pwa_install_button', 'checkbox' );
+				thk_customize_result_set( 'pwa_offline_page', 'select' );
 				thk_customize_result_set( 'pwa_display', 'select' );
 				thk_customize_result_set( 'pwa_orientation', 'select' );
 				thk_customize_result_set( 'pwa_dynamic_files', 'checkbox' );
-				thk_customize_result_set( 'pwa_admin_cache_delete', 'checkbox' );
 			}
 			elseif( $_POST['option_page'] === 'optimize' ) {
 				// HTML
@@ -382,9 +506,8 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'luxe_mode_select', 'radio' );
 				// Inline Style
 				thk_customize_result_set( 'css_to_style', 'checkbox' );
-				//thk_customize_result_set( 'css_to_plugin_style', 'checkbox' );
 				thk_customize_result_set( 'wp_block_library_load', 'select' );
-				thk_customize_result_set( 'wp_disable_duotone', 'checkbox' );
+				thk_customize_result_set( 'css_to_plugin_style', 'checkbox' );
 				// Child CSS
 				thk_customize_result_set( 'child_css', 'checkbox' );
 				// Syntax highlighter
@@ -393,7 +516,6 @@ add_action( 'admin_init', function() {
 				$widget_css = array(
 					'css_search',
 					'css_archive',
-					'css_archive_drop',
 					'css_calendar',
 					'css_tagcloud',
 					'css_new_post',
@@ -402,7 +524,6 @@ add_action( 'admin_init', function() {
 					'css_follow_button',
 					'css_rss_feedly',
 					'css_qr_code',
-					'css_pwa_install_box',
 				);
 				$widget_no_amp = array(
 					'css_search'	=> true,
@@ -431,7 +552,6 @@ add_action( 'admin_init', function() {
 			}
 			elseif( $_POST['option_page'] === 'lazyload' ) {
 				// Lazy Load
-				thk_customize_result_set( 'lazyload_type', 'radio' );
 				thk_customize_result_set( 'lazyload_thumbs', 'checkbox' );
 				thk_customize_result_set( 'lazyload_contents', 'checkbox' );
 				thk_customize_result_set( 'lazyload_sidebar', 'checkbox' );
@@ -442,17 +562,18 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'lazyload_effect', 'radio' );
 			}
 			elseif( $_POST['option_page'] === 'icon' ) {
-				// Icon fonts
-				thk_customize_result_set( 'material_load', 'checkbox' );
-				thk_customize_result_set( 'material_add_rounded', 'checkbox' );
-				thk_customize_result_set( 'material_add_sharp', 'checkbox' );
-				thk_customize_result_set( 'material_add_two_tone', 'checkbox' );
-				thk_customize_result_set( 'material_load_async', 'select' );
-				thk_customize_result_set( 'awesome_load', 'checkbox' );
+				// Font Awesome
 				thk_customize_result_set( 'awesome_version', 'radio' );
-				thk_customize_result_set( 'awesome_load_async', 'select' );
-				thk_customize_result_set( 'awesome_type', 'radio' );
+				thk_customize_result_set( 'awesome_load', 'radio' );
 				thk_customize_result_set( 'awesome_4_support', 'checkbox' );
+				thk_customize_result_set( 'awesome_load_async', 'select' );
+				//thk_customize_result_set( 'awesome_css_type', 'radio' );
+				thk_customize_result_set( 'awesome_load_css_file', 'radio' );
+				if( isset( $_POST['awesome_load_css_file'] ) && $_POST['awesome_load_css_file'] === 'cdn' ) {
+					$_POST['awesome_load_file'] = 'cdn';
+				}
+				thk_customize_result_set( 'awesome_load_file', 'radio' );
+				thk_customize_result_set( 'awesome_load_js_file', 'radio' );
 			}
 			elseif( $_POST['option_page'] === 'search' ) {
 				thk_customize_result_set( 'search_extract', 'radio' );
@@ -467,7 +588,7 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'search_extract_length', 'text' );
 				thk_customize_result_set( 'highlight_radius', 'text' );
 			}
-			elseif( $_POST['option_page'] === 'comment' ) {
+			elseif( $_POST['option_page'] === 'captcha' ) {
 				thk_customize_result_set( 'captcha_enable', 'radio' );
 				thk_customize_result_set( 'recaptcha_site_key', 'text' );
 				thk_customize_result_set( 'recaptcha_secret_key', 'text' );
@@ -509,12 +630,8 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'prevent_email_links', 'checkbox' );
 				thk_customize_result_set( 'prevent_address_links', 'checkbox' );
 				thk_customize_result_set( 'prevent_comment_links', 'checkbox' );
-				thk_customize_result_set( 'allow_self_pingback', 'checkbox' );
-				thk_customize_result_set( 'smooth_scroll_off', 'checkbox' );
-				thk_customize_result_set( 'smooth_scroll_hash', 'checkbox' );
 				thk_customize_result_set( 'user_scalable', 'radio' );
 				thk_customize_result_set( 'hide_luxe_adminbar', 'checkbox' );
-				thk_customize_result_set( 'block_based_widgets_enable', 'checkbox', 'admin' );
 				thk_customize_result_set( 'categories_a_inner', 'checkbox' );
 				thk_customize_result_set( 'archives_a_inner', 'checkbox' );
 				thk_customize_result_set( 'parent_css_uncompress', 'checkbox', 'admin' );
@@ -602,8 +719,6 @@ add_action( 'admin_init', function() {
 					}
 				}
 				unset( $widgets );
-
-				thk_customize_result_set( 'block_based_widgets_enable', 'checkbox', 'admin' );
 			}
 			elseif( $_POST['option_page'] === 'restore' || $_POST['option_page'] === 'restore_appearance' ) {
 				require( INC . 'restore.php' );
@@ -613,11 +728,6 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'sns_count_cache_cleanup', 'checkbox' );
 				thk_customize_result_set( 'blogcard_cache_cleanup', 'checkbox' );
 				thk_customize_result_set( 'blogcard_cache_expire_cleanup', 'checkbox' );
-			}
-			elseif( $_POST['option_page'] === 'pattern' || $_POST['option_page'] === 'pattern_options' ) {
-				if( $_POST['option_page'] === 'pattern' ) {
-					require( INC . 'block-pattern-regist.php' );
-				}
 			}
 			elseif( $_POST['option_page'] === 'phrase' || $_POST['option_page'] === 'phrase_options' ) {
 				if( $_POST['option_page'] === 'phrase' ) {
@@ -667,8 +777,11 @@ add_action( 'admin_init', function() {
 					$json_file = SPATH . DSEP . 'design' . DSEP . $_POST['design_select'] . DSEP . 'luxe-appearance.json';
 
 					if( file_exists( $json_file ) === true ) {
-						thk_filesystem_init();
 						global $wp_filesystem;
+
+						require_once( INC . 'optimize.php' );
+						$filesystem = new thk_filesystem();
+						if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 						$json = $wp_filesystem->get_contents( $json_file );
 						$json = (array)@json_decode( $json );
@@ -689,8 +802,11 @@ add_action( 'admin_init', function() {
 				}
 			}
 			elseif( ( $_POST['option_page'] === 'design_delete' && isset( $_POST['design_delete'] ) ) || ( $_POST['option_page'] === 'design_reset' && isset( $_POST['design_reset'] ) && $_POST['design_reset'] === 'default-template' ) ) {
-				thk_filesystem_init();
 				global $wp_filesystem;
+				require_once( INC . 'optimize.php' );
+
+				$filesystem = new thk_filesystem();
+				if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 				$del_base = isset( $_POST['design_reset'] ) ? 'default-template' : $_POST['design_delete'];
 				$del_dir = SPATH . DSEP . 'design' . DSEP . $del_base . DSEP;
@@ -707,7 +823,7 @@ add_action( 'admin_init', function() {
 						$dst .= DSEP . 'default-template';
 						if( $result = $wp_filesystem->mkdir( $dst, FS_CHMOD_DIR ) === true ) {
 							$result = copy_dir( $src, $dst );
-							$wp_filesystem->copy( $src . DSEP . 'screenshot-en_US.png', $dst . DSEP . 'screenshot.png' );
+							@copy( $src . DSEP . 'screenshot-en_US.png', $dst . DSEP . 'screenshot.png' );
 						}
 					}
 				}
@@ -766,7 +882,6 @@ add_action( 'admin_init', function() {
 				thk_customize_result_set( 'jquery_load', 'select' );
 				thk_customize_result_set( 'jquery_defer', 'checkbox' );
 				thk_customize_result_set( 'buffering_enable', 'checkbox' );
-				thk_customize_result_set( 'lazyload_type', 'radio' );
 				thk_customize_result_set( 'lazyload_thumbs', 'checkbox' );
 				thk_customize_result_set( 'lazyload_contents', 'checkbox' );
 				thk_customize_result_set( 'lazyload_sidebar', 'checkbox' );
@@ -800,8 +915,11 @@ add_action( 'admin_init', function() {
 			) {
 				if( TPATH === SPATH ) return false;
 
-				$filesystem = thk_filesystem_init();
+				require_once( INC . 'optimize.php' );
 				global $wp_filesystem;
+
+				$filesystem = new thk_filesystem();
+				if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 				$save_file = null;
 				$save_content = '';
@@ -900,7 +1018,7 @@ add_action( 'admin_init', function() {
 			/*
                          * ショートコードの中で CSS や Javascript が必要なもの
 			 */
-			$shortcodes = get_pattern_list( 'shortcode', false, true );
+			$shortcodes = get_phrase_list( 'shortcode', false, true );
 
 			// 吹き出し
 			if( isset( $shortcodes['balloon_left'] ) || isset( $shortcodes['balloon_right'] ) ) {
@@ -949,46 +1067,10 @@ add_action( 'admin_init', function() {
 	}
 
 	/*
-	 * wp version check & file permission and owner check
+	 * file permission and owner check
 	 */
 	add_action( 'admin_notices', function() {
 		global $luxe, $wp_actions;
-
-		if( isset( $GLOBALS['wp_version'] ) ) {
-			//remove_theme_admin_mod( 'wp_version_memory' );
-
-			$wp_version_memory = get_theme_admin_mod( 'wp_version_memory' );
-
-			if( empty( $wp_version_memory ) ) {
-				set_theme_admin_mod( 'wp_version_memory', $GLOBALS['wp_version'] );
-			}
-			elseif( $GLOBALS['wp_version'] !== $wp_version_memory ) {
-				$ajaxurl = admin_url( 'admin-ajax.php' );
-				$wp_version_memory_nonce = wp_create_nonce( 'luxe_wp_version_memory' );
-?>
-<div data-luxe-wp-version-memory="wp_version" class="notice notice-warning is-dismissible">
-	<p><span style="font-weight:bold; color:red"><?php echo __( 'Please delete your browser cache.', 'luxeritas' ); ?></span><br />
-	<?php printf( __( 'WordPress has been upgraded ( %s -&gt; %s ). browser cache may cause a bug.', 'luxeritas' ), $wp_version_memory, $GLOBALS['wp_version'] ); ?></p>
-</div>
-<script>
-jQuery( function($) {
-	$( function() {
-		$( 'div[data-luxe-wp-version-memory] button.notice-dismiss' ).on( "click",
-			function (event) {
-				event.preventDefault();
-
-				$.post( "<?php echo $ajaxurl; ?>", {
-					'action': 'luxe_wp_version_memory_notice',
-					'luxe_wp_version_memory_nonce': '<?php echo $wp_version_memory_nonce; ?>'
-				});
-			}
-		);
-	})
-});
-</script>
-<?php
-	}
-}
 
 		$filesystem = null;
 		$dir_check  = true;
@@ -1053,8 +1135,13 @@ jQuery( function($) {
 
 			foreach( $files as $val ) {
 				if( file_exists( $val ) === false ) {
-					thk_filesystem_init();
+					if( class_exists( 'thk_filesystem' ) === false ) require( INC . 'optimize.php' );
+
 					global $wp_filesystem;
+					if( $filesystem === null ) {
+						$filesystem = new thk_filesystem();
+						$filesystem->init_filesystem();
+					}
 
 					$wp_filesystem->touch( $val );
 					if( file_exists( $val ) === false || ( file_exists( $val ) === true && wp_is_writable( $val ) === false ) ) {
@@ -1164,8 +1251,11 @@ add_action( 'init', function() {
 		if( check_admin_referer( $_POST['option_page'] . '-options', '_wpnonce' ) ) {
 			// SNS カウントキャッシュ CSV ダウンロード
 			if( $_POST['option_page'] === 'sns_csv' ) {
-				thk_filesystem_init();
+				require_once( INC . 'optimize.php' );
 				global $wp_filesystem;
+
+				$filesystem = new thk_filesystem();
+				if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 				$lst = array();
 				$feed = 0;
@@ -1230,8 +1320,9 @@ add_action( 'switch_theme', function() {
 	$wp_rewrite->flush_rules();
 
 	if( file_exists( ABSPATH . 'luxe-manifest.json' ) === true ) {
-		thk_filesystem_init();
-		global $wp_filesystem;
+		require_once( INC . 'optimize.php' );
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 		$wp_filesystem->delete( ABSPATH . 'luxe-manifest.json' );
 	}
 });
@@ -1287,8 +1378,7 @@ function thk_customize_result_set( $key, $type, $target = null ) {
 			$post_key = stripslashes( $post_key );
 
 			if( $type === 'textarea' ) {
-				// 覚書：HTML が書けるフィールドの場合は、戻すときに wp_kses_post 必須。
-				$set_theme_mod( $key, esc_textarea( $post_key ) );
+				$set_theme_mod( $key, str_replace( "\n", '<br />', esc_attr( $post_key ) ) );
 			}
 			else {
 				$set_theme_mod( $key, esc_attr( $post_key ) );
@@ -1380,10 +1470,13 @@ function thk_zip_file_download( $path, $fname, $path_del = false ) {
 			'</p></div>';
 	}
 	else {
-		thk_filesystem_init();
+		require_once( INC . 'optimize.php' );
 		require( INC . 'thk-zip.php' );
 
 		global $wp_filesystem;
+
+		$filesystem = new thk_filesystem();
+		if( $filesystem->init_filesystem( site_url() ) === false ) return false;
 
 		$zip = new thk_zip_compress();
 		$success = $zip->all_zip( $path, $temp );
@@ -1422,21 +1515,18 @@ endif;
 
 /*---------------------------------------------------------------------------
  * 管理画面で Widget などに変更が加わった時の処理
- *  $hook
- *   'updated_option'     : Widget 等の option 変更時
- *   'wp_update_nav_menu' : メニュー保存時
  *---------------------------------------------------------------------------*/
 if( function_exists( 'thk_options_modify' ) === false ):
-function thk_options_modify( $hook = 'updated_option' ) {
+function thk_options_modify() {
 	global $luxe;
 
 	require( INC . 'custom-css.php' );
 	require( INC . 'compress.php' );
 
-	add_filter( $hook, 'thk_compress', 75 );
-	add_filter( $hook, 'thk_parent_css_bind', 80 );
-	add_filter( $hook, 'thk_child_js_comp', 80 );
-	add_filter( $hook, 'thk_create_inline_style', 85 );
+	add_filter( 'updated_option', 'thk_compress', 75 );
+	add_filter( 'updated_option', 'thk_parent_css_bind', 80 );
+	add_filter( 'updated_option', 'thk_child_js_comp', 80 );
+	add_filter( 'updated_option', 'thk_create_inline_style', 85 );
 }
 endif;
 
@@ -1455,80 +1545,6 @@ add_action( 'admin_enqueue_scripts', function() {
 });
 
 /*---------------------------------------------------------------------------
- * wp_head ( by Block-based Widgets )
- *---------------------------------------------------------------------------*/
-if( stripos( $_SERVER['REQUEST_URI'], 'wp-admin/widgets.php' ) !== false ) {
-	// WP 5.8 以上
-	if( version_compare( $GLOBALS['wp_version'], '5.7', '>' ) === true ) {
-		add_action( 'wp_head', function() {
-			global $luxe;
-
-			if( isset( $luxe['block_based_widgets_enable'] ) ) {
-				global $awesome, $widget_concat;
-
-				require( INC . 'icons.php' );
-				require( INC . 'load-block-styles.php' );
-
-				// style.css
-				$style = 'body{ background:none!important }';
-				$style_file = SPATH . DSEP . 'style.min.css';
-
-				if( SPATH === TPATH ) {
-					// 親のみ
-					$style_file_parent = TPATH . DSEP . 'style.min.css';
-					if( file_exists( $style_file_parent ) === false ) $style_file_parent = TPATH . DSEP . 'style.css';
-					if( file_exists( $style_file_parent ) !== false ) {
-						$style .= thk_fgc( $style_file_parent );
-					}
-				}
-				else {
-					if( $luxe['child_css_compress'] !== 'bind' ) {
-						// 親
-						$style_file_parent = TPATH . DSEP . 'style.min.css';
-						if( file_exists( $style_file_parent ) === false ) $style_file_parent = TPATH . DSEP . 'style.css';
-						if( file_exists( $style_file_parent ) !== false ) {
-							$style .= thk_fgc( $style_file_parent );
-						}
-					}
-					// 子
-					$style_file_child = SPATH . DSEP . 'style.replace.min.css';
-					if( file_exists( $style_file_child ) === false ) $style_file_child = SPATH . DSEP . 'style.css';
-					if( file_exists( $style_file_child ) !== false ) {
-						$style .= thk_fgc( $style_file_child );
-					}
-				}
-
-				// icomoon のパス置換
-				$style = str_replace( './fonts/icomoon', TDEL . '/fonts/icomoon', $style );
-
-				// block editor 用 style
-				thk_widget_concat();
-				$block_styles = new thk_block_styles();
-				$style .= $block_styles->block_styles();
-
-				// Material icons or Font Awesom
-				if( isset( $luxe['material_load'] ) ) {
-					wp_enqueue_style( 'material-cdn', $awesome['material']['uri'] . $awesome['material']['css'], array(), false, 'all' );
-				}
-				if( isset( $luxe['awesome_load'] ) ) {
-					wp_enqueue_style( 'awesome-cdn', $awesome['awesome']['uri'] . $awesome['awesome']['css'], array(), false, 'all' );
-				}
-
-				echo	'<style>', $style, '</style>';
-
-				/* カテゴリとアーカイブの件数 A タグを内側にするかどうかのやつ */
-				if( isset( $luxe['categories_a_inner'] ) ) {
-					add_filter( 'wp_list_categories', 'thk_list_categories_archives', 10, 2 );
-				}
-				if( isset( $luxe['archives_a_inner'] ) ) {
-					add_filter( 'get_archives_link', 'thk_list_categories_archives', 10, 2 );
-				}
-			}
-		});
-	}
-}
-
-/*---------------------------------------------------------------------------
  * admin_head
  *---------------------------------------------------------------------------*/
 add_action( 'admin_head', function() {
@@ -1544,7 +1560,6 @@ add_action( 'admin_head', function() {
 	}
 
 	// Web フォント CSS の存在チェック
-	/*
 	if( isset( $_GET['page'] ) && ( $_GET['page'] === 'luxe' || substr( $_GET['page'], 0, 5 ) === 'luxe_' ) ) {
 		if( !isset( $luxe['all_clear'] ) ) {
 			require_once( INC . 'web-font.php' );
@@ -1578,7 +1593,6 @@ add_action( 'admin_head', function() {
 			}
 		}
 	}
-	*/
 
 	$admin_inline_styles = '';
 
@@ -1693,59 +1707,17 @@ add_action( 'admin_head', function() {
 
 	// Site Icon
 	if( has_site_icon() === false ) {
-		// ファビコン
-		$icon = 'fav' . 'icon.ico';
-		if( file_exists( SPATH . DSEP . 'images' . DSEP . $icon ) ) {
+		// favicon.ico
+		if( file_exists( SPATH . DSEP . 'images' . DSEP . 'favicon.ico' ) ) {
 ?>
-<link rel="<?php echo 'icon" href="' . SURI . '/images/' . $icon; ?>" />
+<link rel="icon" href="<?php echo SURI; ?>/images/favicon.ico" />
 <?php
 		}
 		else {
 ?>
-<link rel="<?php echo 'icon" href="' . TURI . '/images/' . $icon; ?>" />
+<link rel="icon" href="<?php echo TURI; ?>/images/favicon.ico" />
 <?php
 		}
-	}
-
-	// ブラウザキャッシュコントロール ( js ファイルには効かない可能性大 )
-	echo "\n";
-?>
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Cache-Control" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
-<?php
-}, 99 );
-
-/*---------------------------------------------------------------------------
- * admin_print_scripts
- *---------------------------------------------------------------------------*/
-add_action( 'admin_print_footer_scripts', function() {
-	global $luxe;
-
-	if( isset( $luxe['pwa_enable'] ) && isset( $luxe['pwa_admin_cache_delete'] ) ) {
-?>
-<script>
-try {
-	!function() {
-		if( 'serviceWorker' in navigator ) {
-			navigator.serviceWorker.getRegistrations().then( function(e) {
-				// 登録されている serviceWorker を削除
-				for( let t of e ) t.unregister();
-			});
-			caches.keys().then( function(e) {
-				var t = [];
-				// このサイトのキャッシュストレージを全削除
-				e.forEach( function(e) {
-					e && t.push( caches.delete(e) );
-				});
-			});
-		}
-	}();
-} catch (e) {
-	console.error("serviceWorker.cache.delete.error: " + e.message)
-}
-</script>
-<?php
 	}
 }, 99 );
 
@@ -1758,15 +1730,9 @@ foreach( array( 'pre_term_description', 'pre_link_description', 'pre_link_notes'
 }
 
 /* Disables Kses only for textarea admin displays */
-foreach( array( 'term_description', 'link_description', 'link_notes', 'user_description' ) as $filter ) {
+foreach( array( 'term_description', 'link_description', 'link_notes', 'user_description') as $filter ) {
 	remove_filter( $filter, 'wp_kses_data' );
 }
-
-/*---------------------------------------------------------------------------
- * メニューの説明文で HTML 使えるようにする（管理画面の TEXTAREA 用）
- *---------------------------------------------------------------------------*/
-remove_filter('nav_menu_description', 'strip_tags');
-add_filter( 'wp_setup_nav_menu_item', 'thk_nav_menu_description_usable_html' );
 
 /*---------------------------------------------------------------------------
  * AMP 用 MU プラグインをコピー
@@ -1791,17 +1757,20 @@ function thk_amp_mu_plugin_copy() {
 	}
 
 	if( file_exists( $dst ) === false || $sv !== $dv ) {
-		thk_filesystem_init();
-		global $wp_filesystem;
-
 		if( file_exists( WPMU_PLUGIN_DIR ) === false ) {
 			if( wp_mkdir_p( WPMU_PLUGIN_DIR ) === false ) {
+				global $wp_filesystem;
+
+				require_once( INC . 'optimize.php' );
+				$_filesystem = new thk_filesystem();
+				if( $_filesystem->init_filesystem() === false ) return false;
+
 				if( $wp_filesystem->is_dir( WPMU_PLUGIN_DIR ) === false ) {
 					$wp_filesystem->mkdir( WPMU_PLUGIN_DIR, FS_CHMOD_DIR );
 				}
 			}
 		}
-		if( $wp_filesystem->copy( $src, $dst ) === false ) {
+		if( @copy( $src, $dst ) === false ) {
 			return false;
 		}
 	}
@@ -1811,7 +1780,7 @@ endif;
 /*---------------------------------------------------------------------------
  * Mime type 追加
  *---------------------------------------------------------------------------*/
-add_filter( 'upload' . '_mimes', function( $mimes ) {
+add_filter( 'upload_mimes', function( $mimes ) {
 	$mimes['json'] = 'application/json';
 	//$mimes['webp'] = 'image/webp';
 	return $mimes;

@@ -15,7 +15,7 @@
  */
 
 if( isset( $_FILES['design-upload'] ) ) {
-	require_once( INC . 'thk-filesystem.php' );
+	require_once( INC . 'optimize.php' );
 	global $wp_filesystem;
 
 	$filesystem = new thk_filesystem();

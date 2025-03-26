@@ -220,9 +220,6 @@ class JSMin {
    * @return bool
    */
   protected function isAlphaNum($c) {
-    if( !isset( $c ) ) {
-        return false;
-    }
     return ord($c) > 126 || $c === '\\' || preg_match('/^[\w\$]$/', $c) === 1;
   }
 
