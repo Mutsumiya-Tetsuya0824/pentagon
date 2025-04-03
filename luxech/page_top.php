@@ -41,7 +41,7 @@
           想いに共感し<span>事業を共に創り上げる</span><br>“アプリ開発パートナー”<br>株式会社ペンタゴン
         </h1>
         <div class="mvImg sp">
-          <img src="<?php echo get_theme_file_uri('/assets/img/materials/top/mv-img.png'); ?>" alt="想いに共感し事業を共に創り上げる“アプリ開発パートナー”株式会社ペンタゴン">
+          <img src="<?php echo get_theme_file_uri('/assets/img/materials/top/mv-img.png'); ?>" alt="想いに共感し事業を共に創り上げる“アプリ開発パートナー”株式会社ペンタゴン" class="skip-lazy">
         </div>
         <p class="txt l-s08">
           株式会社ペンタゴンは、<span class="pink_line">iOS・Android・Webアプリの開発支援</span>を行っています。<br class="pc-only">
@@ -58,7 +58,7 @@
         </div>
       </div>
       <div class="mvImg pc">
-        <img src="<?php echo get_theme_file_uri('/assets/img/materials/top/mv-img.png'); ?>" alt="想いに共感し事業を共に創り上げる“アプリ開発パートナー”株式会社ペンタゴン">
+        <img src="<?php echo get_theme_file_uri('/assets/img/materials/top/mv-img.png'); ?>" alt="想いに共感し事業を共に創り上げる“アプリ開発パートナー”株式会社ペンタゴン" class="skip-lazy">
       </div>
     </div>
   </div>

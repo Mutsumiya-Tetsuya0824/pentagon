@@ -78,8 +78,15 @@ $cate = get_the_category($post->ID)[0];
 							if (isset($luxe['thumb_auto_post']) && isset($luxe['thumb_auto_insert_position'])) {
 								if ($luxe['thumb_auto_insert_position'] === 'top') {
 									$post_thumbnail = has_post_thumbnail();
-									if ($post_thumbnail === true) {	// タイトル上サムネイル
-										echo '<figure id="post-thumbnail">', thk_get_the_post_thumbnail($post->ID, 'full', array('itemprop' => 'image', 'class' => 'post_thumbnail')), '</figure>';
+									if ($post_thumbnail === true) {
+										echo '<figure id="post-thumbnail">' .
+										get_the_post_thumbnail($post->ID, 'full', array(
+										  'itemprop' => 'image',
+										  'class'    => 'post_thumbnail',
+										  'loading'  => 'eager',
+										  'fetchpriority' => 'high'
+										)) .
+										'</figure>';
 									}
 								}
 								if ($luxe['thumb_auto_insert_position'] === 'background') {

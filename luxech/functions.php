@@ -832,12 +832,43 @@ if (function_exists('thk_regenerate_files')) {
 
 
 
-function load_material_icons() {
-  wp_enqueue_style(
-    'material-icons',
-    'https://fonts.googleapis.com/icon?family=Material+Icons',
-    [],
-    null
-  );
-}
-add_action('wp_enqueue_scripts', 'load_material_icons');
+add_action('wp_enqueue_scripts', function() {
+  if ( is_front_page() ) {
+    wp_enqueue_style(
+      'google-fonts-top-only',
+      'https://fonts.googleapis.com/icon?family=Material+Icons',
+      array(),
+      null
+    );
+  }
+});
+
+
+
+add_action('after_setup_theme', function () {
+  global $luxe;
+
+  if (!is_array($luxe)) {
+    $luxe = [];
+  }
+
+  // LazyLoad関連の設定を完全に無効化
+  unset($luxe['lazyload_thumbs']);
+  unset($luxe['lazyload_contents']);
+  unset($luxe['lazyload_sidebar']);
+  unset($luxe['lazyload_footer']);
+});
+
+
+add_filter('wp_get_attachment_image_attributes', function($attr, $attachment, $size) {
+  // lazy クラスや data-src などを完全除去
+  if (isset($attr['class'])) {
+    $attr['class'] = str_replace('lazy', '', $attr['class']);
+  }
+  unset($attr['data-src']);
+  unset($attr['data-srcset']);
+  unset($attr['data-lazy-src']);
+  unset($attr['data-lazy-srcset']);
+  return $attr;
+}, 99, 3); // ← 低い優先度で上書きされないよう 99 に
+

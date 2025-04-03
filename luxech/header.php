@@ -20,9 +20,9 @@ global $luxe, $_is, $post;
 if (!isset($content_width)) $content_width = 1280;	// これ無いとチェックで怒られる
 
 $cls = '';
-if (isset($luxe['lazyload_thumbs']) || isset($luxe['lazyload_contents']) || isset($luxe['lazyload_sidebar']) || isset($luxe['lazyload_footer'])) {
-	$cls = 'class="no-js" ';
-}
+// if (isset($luxe['lazyload_thumbs']) || isset($luxe['lazyload_contents']) || isset($luxe['lazyload_sidebar']) || isset($luxe['lazyload_footer'])) {
+// 	$cls = 'class="no-js" ';
+// }
 
 if ($_is['edit_posts'] === true && isset($_GET['respond_preview'])) {
 	require(INC . 'respond.php');
@@ -162,6 +162,18 @@ if (isset($luxe['facebook_ogp_enable']) && !isset($luxe['amp'])) {
 		}
 		if (isset($luxe['buffering_enable'])) thk_flash();
 		?>
+
+<?php
+if (is_single() && has_post_thumbnail()) {
+  $thumb_url = get_the_post_thumbnail_url(null, 'full');
+  if ($thumb_url):
+?>
+  <link rel="preload" as="image" href="<?php echo esc_url($thumb_url); ?>" fetchpriority="high">
+<?php
+  endif;
+}
+?>
+
 		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Open+Sans&display=swap" rel="stylesheet">
 		</head>
 

@@ -53,7 +53,7 @@ if ( ! empty( $categories ) && isset( $categories[0] ) ) {
             </div>
         </div>
         <div class="formBlock">
-			<?php echo do_shortcode('[contact-form-7 id="6748" title="お問い合わせフォームA"]'); ?>
+			<?php echo do_shortcode('[contact-form-7 id="84bf83f" title="NEW お問い合わせフォーム"]'); ?>
 		</div>
     </div>
 </div>
